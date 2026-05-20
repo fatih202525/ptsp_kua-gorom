@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard v3 — PTSP KUA Pulau Gorom</title>
+<title>Dashboard v4 — PTSP KUA Pulau Gorom</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -394,29 +394,143 @@ tr:hover td{background:rgba(250,246,238,.7);}
 
 <script>
 // ============================================================
-// CLOUD STORAGE + BROADCAST CHANNEL (Real-time sync lintas perangkat)
+// FIREBASE REALTIME DATABASE — SINKRON LINTAS PERANGKAT
 // ============================================================
-const STORE_KEY = 'ptsp_kuapg_db_v3';
-const CLOUD_KEY = 'ptsp-kua-db';
-let BC = null;
-try { BC = new BroadcastChannel('ptsp_kuapg_v3'); } catch(e) {}
+// ⚠️  GANTI BAGIAN INI DENGAN firebaseConfig DARI CONSOLE FIREBASE ANDA
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyBzrZLEFdVMR_Ja7f850Eup0kYb_YgnFF0",
+  authDomain:        "ptsp-kuapulaugorom.firebaseapp.com",
+  databaseURL:       "https://ptsp-kuapulaugorom-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "ptsp-kuapulaugorom",
+  storageBucket:     "ptsp-kuapulaugorom.firebasestorage.app",
+  messagingSenderId: "671254497977",
+  appId:             "1:671254497977:web:679d78502a47fa7fc96968",
+  measurementId:     "G-ZN0JVZLZ3G"
+};
+// ============================================================
 
-// Cloud storage helpers (window.storage = Artifact Storage API)
-async function cloudSave(data) {
-  try {
-    if(window.storage) await window.storage.set(CLOUD_KEY, JSON.stringify(data), true);
-  } catch(e) {}
-}
-async function cloudLoad() {
-  try {
-    if(window.storage) {
-      const r = await window.storage.get(CLOUD_KEY, true);
-      if(r && r.value) return JSON.parse(r.value);
+const STORE_KEY  = 'ptsp_kuapg_db_v4';   // localStorage fallback key
+const FB_PATH    = 'ptsp_kua_db';         // path di Realtime Database
+let   _fbRef     = null;                  // Firebase database reference
+let   _fbReady   = false;                 // apakah Firebase sudah tersambung
+let   _ignoreNext = false;                // hindari loop saat kita sendiri write
+
+// Broadcast Channel untuk sinkron antar tab di browser yang sama
+let BC = null;
+try { BC = new BroadcastChannel('ptsp_kuapg_v4'); } catch(e) {}
+
+/* ---------- Inisialisasi Firebase ---------- */
+async function initFirebase() {
+  return new Promise((resolve) => {
+    // Muat Firebase SDK via CDN
+    const scripts = [
+      'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
+      'https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js'
+    ];
+    let loaded = 0;
+    function tryConnect() {
+      loaded++;
+      if (loaded < scripts.length) return;
+      try {
+        firebase.initializeApp(FIREBASE_CONFIG);
+        const db = firebase.database();
+        _fbRef = db.ref(FB_PATH);
+        _fbReady = true;
+
+        // Monitor koneksi Firebase (online/offline)
+        firebase.database().ref('.info/connected').on('value', (snap) => {
+          const el = document.getElementById('syncLabel');
+          if (!el) return;
+          if (snap.val() === true) {
+            el.textContent = '🟢 Firebase online ✓ ' + new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+          } else {
+            el.textContent = '🔴 Offline — menunggu koneksi...';
+          }
+        });
+
+        // Listener realtime: setiap ada perubahan di DB, semua perangkat langsung diperbarui
+        _fbRef.on('value', (snapshot) => {
+          if (_ignoreNext) { _ignoreNext = false; return; }
+          const data = snapshot.val();
+          if (data && data.permohonan) {
+            DB = data;
+            try { localStorage.setItem(STORE_KEY, JSON.stringify(DB)); } catch(e) {}
+            if (currentUser) {
+              renderPage(currentPage);
+              const el = document.getElementById('syncLabel');
+              if(el) el.textContent = '🔄 Diperbarui ' + new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+            }
+          } else if (!snapshot.val()) {
+            // Database kosong — upload DEFAULT_DB sebagai data awal
+            if (!DB || !DB.permohonan) DB = JSON.parse(JSON.stringify(DEFAULT_DB));
+            _fbRef.set(DB);
+          }
+        }, (err) => {
+          console.warn('Firebase listener error:', err.code, err.message);
+          const el = document.getElementById('syncLabel');
+          if(el) el.textContent = '⚠️ ' + (err.code === 'PERMISSION_DENIED' ? 'Cek Rules Firebase (PERMISSION_DENIED)' : err.message);
+        });
+
+        document.getElementById('syncLabel').textContent = '☁️ Firebase terhubung ✓';
+        resolve(true);
+      } catch(err) {
+        console.warn('Firebase gagal:', err);
+        resolve(false);
+      }
     }
-  } catch(e) {}
-  return null;
+    scripts.forEach(src => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = tryConnect;
+      s.onerror = () => { loaded++; tryConnect(); };
+      document.head.appendChild(s);
+    });
+  });
 }
-let lastCloudTs = 0;
+
+/* ---------- Simpan ke Firebase + localStorage ---------- */
+function saveDB() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(DB)); } catch(e) {}
+  if (_fbReady && _fbRef) {
+    _ignoreNext = true;
+    _fbRef.set(DB).catch(() => { _ignoreNext = false; });
+  }
+  if (BC) BC.postMessage({ type: 'db_update', ts: Date.now() });
+  const el = document.getElementById('syncLabel');
+  if (el) el.textContent = '✅ Tersimpan & disinkron ' +
+    new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+}
+
+/* ---------- Load awal dari localStorage ---------- */
+function loadDB() {
+  try { const s = localStorage.getItem(STORE_KEY); if (s) return JSON.parse(s); } catch(e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_DB));
+}
+
+/* ---------- Init DB: localStorage dulu, lalu Firebase override ---------- */
+async function initDB() {
+  DB = loadDB(); // tampilkan data lokal dulu supaya login tidak blocking
+  const ok = await initFirebase();
+  if (!ok) {
+    // Firebase gagal (salah config / offline) — tetap jalan dengan localStorage
+    document.getElementById('syncLabel').textContent = '⚠️ Mode lokal (cek config Firebase)';
+    const cs = document.getElementById('cloudStatus');
+    if (cs) cs.innerHTML = '<span style="width:7px;height:7px;border-radius:50%;background:#d35400;display:inline-block;"></span> ⚠️ Firebase tidak terhubung — mode lokal';
+  }
+}
+
+/* ---------- BroadcastChannel: sinkron antar tab di browser yang sama ---------- */
+if (BC) {
+  BC.onmessage = (e) => {
+    if (e.data.type === 'db_update') {
+      const fresh = loadDB();
+      if (JSON.stringify(fresh) !== JSON.stringify(DB)) {
+        DB = fresh;
+        if (currentUser) renderPage(currentPage);
+      }
+    }
+  };
+}
 
 // ============================================================
 // DEFAULT DATABASE (mirrors superadmin DB)
@@ -513,7 +627,7 @@ const DEFAULT_DB = {
 };
 
 // ============================================================
-// DB MANAGEMENT (localStorage + Cloud Storage sinkron lintas perangkat)
+// VARIABEL GLOBAL
 // ============================================================
 let DB = null;
 let currentUser = null;
@@ -521,63 +635,6 @@ let editTarget = null;
 let currentPerm = null;
 let confirmCb = null;
 let currentPage = 'dashboard';
-let _syncPending = false;
-
-function loadDB(){
-  try{const s=localStorage.getItem(STORE_KEY);if(s)return JSON.parse(s);}catch(e){}
-  return JSON.parse(JSON.stringify(DEFAULT_DB));
-}
-function saveDB(){
-  try{localStorage.setItem(STORE_KEY,JSON.stringify(DB));}catch(e){}
-  cloudSave(DB); // Simpan ke cloud (lintas perangkat)
-  if(BC)BC.postMessage({type:'db_update',ts:Date.now()});
-  document.getElementById('syncLabel').textContent='Tersimpan: '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-}
-
-// Init DB: coba cloud dulu, fallback ke localStorage
-async function initDB(){
-  const cloud = await cloudLoad();
-  if(cloud && cloud.permohonan){
-    DB = cloud;
-    try{localStorage.setItem(STORE_KEY,JSON.stringify(DB));}catch(e){}
-  } else {
-    DB = loadDB();
-  }
-  document.getElementById('syncLabel').textContent='Cloud terhubung ✓';
-}
-
-// Real-time updates dari tab lain (BroadcastChannel)
-if(BC){
-  BC.onmessage=(e)=>{
-    if(e.data.type==='db_update'){
-      const fresh=loadDB();
-      if(JSON.stringify(fresh)!==JSON.stringify(DB)){
-        DB=fresh;
-        if(currentUser){renderPage(currentPage);toast('🔄 Data diperbarui');}
-      }
-    }
-  };
-}
-
-// Poll cloud setiap 5 detik untuk sinkron antar perangkat berbeda
-setInterval(async ()=>{
-  if(!currentUser||_syncPending)return;
-  _syncPending=true;
-  try {
-    const fresh = await cloudLoad();
-    if(fresh && fresh.permohonan && JSON.stringify(fresh)!==JSON.stringify(DB)){
-      DB=fresh;
-      try{localStorage.setItem(STORE_KEY,JSON.stringify(DB));}catch(e){}
-      renderPage(currentPage);
-      document.getElementById('syncLabel').textContent='🔄 Diperbarui: '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-      // update badge count
-      document.querySelectorAll('.badge-count').forEach(b=>{b.textContent=DB.permohonan.filter(p=>p.status==='Menunggu').length;});
-    } else {
-      document.getElementById('syncLabel').textContent='Terhubung ✓ '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-    }
-  } catch(e){}
-  _syncPending=false;
-},5000);
 
 // ============================================================
 // AUTH & ROLE CONFIG
@@ -2586,17 +2643,16 @@ function toast(msg,dur=3500){
   clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),dur);
 }
 
-// Force manual cloud sync
+// Force manual sync ke Firebase
 async function forceSyncCloud(){
-  toast('☁️ Menyinkronkan ke cloud...');
-  await cloudSave(DB);
-  const fresh = await cloudLoad();
-  if(fresh && fresh.permohonan){
-    DB=fresh;
-    try{localStorage.setItem(STORE_KEY,JSON.stringify(DB));}catch(e){}
-    renderPage(currentPage);
+  if (!_fbReady || !_fbRef) { toast('⚠️ Firebase belum terhubung. Cek konfigurasi.'); return; }
+  toast('☁️ Menyinkronkan ke Firebase...');
+  try {
+    await _fbRef.set(DB);
+    toast('✅ Sinkronisasi selesai! Semua perangkat akan segera diperbarui.');
+  } catch(e) {
+    toast('❌ Gagal sinkron: ' + e.message);
   }
-  toast('✅ Sinkronisasi cloud selesai! Semua perangkat dapat mengakses data terbaru.');
 }
 
 // Close modals on background click
@@ -2617,15 +2673,14 @@ document.querySelectorAll('.role-tab')[0]?.click();
 (async function startApp(){
   const loginBtn = document.querySelector('.btn-login-main');
   const cloudStatusEl = document.getElementById('cloudStatus');
-  if(loginBtn){loginBtn.textContent='⏳ Menghubungkan ke cloud...';loginBtn.disabled=true;}
-  try {
-    await initDB();
-    if(cloudStatusEl) cloudStatusEl.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:#52b788;display:inline-block;animation:pulse 2s infinite;"></span> ☁️ Cloud terhubung — data realtime aktif';
-  } catch(e) {
-    DB = loadDB();
-    if(cloudStatusEl) cloudStatusEl.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:#d35400;display:inline-block;"></span> ⚠️ Mode lokal (offline)';
-  }
+  if(loginBtn){loginBtn.textContent='⏳ Menghubungkan Firebase...';loginBtn.disabled=true;}
+  await initDB();
   if(loginBtn){loginBtn.textContent='🔐 Masuk ke Dashboard';loginBtn.disabled=false;}
+  if(cloudStatusEl && _fbReady){
+    cloudStatusEl.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:#52b788;display:inline-block;animation:pulse 2s infinite;"></span> ☁️ Firebase terhubung — realtime aktif dari semua perangkat';
+  } else if(cloudStatusEl){
+    cloudStatusEl.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:#d35400;display:inline-block;"></span> ⚠️ Mode lokal — isi firebaseConfig untuk sinkron lintas perangkat';
+  }
 })();
 </script>
 </body>
