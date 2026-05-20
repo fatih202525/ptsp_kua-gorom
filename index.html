@@ -575,31 +575,14 @@ const DEFAULT_DB = {
     {id:6,nama:'Publik',kode:'PBL',warna:'#7a8a7a',desk:'Ajukan permohonan online',jumlah:247,status:'Aktif'},
   ],
   pengguna:[
-    {id:1,nama:"Sa'ban Marasabessy",username:'superadmin',email:'saban@kuapg.go.id',level:'Super Admin',unit:'Semua Unit',login:'Hari ini',status:'Aktif'},
-    {id:2,nama:'Fatimah Rumeon',username:'fatimah.admin',email:'fatimah@kuapg.go.id',level:'Admin',unit:'Unit Administrasi',login:'Kemarin',status:'Aktif'},
-    {id:3,nama:'Umar Tuasikal',username:'umar.opr',email:'umar@kuapg.go.id',level:'Operator',unit:'Unit Nikah',login:'2 hari lalu',status:'Aktif'},
-    {id:4,nama:'H. Yahya Pattiasina',username:'yahya.pmp',email:'yahya@kuapg.go.id',level:'Pimpinan',unit:'Kepala KUA',login:'Hari ini',status:'Aktif'},
-    {id:5,nama:'Siti Rahmawati',username:'siti.stf',email:'siti@kuapg.go.id',level:'Staff',unit:'Unit Administrasi',login:'Hari ini',status:'Aktif'},
-    {id:6,nama:'Ahmad Basrun',username:'ahmad.opr',email:'ahmad@kuapg.go.id',level:'Operator',unit:'Unit Wakaf',login:'3 hari lalu',status:'Aktif'},
-    {id:7,nama:'Barakah Leimena',username:'barakah.stf',email:'barakah@kuapg.go.id',level:'Staff',unit:'Unit Nikah',login:'Seminggu lalu',status:'Nonaktif'},
+    {id:1,nama:"Mukmin007",username:'mukmin007',email:'mukmin@kuapg.go.id',level:'Super Admin',unit:'Semua Unit',login:'Hari ini',status:'Aktif'},
   ],
   permohonan:[
-    {id:1,ref:'KUA-2026-1001',nama:'Ahmad Basrun',jenis:'Pencatatan Nikah',tgl:'17 Mei 2026',unit:'Unit Nikah',status:'Diproses',nik:'3210000001',telp:'0821-1111-2222',catatan:''},
-    {id:2,ref:'KUA-2026-1002',nama:'Siti Rahmawati',jenis:'Legalisasi Dokumen',tgl:'16 Mei 2026',unit:'Unit Administrasi',status:'Selesai',nik:'3210000002',telp:'0812-3333-4444',catatan:'Selesai tepat waktu'},
-    {id:3,ref:'KUA-2026-1003',nama:'Umar Tuasikal',jenis:'Wakaf & Ibadah Sosial',tgl:'15 Mei 2026',unit:'Unit Wakaf',status:'Menunggu',nik:'3210000003',telp:'0813-5555-6666',catatan:''},
-    {id:4,ref:'KUA-2026-1004',nama:'Halimah Marasabessy',jenis:'Arsip & Duplikat Dokumen',tgl:'14 Mei 2026',unit:'Unit Administrasi',status:'Diproses',nik:'3210000004',telp:'0811-7777-8888',catatan:''},
-    {id:5,ref:'KUA-2026-1005',nama:'Barakah Leimena',jenis:'Bimbingan Keagamaan',tgl:'13 Mei 2026',unit:'Unit Bimbingan',status:'Selesai',nik:'3210000005',telp:'0822-9999-0000',catatan:''},
-    {id:6,ref:'KUA-2026-1006',nama:'Yahya Pattiasina',jenis:'Pencatatan Nikah',tgl:'12 Mei 2026',unit:'Unit Nikah',status:'Ditolak',nik:'3210000006',telp:'0821-1122-3344',catatan:'Dokumen tidak lengkap'},
-    {id:7,ref:'KUA-2026-1007',nama:'Nur Fadilah',jenis:'Legalisasi Dokumen',tgl:'11 Mei 2026',unit:'Unit Administrasi',status:'Selesai',nik:'3210000007',telp:'0812-5566-7788',catatan:''},
-    {id:8,ref:'KUA-2026-1008',nama:'Ismail Rumeon',jenis:'Pencatatan Nikah',tgl:'10 Mei 2026',unit:'Unit Nikah',status:'Diproses',nik:'3210000008',telp:'0813-9900-1122',catatan:''},
   ],
   disposisi:[
-    {id:1,ref:'KUA-2026-1001',nama:'Ahmad Basrun',dari:'Pimpinan',kepada:'Operator Nikah',instruksi:'Proses sesuai SOP, prioritas.',tgl:'17 Mei',status:'Diterima'},
-    {id:2,ref:'KUA-2026-1003',nama:'Umar Tuasikal',dari:'Admin',kepada:'Unit Wakaf',instruksi:'Verifikasi lapangan terlebih dahulu.',tgl:'15 Mei',status:'Menunggu'},
+ 
   ],
   arsip:[
-    {id:1,ref:'KUA-2026-0902',nama:'Barakah Leimena',jenis:'Bimbingan Keagamaan',tglArsip:'13 Mei 2026',operator:'Siti Rahmawati'},
-    {id:2,ref:'KUA-2026-0901',nama:'Nur Fadilah',jenis:'Legalisasi Dokumen',tglArsip:'11 Mei 2026',operator:'Fatimah Rumeon'},
   ],
   menu:[
     {id:1,ikon:'🏠',label:'Beranda',url:'#beranda',aktif:true},
@@ -647,14 +630,6 @@ let currentPage = 'dashboard';
 // AUTH & ROLE CONFIG
 // ============================================================
 const CREDS={
-  'superadmin':   {pass:'super123', role:'SuperAdmin',id:1},
-  'fatimah.admin':{pass:'admin123',role:'Admin',id:2},
-  'umar.opr':     {pass:'opr123',  role:'Operator',id:3},
-  'yahya.pmp':    {pass:'pmp123',  role:'Pimpinan',id:4},
-  'siti.stf':     {pass:'stf123',  role:'Staff',id:5},
-  'ahmad.opr':    {pass:'opr123',  role:'Operator',id:6},
-  'barakah.stf':  {pass:'stf123',  role:'Staff',id:7},
-  'publik':       {pass:'pub123',  role:'Publik',id:null},
 };
 function getCredsForUser(username,pass){
   if(CREDS[username]&&CREDS[username].pass===pass) return CREDS[username];
