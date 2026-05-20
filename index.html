@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -21,6 +22,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--td);display:
 
 /* ===== SIDEBAR ===== */
 #sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--gd);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;transition:width .25s;z-index:50;}
+#sidebarMenu{overflow-y:auto;flex:1;}
 .sb-logo{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:12px;}
 .sb-logo-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 2px 6px rgba(212,160,23,.5));}
 .sb-logo-icon img{width:44px;height:44px;object-fit:contain;}
@@ -46,7 +48,11 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--td);display:
 
 /* ===== MAIN ===== */
 #main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-#topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,.05);flex-shrink:0;}
+#topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,.05);flex-shrink:0;overflow-x:auto;}
+/* Tab scroll helper */
+.tab-scroll-wrap{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin;}
+.tab-scroll-wrap::-webkit-scrollbar{height:4px;}
+.tab-scroll-wrap::-webkit-scrollbar-thumb{background:rgba(45,106,79,.25);border-radius:2px;}
 .tb-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--gd);font-weight:700;flex:1;}
 .tb-search{display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:7px 14px;font-size:.85rem;color:var(--tl);}
 .tb-search input{border:none;background:transparent;outline:none;font-family:'Lato',sans-serif;font-size:.85rem;color:var(--td);width:180px;}
@@ -209,7 +215,14 @@ tr:hover td{background:rgba(250,246,238,.7);}
 .pengumuman-body p{font-size:.8rem;color:var(--tl);margin-top:4px;line-height:1.5;}
 .pengumuman-body .meta{display:flex;gap:12px;margin-top:8px;font-size:.72rem;color:var(--tl);}
 
-/* ===== SCROLLBAR ===== */
+/* Tab nav bar */
+#tabNav{background:var(--white);border-bottom:2px solid var(--border);padding:0 20px;display:none;overflow-x:auto;flex-shrink:0;white-space:nowrap;scrollbar-width:thin;}
+#tabNav::-webkit-scrollbar{height:4px;}
+#tabNav::-webkit-scrollbar-thumb{background:rgba(45,106,79,.25);border-radius:2px;}
+.tab-nav-item{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;font-size:.82rem;font-weight:700;color:var(--tl);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap;}
+.tab-nav-item:hover{color:var(--gm);background:rgba(45,106,79,.04);}
+.tab-nav-item.active{color:var(--gm);border-bottom-color:var(--gm);}
+
 ::-webkit-scrollbar{width:6px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:rgba(45,106,79,.25);border-radius:3px;}
@@ -235,6 +248,10 @@ tr:hover td{background:rgba(250,246,238,.7);}
 .role-tab .rt-label{font-size:.68rem;font-weight:700;color:var(--tl);display:block;letter-spacing:.04em;}
 .role-tab.selected{border-color:var(--gl);background:rgba(45,106,79,.08);}
 .role-tab.selected .rt-label{color:var(--gl);}
+.role-tab-sa{border-color:rgba(212,160,23,.4);background:rgba(212,160,23,.05);}
+.role-tab-sa .rt-label{color:#7a5000;}
+.role-tab-sa.selected{border-color:var(--gold);background:rgba(212,160,23,.15);}
+.role-tab-sa.selected .rt-label{color:#7a3800;}
 .lg-group{margin-bottom:14px;}
 .lg-group label{display:block;font-size:.75rem;font-weight:700;color:var(--tm);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;}
 .lg-group input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:'Lato',sans-serif;font-size:.9rem;color:var(--td);background:var(--bg);outline:none;transition:border-color .2s;}
@@ -275,14 +292,7 @@ tr:hover td{background:rgba(250,246,238,.7);}
       <input type="password" id="lgPass" placeholder="Masukkan password" autocomplete="off">
     </div>
     <button class="btn-login-main" onclick="doLogin()">🔐 Masuk ke Dashboard</button>
-    <div class="login-hint">
-      <b>Demo:</b><br>
-      Admin: <code>fatimah.admin</code> / <code>admin123</code><br>
-      Operator: <code>umar.opr</code> / <code>opr123</code><br>
-      Pimpinan: <code>yahya.pmp</code> / <code>pmp123</code><br>
-      Staff: <code>siti.stf</code> / <code>stf123</code><br>
-      Publik: <code>publik</code> / <code>pub123</code>
-    </div>
+    <div class="login-hint" style="color:var(--tl);font-size:.76rem;margin-top:10px;">Hubungi Super Admin jika lupa username atau password.</div>
     <a class="back-link" href="index.html">← Kembali ke Portal Utama</a>
   </div>
 </div>
@@ -317,7 +327,7 @@ tr:hover td{background:rgba(250,246,238,.7);}
     <div class="tb-title" id="tbTitle">Dashboard</div>
     <div class="tb-search">🔍 <input type="text" id="globalSearch" placeholder="Cari data..." oninput="globalSearchFn(this.value)"></div>
     <div class="tb-notif" onclick="toast('📬 Tidak ada notifikasi baru')">🔔<span class="tb-notif-badge" id="notifCount">3</span></div>
-    <div style="display:flex;align-items:center;gap:10px;">
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
       <div style="font-size:.82rem;color:var(--tl);text-align:right;">
         <div style="color:var(--td);font-weight:700;" id="topbarName">—</div>
         <div id="topbarRole">—</div>
@@ -325,6 +335,7 @@ tr:hover td{background:rgba(250,246,238,.7);}
       <div class="tb-avatar" id="topbarAvatar">?</div>
     </div>
   </div>
+  <div id="tabNav"></div>
   <div id="content">
     <!-- Pages rendered by JS -->
   </div>
@@ -522,6 +533,7 @@ setInterval(()=>{
 // AUTH & ROLE CONFIG
 // ============================================================
 const CREDS={
+  'superadmin':   {pass:'super123', role:'SuperAdmin',id:1},
   'fatimah.admin':{pass:'admin123',role:'Admin',id:2},
   'umar.opr':     {pass:'opr123',  role:'Operator',id:3},
   'yahya.pmp':    {pass:'pmp123',  role:'Pimpinan',id:4},
@@ -530,8 +542,16 @@ const CREDS={
   'barakah.stf':  {pass:'stf123',  role:'Staff',id:7},
   'publik':       {pass:'pub123',  role:'Publik',id:null},
 };
+function getCredsForUser(username,pass){
+  if(CREDS[username]&&CREDS[username].pass===pass) return CREDS[username];
+  // Check dynamic DB users (added by SuperAdmin)
+  const pg=DB.pengguna.find(u=>u.username===username&&u.pass===pass&&u.status==='Aktif');
+  if(pg) return {pass:pg.pass,role:pg.level==='Super Admin'?'SuperAdmin':pg.level,id:pg.id};
+  return null;
+}
 
 const ROLE_META={
+  'SuperAdmin':{color:'#d4a017',icon:'👑',badge:'Super Admin',cssVar:'var(--gold)'},
   'Admin':    {color:'#2d6a4f',icon:'🔑',badge:'Admin',cssVar:'var(--gl)'},
   'Operator': {color:'#2471a3',icon:'⚙️',badge:'Operator',cssVar:'var(--blue)'},
   'Pimpinan': {color:'#8e44ad',icon:'👔',badge:'Pimpinan',cssVar:'var(--purple)'},
@@ -540,6 +560,28 @@ const ROLE_META={
 };
 
 const SIDEBAR_CONFIG={
+  SuperAdmin:[
+    {section:'Utama'},
+    {id:'dashboard',icon:'📊',label:'Dashboard'},
+    {section:'Permohonan'},
+    {id:'permohonan',icon:'📋',label:'Semua Permohonan',badge:true},
+    {id:'disposisi',icon:'🔔',label:'Disposisi'},
+    {id:'arsip',icon:'📁',label:'Arsip Dokumen'},
+    {section:'Master Data'},
+    {id:'jenis',icon:'🗂',label:'CRUD Jenis Layanan'},
+    {id:'unit',icon:'🏢',label:'CRUD Unit Pengolah'},
+    {id:'syarat',icon:'📄',label:'CRUD Syarat Dokumen'},
+    {id:'output',icon:'📤',label:'CRUD Output'},
+    {section:'Pengguna & Akses'},
+    {id:'pengguna',icon:'👥',label:'Manajemen Pengguna'},
+    {id:'akses',icon:'🔐',label:'Level Akses'},
+    {section:'Konten Website'},
+    {id:'menu',icon:'📌',label:'Edit Menu Navigasi'},
+    {id:'layanan_web',icon:'✏️',label:'Edit Kartu Layanan'},
+    {id:'pengumuman',icon:'📢',label:'Pengumuman & Berita'},
+    {section:'Sistem'},
+    {id:'laporan',icon:'📈',label:'Laporan & Statistik'},
+  ],
   Admin:[
     {section:'Utama'},
     {id:'dashboard',icon:'📊',label:'Dashboard'},
@@ -620,6 +662,7 @@ const PAGE_TITLES={
   permohonan:'Semua Permohonan',permohonan_unit:'Permohonan Unit Saya',
   jenis:'CRUD Jenis Layanan',unit:'CRUD Unit Pengolah',syarat:'CRUD Syarat Dokumen',
   output:'CRUD Output Layanan',pengguna:'Manajemen Pengguna',pengguna_view:'Daftar Pengguna',
+  akses:'Level Akses & Hak',
   menu:'Edit Menu Navigasi',layanan_web:'Edit Kartu Layanan',pengumuman:'Pengumuman & Berita',
   laporan:'Laporan & Statistik',disposisi:'Disposisi',arsip:'Arsip Dokumen',
   input_permohonan:'Input Permohonan Baru',output_upload:'Upload Output Layanan',
@@ -635,6 +678,7 @@ const PAGE_TITLES={
 (function buildRoleTabs(){
   const tabs=document.getElementById('roleTabs');
   const roles=[
+    {key:'SuperAdmin',icon:'👑',label:'Super Admin'},
     {key:'Admin',icon:'🔑',label:'Admin'},
     {key:'Operator',icon:'⚙️',label:'Operator'},
     {key:'Pimpinan',icon:'👔',label:'Pimpinan'},
@@ -642,7 +686,7 @@ const PAGE_TITLES={
     {key:'Publik',icon:'🌐',label:'Publik'},
   ];
   tabs.innerHTML=roles.map(r=>`
-    <div class="role-tab" onclick="selectRole('${r.key}',this)">
+    <div class="role-tab${r.key==='SuperAdmin'?' role-tab-sa':''}" onclick="selectRole('${r.key}',this)">
       <div class="rt-icon">${r.icon}</div>
       <span class="rt-label">${r.label}</span>
     </div>`).join('');
@@ -651,23 +695,23 @@ const PAGE_TITLES={
 function selectRole(role,el){
   document.querySelectorAll('.role-tab').forEach(t=>t.classList.remove('selected'));
   el.classList.add('selected');
-  const hints={
-    Admin:"fatimah.admin / admin123",
-    Operator:"umar.opr / opr123",
-    Pimpinan:"yahya.pmp / pmp123",
-    Staff:"siti.stf / stf123",
-    Publik:"publik / pub123",
-  };
-  const [u,p]=hints[role].split(' / ');
-  document.getElementById('lgUser').value=u;
-  document.getElementById('lgPass').value=p;
+  // Only Publik gets auto-fill; all others must type credentials manually
+  if(role==='Publik'){
+    document.getElementById('lgUser').value='publik';
+    document.getElementById('lgPass').value='pub123';
+  } else {
+    document.getElementById('lgUser').value='';
+    document.getElementById('lgPass').value='';
+    document.getElementById('lgUser').placeholder=`Username ${role}`;
+    document.getElementById('lgPass').placeholder='Password';
+  }
 }
 
 function doLogin(){
   const u=document.getElementById('lgUser').value.trim();
   const p=document.getElementById('lgPass').value;
-  const cred=CREDS[u];
-  if(!cred||cred.pass!==p){toast('❌ Username atau password salah!');return;}
+  const cred=getCredsForUser(u,p);
+  if(!cred){toast('❌ Username atau password salah!');return;}
   const pg=DB.pengguna.find(x=>x.id===cred.id);
   currentUser={username:u,role:cred.role,id:cred.id,
     nama:pg?pg.nama:(u==='publik'?'Pengguna Publik':u),
@@ -675,7 +719,7 @@ function doLogin(){
   };
   document.getElementById('loginScreen').style.display='none';
   initDashboard();
-  const m=ROLE_META[cred.role];
+  const m=ROLE_META[cred.role]||ROLE_META['Staff'];
   toast(`✅ Selamat datang, ${currentUser.nama}! Akses ${cred.role} aktif.`);
 }
 function doLogout(){
@@ -702,14 +746,30 @@ function initDashboard(){
   document.getElementById('sbUserName').textContent=currentUser.nama;
   document.getElementById('sbUserUnit').textContent=currentUser.unit;
   buildSidebar(role);
+  buildTabNav(role);
   // First page
   const firstPage=SIDEBAR_CONFIG[role].find(x=>x.id);
   nav(firstPage?firstPage.id:'dashboard',null);
 }
 
+function buildTabNav(role){
+  const cfg=SIDEBAR_CONFIG[role]||[];
+  const items=cfg.filter(x=>x.id);
+  const tabNav=document.getElementById('tabNav');
+  if(items.length===0){tabNav.style.display='none';return;}
+  tabNav.style.display='block';
+  tabNav.innerHTML=items.map(item=>`
+    <span class="tab-nav-item" id="tabnav-${item.id}" onclick="nav('${item.id}',null)">
+      ${item.icon} ${item.label}${item.badge?` <span style="background:var(--redf);color:#fff;font-size:.6rem;font-weight:700;padding:1px 5px;border-radius:100px;">${DB.permohonan.filter(p=>p.status==='Menunggu').length}</span>`:''}
+    </span>`).join('');
+}
+
 function buildSidebar(role){
   const cfg=SIDEBAR_CONFIG[role]||[];
   let html='';
+  if(role==='SuperAdmin'){
+    html+=`<div style="margin:8px 12px;background:linear-gradient(135deg,rgba(212,160,23,.2),rgba(212,160,23,.08));border:1px solid rgba(212,160,23,.3);border-radius:8px;padding:8px 12px;font-size:.75rem;color:var(--goldf);font-weight:700;text-align:center;letter-spacing:.06em;">👑 SUPER ADMIN — AKSES PENUH</div>`;
+  }
   cfg.forEach(item=>{
     if(item.section){html+=`<div class="sb-section">${item.section}</div>`;return;}
     const bc=item.badge?`<span class="badge-count">${DB.permohonan.filter(p=>p.status==='Menunggu').length}</span>`:'';
@@ -721,8 +781,11 @@ function buildSidebar(role){
 function nav(pageId,el){
   currentPage=pageId;
   document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  document.querySelectorAll('.tab-nav-item').forEach(i=>i.classList.remove('active'));
   const navEl=el||document.getElementById('nav-'+pageId);
   if(navEl)navEl.classList.add('active');
+  const tabEl=document.getElementById('tabnav-'+pageId);
+  if(tabEl){tabEl.classList.add('active');tabEl.scrollIntoView({behavior:'smooth',inline:'nearest',block:'nearest'});}
   document.getElementById('tbTitle').textContent=PAGE_TITLES[pageId]||pageId;
   renderPage(pageId);
 }
@@ -734,6 +797,7 @@ function renderPage(id){
     proses:()=>renderPermohonan('','Diproses'),
     jenis:renderJenis,unit:renderUnit,syarat:renderSyarat,output:renderOutput,
     pengguna:renderPengguna,pengguna_view:renderPenggunaView,
+    akses:renderAkses,
     menu:renderMenu,layanan_web:renderLayananWeb,pengumuman:renderPengumuman,
     laporan:renderLaporan,disposisi:renderDisposisi,arsip:renderArsip,
     overview:renderOverview,input_permohonan:renderInputPermohonan,
@@ -778,6 +842,8 @@ function renderStatusBadge(role){
 
 function permohonanDetailHTML(p){
   const syaratsForJenis=DB.syarat.filter(s=>s.jenis===p.jenis);
+  const canUpload=currentUser.role==='SuperAdmin'||currentUser.role==='Admin'||currentUser.role==='Operator'||currentUser.role==='Staff';
+  const docs=p.dokumen||[];
   return `
     <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
       <div class="stat-card" style="padding:14px;"><div class="sc-label">No. Referensi</div><div style="font-weight:700;font-size:.9rem;margin-top:4px;">${p.ref}</div></div>
@@ -799,15 +865,42 @@ function permohonanDetailHTML(p){
       <div>
         <div class="stag">Dokumen Persyaratan</div>
         <div style="margin-top:10px;">
-          ${syaratsForJenis.map(s=>`
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0ede6;font-size:.84rem;">
-              <span>${s.nama}${s.wajib?' <span style="color:var(--red);font-size:.7rem;">*</span>':''}</span>
-              <span class="pill pill-green" style="font-size:.65rem;">✓ Diunggah</span>
-            </div>`).join('')}
+          ${syaratsForJenis.map(s=>{
+            const uploaded=docs.find(d=>d.syarat===s.nama);
+            return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0ede6;font-size:.84rem;">
+              <div style="flex:1;"><div style="font-weight:700;">${s.nama}${s.wajib?' <span style="color:var(--red);font-size:.7rem;">*</span>':''}</div>
+              <div style="font-size:.72rem;color:var(--tl);">${s.format} · Maks. ${s.ukuran}</div></div>
+              ${uploaded
+                ? `<span class="pill pill-green" style="font-size:.65rem;">✓ ${uploaded.namaFile}</span>`
+                : `<span class="pill pill-gray" style="font-size:.65rem;">Belum diunggah</span>`}
+            </div>`;
+          }).join('')}
           ${syaratsForJenis.length===0?'<p style="font-size:.82rem;color:var(--tl);">Tidak ada persyaratan spesifik</p>':''}
         </div>
       </div>
-    </div>`;
+    </div>
+    ${(syaratsForJenis.length>0&&canUpload)?`
+    <div style="margin-top:20px;border-top:2px solid var(--border);padding-top:18px;">
+      <div class="stag stag-blue" style="margin-bottom:12px;">📎 Upload Dokumen Persyaratan</div>
+      <div id="uploadArea_${p.id}" style="display:flex;flex-direction:column;gap:10px;">
+        ${syaratsForJenis.map(s=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border-radius:8px;border:1.5px solid var(--border);">
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:.85rem;">${s.nama}${s.wajib?' <span style="color:var(--red);">*</span>':''}</div>
+              <div style="font-size:.72rem;color:var(--tl);">${s.format} · Maks. ${s.ukuran}</div>
+            </div>
+            <input type="file" id="fileInput_${p.id}_${s.id}" accept=".pdf,.jpg,.jpeg,.png"
+              style="display:none;" onchange="handleFileUpload(${p.id},${s.id},'${s.nama}',this)">
+            <button class="btn btn-blue btn-sm" onclick="document.getElementById('fileInput_${p.id}_${s.id}').click()">
+              📎 Pilih File
+            </button>
+            <span id="fileStatus_${p.id}_${s.id}" style="font-size:.75rem;color:var(--tl);min-width:80px;">
+              ${(docs.find(d=>d.syarat===s.nama))||'Belum ada'}
+            </span>
+          </div>`).join('')}
+      </div>
+    </div>`:''}`;
+}
 }
 
 // ============================================================
@@ -823,7 +916,12 @@ function renderDashboard(){
   const peng=DB.pengguna.length;
 
   let extraStats='';
-  if(role==='Admin'){
+  if(role==='SuperAdmin'){
+    extraStats=`
+      <div class="stat-card gold"><div class="sc-icon">👥</div><div class="sc-num">${peng}</div><div class="sc-label">Total Pengguna</div><div class="sc-change up">👑 Kelola semua user</div></div>
+      <div class="stat-card blue"><div class="sc-icon">🗂</div><div class="sc-num">${DB.jenis.filter(j=>j.status==='Aktif').length}</div><div class="sc-label">Layanan Aktif</div></div>
+      <div class="stat-card purple"><div class="sc-icon">🔔</div><div class="sc-num">${DB.disposisi.filter(d=>d.status==='Menunggu').length}</div><div class="sc-label">Disposisi Menunggu</div></div>`;
+  } else if(role==='Admin'){
     extraStats=`
       <div class="stat-card blue"><div class="sc-icon">👥</div><div class="sc-num" id="sPeng">0</div><div class="sc-label">Total Pengguna</div></div>
       <div class="stat-card"><div class="sc-icon">🗂</div><div class="sc-num">${DB.jenis.filter(j=>j.status==='Aktif').length}</div><div class="sc-label">Jenis Layanan Aktif</div></div>`;
@@ -861,6 +959,7 @@ function renderDashboard(){
       <div class="page-hdr">
         <div><h2>Dashboard ${role==='Pimpinan'?'Eksekutif':role}</h2><p>Selamat datang, ${currentUser.nama} — ${new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</p></div>
         <div style="display:flex;gap:8px;">
+          ${role==='SuperAdmin'?`<button class="btn btn-gold btn-sm" onclick="nav('pengguna',null)">👥 Kelola User</button><button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Permohonan</button>`:''}
           ${role==='Admin'?`<button class="btn btn-ghost btn-sm" onclick="toast('📥 Mengekspor data...')">📥 Export</button><button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Lihat Permohonan</button>`:''}
           ${role==='Pimpinan'?`<button class="btn btn-purple btn-sm" onclick="nav('disposisi',null)">🔔 Buat Disposisi</button><button class="btn btn-ghost btn-sm" onclick="nav('laporan',null)">📈 Laporan</button>`:''}
           ${role==='Operator'||role==='Staff'?`<button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Lihat Tugas</button>`:''}
@@ -955,6 +1054,7 @@ function renderPermohonan(unitFilter='',statusFilter='',searchFilter=''){
               <td><div class="td-actions">
                 <button class="btn btn-blue btn-sm btn-icon" title="Detail" onclick="showDetailModal(${p.id})">👁</button>
                 ${canEdit?`<button class="btn btn-gold btn-sm btn-icon" title="Ubah Status" onclick="openStatusModal(${p.id})">✏️</button>`:''}
+                <button class="btn btn-green btn-sm btn-icon" title="Upload Dokumen" onclick="showUploadDokumenModal(${p.id})">📎</button>
                 ${canDelete?`<button class="btn btn-red btn-sm btn-icon" title="Hapus" onclick="hapusPermohonan(${p.id})">🗑</button>`:''}
                 ${role==='Pimpinan'?`<button class="btn btn-purple btn-sm" onclick="openDisposisiFor(${p.id})">🔔 Disposisi</button>`:''}
               </div></td>
@@ -984,12 +1084,51 @@ function showDetailModal(id){
   const role=currentUser.role;
   const foot=document.getElementById('detailFoot');
   let btns=`<button class="btn btn-ghost" onclick="closeModal('detailModal')">Tutup</button>`;
-  if(role==='Admin'||role==='Operator'||role==='Staff')
+  if(role==='SuperAdmin'||role==='Admin'||role==='Operator'||role==='Staff')
     btns+=`<button class="btn btn-gold" onclick="closeModal('detailModal');openStatusModal(${id})">✏️ Ubah Status</button>`;
   if(role==='Pimpinan')
     btns+=`<button class="btn btn-purple" onclick="closeModal('detailModal');openDisposisiFor(${id})">🔔 Buat Disposisi</button>`;
+  btns+=`<button class="btn btn-blue" onclick="showUploadDokumenModal(${id})">📎 Upload Dokumen</button>`;
   foot.innerHTML=btns;
   document.getElementById('detailModal').classList.add('open');
+}
+
+// Upload Dokumen Modal — dedicated upload for any permohonan
+function showUploadDokumenModal(permId){
+  const p=DB.permohonan.find(x=>x.id===permId);if(!p)return;
+  const syaratsForJenis=DB.syarat.filter(s=>s.jenis===p.jenis);
+  const docs=p.dokumen||[];
+  const canUpload=currentUser.role==='SuperAdmin'||currentUser.role==='Admin'||currentUser.role==='Operator'||currentUser.role==='Staff'||currentUser.role==='Publik';
+  if(!canUpload){toast('⛔ Anda tidak memiliki akses upload dokumen!');return;}
+  closeModal('detailModal');
+  document.getElementById('crudModalBox').classList.add('modal-lg');
+  setModal(`📎 Upload Dokumen — ${p.ref}`,`
+    <div style="background:rgba(36,113,163,.07);border:1px solid rgba(36,113,163,.2);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:.84rem;color:var(--blue);">
+      <b>${p.nama}</b> · ${p.jenis} · ${pillStatus(p.status)}
+    </div>
+    ${syaratsForJenis.length===0?`<p style="color:var(--tl);font-size:.85rem;">Tidak ada persyaratan dokumen untuk jenis layanan ini.</p>`:`
+    <div style="display:flex;flex-direction:column;gap:10px;" id="uploadModalArea_${permId}">
+      ${syaratsForJenis.map(s=>{
+        const uploaded=docs.find(d=>d.syarat===s.nama);
+        return `<div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg);border-radius:8px;border:1.5px solid ${uploaded?'rgba(82,183,136,.4)':'var(--border)'};">
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:.88rem;">${s.nama}${s.wajib?' <span style="color:var(--red);">*</span>':''}</div>
+            <div style="font-size:.72rem;color:var(--tl);">${s.format} · Maks. ${s.ukuran}${s.ket?' · '+s.ket:''}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+            <input type="file" id="uploadModalFile_${permId}_${s.id}" accept=".pdf,.jpg,.jpeg,.png" style="display:none;"
+              onchange="handleFileUpload(${permId},${s.id},'${s.nama.replace(/'/g,'\\'')}',this)">
+            <button class="btn btn-blue btn-sm" onclick="document.getElementById('uploadModalFile_${permId}_${s.id}').click()">
+              📎 ${uploaded?'Ganti File':'Pilih File'}
+            </button>
+            <span id="fileStatus_${permId}_${s.id}" style="font-size:.73rem;">
+              ${uploaded?`<span class="pill pill-green" style="font-size:.65rem;">✓ ${uploaded.namaFile}</span>`:`<span style="color:var(--tl);">Belum diunggah</span>`}
+            </span>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`}`,null);
+  document.getElementById('crudModalSave').style.display='none';
 }
 
 function openPermohonanModal(id=null){
@@ -1280,15 +1419,18 @@ function openOutputModal(id=null){
 }
 
 // ============================================================
-// PENGGUNA (Admin CRUD, Pimpinan view-only)
+// PENGGUNA (SuperAdmin full CRUD, Admin view-only with no pass, Pimpinan view-only)
 // ============================================================
 function renderPengguna(){
+  const isSuperAdmin=currentUser.role==='SuperAdmin';
   setContent(`
     <div class="page active">
       <div class="page-hdr">
         <div><h2>Manajemen Pengguna</h2><p>${DB.pengguna.length} pengguna terdaftar</p></div>
-        <button class="btn btn-green" onclick="openPenggunaModal()">➕ Tambah Pengguna</button>
+        ${isSuperAdmin?`<button class="btn btn-green" onclick="openPenggunaModal()">➕ Tambah Pengguna</button>`:
+          `<div class="read-only-badge">👁 Hanya Super Admin yang dapat mengelola pengguna</div>`}
       </div>
+      ${!isSuperAdmin?`<div class="info-banner"><div class="ib-icon">🔐</div><p>Manajemen pengguna (tambah, edit, hapus) hanya dapat dilakukan oleh <b>Super Admin</b>. Username dan password tidak ditampilkan untuk keamanan.</p></div>`:''}
       <div class="table-card">
         <div class="table-hdr"><h3>Daftar Pengguna</h3>
           <div class="table-filters">
@@ -1299,19 +1441,20 @@ function renderPengguna(){
             </select>
           </div>
         </div>
-        <table><thead><tr><th>#</th><th>Nama</th><th>Username</th><th>Email</th><th>Level</th><th>Unit</th><th>Login Terakhir</th><th>Status</th><th>Aksi</th></tr></thead>
+        <table><thead><tr><th>#</th><th>Nama</th>${isSuperAdmin?'<th>Username</th><th>Password</th>':''}<th>Email</th><th>Level</th><th>Unit</th><th>Login Terakhir</th><th>Status</th>${isSuperAdmin?'<th>Aksi</th>':''}</tr></thead>
         <tbody id="penggunaBody">${DB.pengguna.map((p,i)=>`
           <tr><td>${i+1}</td><td><b>${p.nama}</b></td>
-          <td style="font-family:monospace;font-size:.8rem;">${p.username}</td>
+          ${isSuperAdmin?`<td style="font-family:monospace;font-size:.8rem;">${p.username}</td>
+          <td style="font-family:monospace;font-size:.8rem;">${p.pass||'—'}</td>`:''}
           <td style="font-size:.82rem;">${p.email}</td>
           <td>${pillLevel(p.level)}</td>
           <td style="font-size:.82rem;">${p.unit}</td>
           <td style="font-size:.78rem;color:var(--tl);">${p.login}</td>
           <td>${pillStatus(p.status)}</td>
-          <td><div class="td-actions">
+          ${isSuperAdmin?`<td><div class="td-actions">
             <button class="btn btn-blue btn-sm btn-icon" onclick="openPenggunaModal(${p.id})">✏️</button>
             <button class="btn btn-red btn-sm btn-icon" onclick="deleteItem('pengguna',${p.id},'pengguna')">🗑</button>
-          </div></td></tr>`).join('')}
+          </div></td>`:''}</tr>`).join('')}
         </tbody></table>
       </div>
     </div>`);
@@ -1323,14 +1466,14 @@ function renderPenggunaView(){
         <div><h2>Daftar Pengguna Sistem</h2><p>Mode monitoring — ${DB.pengguna.length} pengguna</p></div>
         <div class="read-only-badge">👁 View Only</div>
       </div>
+      <div class="info-banner"><div class="ib-icon">🔐</div><p>Username dan password hanya dapat dilihat oleh Super Admin.</p></div>
       <div class="table-card">
         <div class="table-hdr"><h3>Seluruh Pengguna</h3>
           <input class="filter-input" placeholder="Cari..." oninput="filterTable('penggunaBody',this.value)">
         </div>
-        <table><thead><tr><th>#</th><th>Nama</th><th>Username</th><th>Level</th><th>Unit</th><th>Login Terakhir</th><th>Status</th></tr></thead>
+        <table><thead><tr><th>#</th><th>Nama</th><th>Level</th><th>Unit</th><th>Login Terakhir</th><th>Status</th></tr></thead>
         <tbody id="penggunaBody">${DB.pengguna.map((p,i)=>`
           <tr><td>${i+1}</td><td><b>${p.nama}</b></td>
-          <td style="font-family:monospace;font-size:.8rem;">${p.username}</td>
           <td>${pillLevel(p.level)}</td>
           <td style="font-size:.82rem;">${p.unit}</td>
           <td style="font-size:.78rem;color:var(--tl);">${p.login}</td>
@@ -1339,43 +1482,104 @@ function renderPenggunaView(){
       </div>
     </div>`);
 }
-function filterPenggunaLevel(v){
-  const data=v?DB.pengguna.filter(p=>p.level===v):DB.pengguna;
+function filterPenggunaLevel(val){
+  const data=val?DB.pengguna.filter(p=>p.level===val):DB.pengguna;
+  const isSuperAdmin=currentUser.role==='SuperAdmin';
   document.getElementById('penggunaBody').innerHTML=data.map((p,i)=>`
     <tr><td>${i+1}</td><td><b>${p.nama}</b></td>
-    <td style="font-family:monospace;font-size:.8rem;">${p.username}</td>
+    ${isSuperAdmin?`<td style="font-family:monospace;font-size:.8rem;">${p.username}</td>
+    <td style="font-family:monospace;font-size:.8rem;">${p.pass||'—'}</td>`:''}
     <td style="font-size:.82rem;">${p.email}</td><td>${pillLevel(p.level)}</td>
     <td style="font-size:.82rem;">${p.unit}</td>
     <td style="font-size:.78rem;color:var(--tl);">${p.login}</td>
     <td>${pillStatus(p.status)}</td>
-    <td><div class="td-actions">
+    ${isSuperAdmin?`<td><div class="td-actions">
       <button class="btn btn-blue btn-sm btn-icon" onclick="openPenggunaModal(${p.id})">✏️</button>
       <button class="btn btn-red btn-sm btn-icon" onclick="deleteItem('pengguna',${p.id},'pengguna')">🗑</button>
-    </div></td></tr>`).join('');
+    </div></td>`:''}</tr>`).join('');
 }
 function openPenggunaModal(id=null){
+  if(currentUser.role!=='SuperAdmin'){toast('⛔ Hanya Super Admin yang dapat mengelola pengguna!');return;}
   editTarget=id;
-  const p=id?DB.pengguna.find(x=>x.id===id):{nama:'',username:'',email:'',level:'Operator',unit:DB.unit[0]?.nama||'',status:'Aktif'};
+  const p=id?DB.pengguna.find(x=>x.id===id):{nama:'',username:'',email:'',level:'Operator',unit:DB.unit[0]?.nama||'',status:'Aktif',pass:''};
   const lvlOpts=DB.akses.map(a=>`<option ${a.nama===p.level?'selected':''}>${a.nama}</option>`).join('');
   const unitOpts=DB.unit.map(u=>`<option ${u.nama===p.unit?'selected':''}>${u.nama}</option>`).join('');
   setModal(`${id?'Edit':'Tambah'} Pengguna`,`
     <div class="form-row">
       <div class="fg"><label>Nama Lengkap</label><input id="fNama" value="${p.nama}"></div>
-      <div class="fg"><label>Username</label><input id="fUser" value="${p.username}"></div>
+      <div class="fg"><label>Username</label><input id="fUser" value="${p.username}" placeholder="Contoh: budi.opr"></div>
     </div>
     <div class="fg"><label>Email</label><input id="fEmail" type="email" value="${p.email}"></div>
     <div class="form-row">
       <div class="fg"><label>Level</label><select id="fLevel">${lvlOpts}</select></div>
       <div class="fg"><label>Unit</label><select id="fUnit">${unitOpts}</select></div>
     </div>
-    ${id?'':`<div class="fg"><label>Password Awal</label><input id="fPass" type="password" placeholder="Password awal pengguna"></div>`}
-    <div class="fg"><label>Status</label><select id="fStatus"><option ${p.status==='Aktif'?'selected':''}>Aktif</option><option ${p.status==='Nonaktif'?'selected':''}>Nonaktif</option></select></div>`,()=>{
+    <div class="fg"><label>${id?'Password (kosongkan jika tidak diubah)':'Password Awal *'}</label><input id="fPass" type="password" placeholder="${id?'Isi untuk mengubah password':'Password untuk login'}"></div>
+    <div class="fg"><label>Status</label><select id="fStatus"><option ${(!id||p.status==='Aktif')?'selected':''}>Aktif</option><option ${p.status==='Nonaktif'?'selected':''}>Nonaktif</option></select></div>
+    <div style="background:rgba(82,183,136,.08);border:1px solid rgba(82,183,136,.2);border-radius:8px;padding:10px 14px;font-size:.82rem;color:var(--gm);">
+      ✅ Pengguna baru akan langsung dapat login setelah disimpan dengan status <b>Aktif</b>.
+    </div>`,()=>{
+    const passVal=document.getElementById('fPass').value;
+    if(!id&&!passVal){toast('⚠️ Password wajib untuk pengguna baru!');return;}
     const d={nama:v('fNama'),username:v('fUser'),email:v('fEmail'),level:v('fLevel'),unit:v('fUnit'),status:v('fStatus'),login:'Baru dibuat'};
+    if(passVal)d.pass=passVal;
     if(!d.nama||!d.username){toast('⚠️ Nama dan username wajib!');return;}
-    if(editTarget){Object.assign(DB.pengguna.find(x=>x.id===editTarget),{...d,id:editTarget});}
-    else{DB.pengguna.push({...d,id:DB.nextId.pengguna++});}
-    saveDB();closeModal('crudModal');renderPengguna();toast('✅ Pengguna disimpan!');
+    if(editTarget){
+      const existing=DB.pengguna.find(x=>x.id===editTarget);
+      Object.assign(existing,{...d,id:editTarget,pass:passVal||existing.pass});
+    } else {
+      DB.pengguna.push({...d,id:DB.nextId.pengguna++});
+    }
+    saveDB();closeModal('crudModal');renderPengguna();toast('✅ Pengguna disimpan! Dapat langsung login.');
   });
+}
+
+// ============================================================
+// LEVEL AKSES (SuperAdmin only)
+// ============================================================
+function renderAkses(){
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>Level Akses & Hak</h2><p>${DB.akses.length} level terdaftar dalam sistem</p></div>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>🔐 Daftar Level Akses</h3></div>
+        <table><thead><tr><th>#</th><th>Level</th><th>Kode</th><th>Deskripsi</th><th>Jumlah Pengguna</th><th>Status</th></tr></thead>
+        <tbody>${DB.akses.map((a,i)=>`
+          <tr>
+            <td>${i+1}</td>
+            <td><span style="font-weight:700;color:${a.warna};">● ${a.nama}</span></td>
+            <td><span class="pill pill-gray" style="font-family:monospace;">${a.kode}</span></td>
+            <td style="font-size:.84rem;color:var(--tl);">${a.desk}</td>
+            <td><b>${DB.pengguna.filter(p=>p.level===a.nama).length}</b></td>
+            <td>${pillStatus(a.status)}</td>
+          </tr>`).join('')}
+        </tbody></table>
+      </div>
+      <div class="table-card" style="margin-top:16px;">
+        <div class="table-hdr"><h3>📋 Matriks Hak Akses</h3></div>
+        <div style="overflow-x:auto;">
+        <table class="perm-table">
+          <thead><tr><th>Fitur</th><th>Super Admin</th><th>Admin</th><th>Operator</th><th>Pimpinan</th><th>Staff</th><th>Publik</th></tr></thead>
+          <tbody>
+            ${[
+              ['Tambah / Edit / Hapus Pengguna','✅','❌','❌','❌','❌','❌'],
+              ['Lihat Username & Password','✅','❌','❌','❌','❌','❌'],
+              ['CRUD Master Data','✅','✅','❌','❌','❌','❌'],
+              ['Manajemen Permohonan','✅','✅','✅','👁','✅','❌'],
+              ['Upload Dokumen Permohonan','✅','✅','✅','❌','✅','✅'],
+              ['Disposisi','✅','✅','❌','✅','❌','❌'],
+              ['Laporan & Statistik','✅','✅','❌','✅','❌','❌'],
+              ['Kelola Konten Website','✅','✅','❌','❌','❌','❌'],
+              ['Ajukan Permohonan Online','✅','✅','✅','✅','✅','✅'],
+              ['Lacak Status Permohonan','✅','✅','✅','✅','✅','✅'],
+            ].map(([f,...vals])=>`<tr><td style="font-weight:700;">${f}</td>${vals.map(x=>`<td style="text-align:center;">${x}</td>`).join('')}</tr>`).join('')}
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>`);
 }
 
 // ============================================================
@@ -1490,7 +1694,7 @@ function openLayananWebModal(id=null){
 // PENGUMUMAN (Admin, Pimpinan view)
 // ============================================================
 function renderPengumuman(){
-  const canEdit=currentUser.role==='Admin';
+  const canEdit=currentUser.role==='Admin'||currentUser.role==='SuperAdmin';
   setContent(`
     <div class="page active">
       <div class="page-hdr">
@@ -1750,7 +1954,7 @@ function renderInputPermohonan(){
         </div>
         <div>
           <div class="table-card" style="padding:0;margin-bottom:16px;">
-            <div class="table-hdr"><h3>📄 Persyaratan Dokumen</h3></div>
+            <div class="table-hdr"><h3>📄 Persyaratan & Upload Dokumen</h3></div>
             <div id="syaratPanel" style="padding:16px 20px;">
               <p style="font-size:.85rem;color:var(--tl);">Pilih jenis layanan untuk melihat persyaratan</p>
             </div>
@@ -1775,15 +1979,33 @@ function loadSyarat(jenis){
   // Auto-set unit
   const j=DB.jenis.find(x=>x.nama===jenis);
   if(j){const u=document.getElementById('iUnit');if(u){for(let o of u.options)if(o.text===j.unit){u.value=o.text;break;}}}
-  panel.innerHTML=syarats.length?syarats.map(s=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
-      <span style="font-size:1rem;">${s.wajib?'🔴':'🔵'}</span>
-      <div>
-        <div style="font-weight:700;font-size:.85rem;">${s.nama}</div>
-        <div style="font-size:.75rem;color:var(--tl);">${s.format} · Maks. ${s.ukuran}${s.ket?' · '+s.ket:''}</div>
+  if(!syarats.length){panel.innerHTML='<p style="font-size:.85rem;color:var(--tl);">Tidak ada persyaratan khusus untuk jenis ini.</p>';return;}
+  window._staffFiles={};
+  panel.innerHTML=syarats.map(s=>`
+    <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="font-size:1rem;">${s.wajib?'🔴':'🔵'}</span>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:.85rem;">${s.nama}${s.wajib?' <span style="color:var(--red);">*</span>':''}</div>
+          <div style="font-size:.75rem;color:var(--tl);">${s.format} · Maks. ${s.ukuran}${s.ket?' · '+s.ket:''}</div>
+        </div>
+        <span class="pill ${s.wajib?'pill-red':'pill-gray'}">${s.wajib?'Wajib':'Opsional'}</span>
       </div>
-      <span class="pill ${s.wajib?'pill-red':'pill-gray'}" style="margin-left:auto;">${s.wajib?'Wajib':'Opsional'}</span>
-    </div>`).join('') : '<p style="font-size:.85rem;color:var(--tl);">Tidak ada persyaratan khusus untuk jenis ini.</p>';
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="file" id="staffFile_${s.id}" accept=".pdf,.jpg,.jpeg,.png" style="display:none;"
+          onchange="staffMarkFile(${s.id},'${s.nama}',this)">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('staffFile_${s.id}').click()">📎 Upload</button>
+        <span id="staffFileLabel_${s.id}" style="font-size:.74rem;color:var(--tl);">Belum dipilih</span>
+      </div>
+    </div>`).join('');
+}
+function staffMarkFile(syaratId,nama,input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>5*1024*1024){toast('⚠️ File terlalu besar! Maksimum 5MB.');return;}
+  if(!window._staffFiles)window._staffFiles={};
+  window._staffFiles[syaratId]={nama,namaFile:file.name};
+  const el=document.getElementById(`staffFileLabel_${syaratId}`);
+  if(el)el.innerHTML=`<span class="pill pill-green" style="font-size:.65rem;">✓ ${file.name}</span>`;
 }
 function submitPermohonan(){
   const nama=document.getElementById('iNama').value.trim();
@@ -1794,10 +2016,13 @@ function submitPermohonan(){
   const catatan=document.getElementById('iCatatan').value;
   if(!nama||!jenis){toast('⚠️ Nama dan jenis layanan wajib!');return;}
   const ref='KUA-2026-'+DB.nextId.permohonan;
-  DB.permohonan.push({id:DB.nextId.permohonan++,ref,nama,jenis,tgl:'20 Mei 2026',unit,status:'Menunggu',nik,telp,catatan});
+  const dokumen=Object.values(window._staffFiles||{});
+  window._staffFiles={};
+  DB.permohonan.push({id:DB.nextId.permohonan++,ref,nama,jenis,tgl:'20 Mei 2026',unit,status:'Menunggu',nik,telp,catatan,dokumen});
   saveDB();
-  toast(`✅ Permohonan ${ref} berhasil didaftarkan!`);
+  toast(`✅ Permohonan ${ref} berhasil didaftarkan dengan ${dokumen.length} dokumen!`);
   renderInputPermohonan();
+}
 }
 
 // ============================================================
@@ -2008,12 +2233,34 @@ function renderAjukan(){
 function pubLoadSyarat(jenis){
   const el=document.getElementById('pSyaratList');if(!el)return;
   const syarats=DB.syarat.filter(s=>s.jenis===jenis);
-  el.innerHTML=syarats.length?syarats.map(s=>`
-    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">
-      <span style="color:${s.wajib?'var(--red)':'var(--tl)'};">${s.wajib?'●':'○'}</span>
-      <div><div style="font-weight:700;">${s.nama}</div><div style="font-size:.75rem;color:var(--tl);">${s.format} · Maks. ${s.ukuran}</div></div>
-      <span class="pill ${s.wajib?'pill-red':'pill-gray'}" style="margin-left:auto;">${s.wajib?'Wajib':'Opsional'}</span>
-    </div>`).join('') : '<p style="color:var(--tl);">Tidak ada persyaratan khusus untuk layanan ini.</p>';
+  if(!syarats.length){
+    el.innerHTML='<p style="color:var(--tl);">Tidak ada persyaratan khusus untuk layanan ini.</p>';
+    return;
+  }
+  el.innerHTML=syarats.map(s=>`
+    <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span style="color:${s.wajib?'var(--red)':'var(--tl)'};">${s.wajib?'●':'○'}</span>
+        <div style="flex:1;"><div style="font-weight:700;">${s.nama}${s.wajib?' <span style="color:var(--red);font-size:.75rem;">*</span>':''}</div>
+        <div style="font-size:.73rem;color:var(--tl);">${s.format} · Maks. ${s.ukuran}</div></div>
+        <span class="pill ${s.wajib?'pill-red':'pill-gray'}" style="font-size:.65rem;">${s.wajib?'Wajib':'Opsional'}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="file" id="pubFile_${s.id}" accept=".pdf,.jpg,.jpeg,.png" style="display:none;"
+          onchange="pubMarkFileSelected(${s.id},'${s.nama}',this)">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('pubFile_${s.id}').click()">📎 Pilih File</button>
+        <span id="pubFileLabel_${s.id}" style="font-size:.75rem;color:var(--tl);">Belum dipilih</span>
+      </div>
+    </div>`).join('');
+}
+function pubMarkFileSelected(syaratId,nama,input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>5*1024*1024){toast('⚠️ File terlalu besar! Maksimum 5MB.');return;}
+  const el=document.getElementById(`pubFileLabel_${syaratId}`);
+  if(el)el.innerHTML=`<span class="pill pill-green" style="font-size:.65rem;">✓ ${file.name}</span>`;
+  // Store in a temp map
+  if(!window._pubFiles)window._pubFiles={};
+  window._pubFiles[syaratId]={nama,namaFile:file.name};
 }
 function pubSubmit(){
   const nama=document.getElementById('pNama').value.trim();
@@ -2023,9 +2270,18 @@ function pubSubmit(){
   const ket=document.getElementById('pKet').value;
   if(!nama||!nik){toast('⚠️ Nama dan NIK wajib diisi!');return;}
   if(nik.length<16){toast('⚠️ NIK harus 16 digit!');return;}
+  // Check wajib dokumen
+  const syaratsWajib=DB.syarat.filter(s=>s.jenis===jenis&&s.wajib);
+  const missingWajib=syaratsWajib.filter(s=>!(window._pubFiles&&window._pubFiles[s.id]));
+  if(missingWajib.length>0){
+    toast(`⚠️ Dokumen wajib belum diunggah: ${missingWajib.map(s=>s.nama).join(', ')}`);return;
+  }
   const j=DB.jenis.find(x=>x.nama===jenis);
   const ref='KUA-2026-'+DB.nextId.permohonan;
-  DB.permohonan.push({id:DB.nextId.permohonan++,ref,nama,jenis,tgl:'20 Mei 2026',unit:j?j.unit:'Unit Administrasi',status:'Menunggu',nik,telp,catatan:ket});
+  // Collect uploaded docs
+  const dokumen=Object.values(window._pubFiles||{});
+  window._pubFiles={};
+  DB.permohonan.push({id:DB.nextId.permohonan++,ref,nama,jenis,tgl:'20 Mei 2026',unit:j?j.unit:'Unit Administrasi',status:'Menunggu',nik,telp,catatan:ket,dokumen});
   saveDB();
   setModal('✅ Permohonan Berhasil Dikirim!',`
     <div class="pub-ref-card">
@@ -2035,6 +2291,7 @@ function pubSubmit(){
     <div style="font-size:.88rem;color:var(--tm);line-height:1.7;">
       <p><b>Nama:</b> ${nama}</p>
       <p><b>Jenis Layanan:</b> ${jenis}</p>
+      <p><b>Dokumen Diunggah:</b> ${dokumen.length} file</p>
       <p><b>Status Awal:</b> Menunggu Verifikasi</p>
       <p><b>Estimasi:</b> ${j?j.estimasi:'-'} hari kerja</p>
     </div>
@@ -2210,6 +2467,24 @@ function renderKontak(){
 // ============================================================
 // GENERIC CRUD HELPERS
 // ============================================================
+function handleFileUpload(permId,syaratId,syaratNama,input){
+  const file=input.files[0];if(!file)return;
+  const statusEl=document.getElementById(`fileStatus_${permId}_${syaratId}`);
+  // Validate size (5MB max)
+  if(file.size>5*1024*1024){toast('⚠️ File terlalu besar! Maksimum 5MB.');return;}
+  const perm=DB.permohonan.find(x=>x.id===permId);
+  if(!perm)return;
+  if(!perm.dokumen)perm.dokumen=[];
+  // Remove old if exists
+  perm.dokumen=perm.dokumen.filter(d=>d.syarat!==syaratNama);
+  perm.dokumen.push({syarat:syaratNama,namaFile:file.name,tglUpload:new Date().toLocaleDateString('id-ID')});
+  saveDB();
+  if(statusEl){
+    statusEl.innerHTML=`<span class="pill pill-green" style="font-size:.65rem;">✓ ${file.name}</span>`;
+  }
+  toast(`✅ ${file.name} berhasil diunggah untuk "${syaratNama}"`);
+}
+
 function deleteItem(type,id,refreshPage){
   showConfirm('🗑','Hapus Data','Data yang dihapus tidak dapat dikembalikan. Lanjutkan?',()=>{
     DB[type]=DB[type].filter(x=>x.id!==id);
