@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal PTSP — KUA Pulau Gorom</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gd: #0f2419;
+    --gm: #1e4d34;
+    --gl: #2d6a4f;
+    --ga: #52b788;
+    --gold: #d4a017;
+    --goldf: #f0c040;
+    --white: #fff;
+    --cream: #faf6ee;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Lato', sans-serif;
+    background: var(--gd);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Animated background blobs */
+  .bg-blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.18;
+    animation: float 8s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .bg-blob.b1 { width: 500px; height: 500px; background: var(--gl); top: -150px; left: -150px; animation-delay: 0s; }
+  .bg-blob.b2 { width: 400px; height: 400px; background: var(--gold); bottom: -100px; right: -100px; animation-delay: 3s; }
+  .bg-blob.b3 { width: 300px; height: 300px; background: var(--ga); top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: 1.5s; }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-30px) scale(1.05); }
+  }
+  .b3 { animation-name: float3; }
+  @keyframes float3 {
+    0%, 100% { transform: translate(-50%,-50%) scale(1); }
+    50% { transform: translate(-50%,-60%) scale(1.08); }
+  }
+
+  /* Grid pattern overlay */
+  .grid-overlay {
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  /* Main container */
+  .portal {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 960px;
+    padding: 40px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Header */
+  .portal-header {
+    text-align: center;
+    margin-bottom: 56px;
+    animation: fadeUp .7s ease both;
+  }
+  .emblem {
+    width: 100px; height: 100px;
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 24px;
+    animation: popIn .6s cubic-bezier(.34,1.56,.64,1) both;
+    filter: drop-shadow(0 12px 32px rgba(212,160,23,.45));
+  }
+  .emblem img { width: 100%; height: 100%; object-fit: contain; }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(.6) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .portal-badge {
+    display: inline-block;
+    background: rgba(212,160,23,.15);
+    border: 1px solid rgba(212,160,23,.35);
+    color: var(--goldf);
+    font-size: .72rem;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    padding: 5px 18px;
+    border-radius: 100px;
+    margin-bottom: 18px;
+  }
+  .portal-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    color: var(--white);
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+  .portal-header h1 span { color: var(--goldf); }
+  .portal-header p {
+    color: rgba(255,255,255,.55);
+    font-size: .95rem;
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* Cards */
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    width: 100%;
+    animation: fadeUp .7s .2s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .portal-card {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 20px;
+    padding: 36px 32px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    cursor: pointer;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+    transition: all .3s cubic-bezier(.34,1.2,.64,1);
+  }
+  .portal-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,.07) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  .portal-card:hover {
+    transform: translateY(-6px) scale(1.01);
+    border-color: rgba(255,255,255,.22);
+    box-shadow: 0 24px 64px rgba(0,0,0,.4);
+  }
+  .portal-card:hover::before { opacity: 1; }
+
+  /* Card — Website Utama */
+  .card-public {
+    background: linear-gradient(145deg, rgba(45,106,79,.35) 0%, rgba(30,77,52,.2) 100%);
+    border-color: rgba(82,183,136,.25);
+  }
+  .card-public:hover { border-color: var(--ga); box-shadow: 0 24px 64px rgba(82,183,136,.2); }
+
+  /* Card — Super Admin */
+  .card-admin {
+    background: linear-gradient(145deg, rgba(212,160,23,.25) 0%, rgba(180,120,10,.12) 100%);
+    border-color: rgba(212,160,23,.25);
+  }
+  .card-admin:hover { border-color: var(--gold); box-shadow: 0 24px 64px rgba(212,160,23,.25); }
+
+  .card-icon {
+    width: 60px; height: 60px;
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .card-public .card-icon { background: rgba(82,183,136,.2); }
+  .card-admin  .card-icon { background: rgba(212,160,23,.2); }
+
+  .card-tag {
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-bottom: 10px;
+  }
+  .card-public .card-tag { background: rgba(82,183,136,.2); color: var(--ga); }
+  .card-admin  .card-tag { background: rgba(212,160,23,.2); color: var(--goldf); }
+
+  .portal-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    color: var(--white);
+    font-weight: 700;
+    margin-bottom: 10px;
+    line-height: 1.25;
+  }
+  .portal-card p {
+    color: rgba(255,255,255,.55);
+    font-size: .85rem;
+    line-height: 1.65;
+    margin-bottom: 28px;
+    flex: 1;
+  }
+
+  .card-features {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 28px;
+    width: 100%;
+  }
+  .feat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .8rem;
+    color: rgba(255,255,255,.65);
+  }
+  .feat-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  }
+  .card-public .feat-dot { background: var(--ga); }
+  .card-admin  .feat-dot { background: var(--goldf); }
+
+  .card-btn {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Lato', sans-serif;
+    font-weight: 700;
+    font-size: .9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all .25s;
+    letter-spacing: .02em;
+    text-decoration: none;
+  }
+  .card-public .card-btn {
+    background: var(--ga);
+    color: var(--gd);
+  }
+  .card-public .card-btn:hover { background: #6fcf9a; }
+  .card-admin .card-btn {
+    background: var(--gold);
+    color: var(--gd);
+  }
+  .card-admin .card-btn:hover { background: var(--goldf); }
+
+  .card-arrow {
+    position: absolute;
+    top: 28px; right: 28px;
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(255,255,255,.08);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,.4);
+    font-size: .9rem;
+    transition: all .25s;
+  }
+  .portal-card:hover .card-arrow {
+    background: rgba(255,255,255,.15);
+    color: rgba(255,255,255,.8);
+    transform: translate(2px, -2px);
+  }
+
+  /* Info strip */
+  .info-strip {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 40px;
+    animation: fadeUp .7s .4s ease both;
+  }
+  .info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255,255,255,.4);
+    font-size: .78rem;
+  }
+  .info-item span { color: rgba(255,255,255,.65); }
+
+  /* Status dot */
+  .status-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(82,183,136,.15);
+    border: 1px solid rgba(82,183,136,.3);
+    color: var(--ga);
+    font-size: .72rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 28px;
+  }
+  .live-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--ga);
+    animation: livePulse 1.8s infinite;
+  }
+  @keyframes livePulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .4; transform: scale(.8); }
+  }
+
+  /* Footer */
+  .portal-footer {
+    margin-top: 48px;
+    text-align: center;
+    color: rgba(255,255,255,.25);
+    font-size: .75rem;
+    animation: fadeUp .7s .5s ease both;
+  }
+  .portal-footer span { color: var(--goldf); }
+
+  /* Responsive */
+  @media (max-width: 620px) {
+    .cards { grid-template-columns: 1fr; }
+    .portal-card { padding: 28px 24px 24px; }
+    .portal-header { margin-bottom: 40px; }
+  }
+
+  /* Particle dots */
+  .particles {
+    position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    overflow: hidden;
+  }
+  .particle {
+    position: absolute;
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.15);
+    animation: drift linear infinite;
+  }
+  @keyframes drift {
+    from { transform: translateY(100vh) translateX(0); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    to   { transform: translateY(-10vh) translateX(40px); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background elements -->
+<div class="bg-blob b1"></div>
+<div class="bg-blob b2"></div>
+<div class="bg-blob b3"></div>
+<div class="grid-overlay"></div>
+<div class="particles" id="particles"></div>
+
+<!-- Portal Content -->
+<div class="portal">
+
+  <!-- Header -->
+  <div class="portal-header">
+    <div class="emblem"><img src="logo-kemenag.png" alt="Logo Kemenag"></div>
+    <div class="portal-badge">✦ Portal Resmi ✦</div>
+    <h1>PTSP <span>KUA Pulau Gorom</span></h1>
+    <p>Pelayanan Terpadu Satu Pintu — Kantor Urusan Agama Kecamatan Pulau Gorom, Kab. Seram Bagian Timur</p>
+    <div style="margin-top: 20px;">
+      <div class="status-live"><div class="live-dot"></div> Sistem Online & Aktif</div>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div class="cards">
+
+    <!-- Website Utama -->
+    <a class="portal-card card-public" href="kua-pulau-gorom.html">
+      <div class="card-arrow">↗</div>
+      <div class="card-icon">🌐</div>
+      <span class="card-tag">Publik</span>
+      <h2>Website Utama Layanan</h2>
+      <p>Portal layanan untuk masyarakat umum. Ajukan permohonan, lacak status, dan akses informasi KUA.</p>
+      <div class="card-features">
+        <div class="feat"><div class="feat-dot"></div><span>Permohonan layanan online</span></div>
+        <div class="feat"><div class="feat-dot"></div><span>Lacak status permohonan</span></div>
+        <div class="feat"><div class="feat-dot"></div><span>Informasi & pengumuman</span></div>
+        <div class="feat"><div class="feat-dot"></div><span>12+ jenis layanan tersedia</span></div>
+      </div>
+      <span class="card-btn">🌐 Buka Website Utama →</span>
+    </a>
+
+    <!-- Super Admin -->
+    <a class="portal-card card-admin" href="kua-superadmin.html">
+      <div class="card-arrow">↗</div>
+      <div class="card-icon">🛡</div>
+      <span class="card-tag">Super Admin</span>
+      <h2>Dashboard Administrator</h2>
+      <p>Panel kontrol penuh untuk Super Admin. Kelola seluruh sistem, pengguna, data, dan konten website.</p>
+      <div class="card-features">
+        <div class="feat"><div class="feat-dot"></div><span>CRUD Jenis, Unit, Syarat, Output</span></div>
+        <div class="feat"><div class="feat-dot"></div><span>Manajemen pengguna & akses</span></div>
+        <div class="feat"><div class="feat-dot"></div><span>Edit menu & konten website</span></div>
+        <div class="feat"><div class="feat-dot"></div><span>Laporan & statistik real-time</span></div>
+      </div>
+      <span class="card-btn">🛡 Masuk Dashboard Admin →</span>
+    </a>
+
+  </div>
+
+  <!-- Info strip -->
+  <div class="info-strip">
+    <div class="info-item">🕐 <span>Layanan Online 24 Jam</span></div>
+    <div class="info-item">📍 <span>Geser, Pulau Gorom, Maluku</span></div>
+    <div class="info-item">☎ <span>(0912) 621-XXXX</span></div>
+    <div class="info-item">✉ <span>ptsp@kuapulaugorom.go.id</span></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="portal-footer">
+    © 2026 <span>KUA Kecamatan Pulau Gorom</span> · Kementerian Agama RI · Kanwil Maluku
+  </div>
+
+</div>
+
+<script>
+  // Generate floating particles
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `
+      left: ${Math.random() * 100}%;
+      animation-duration: ${8 + Math.random() * 12}s;
+      animation-delay: ${Math.random() * 10}s;
+      width: ${1 + Math.random() * 3}px;
+      height: ${1 + Math.random() * 3}px;
+      opacity: ${0.05 + Math.random() * 0.2};
+    `;
+    container.appendChild(p);
+  }
+</script>
+</body>
+</html>
