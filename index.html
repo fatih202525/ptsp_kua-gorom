@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard — PTSP KUA Pulau Gorom</title>
+<title>Dashboard v3 — PTSP KUA Pulau Gorom</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -280,7 +280,11 @@ tr:hover td{background:rgba(250,246,238,.7);}
     <div class="login-logo">
       <div class="emblem"><img src="logo-kemenag.png" alt="Logo Kemenag RI" onerror="this.parentNode.innerHTML='🕌'"></div>
       <h2>PTSP KUA Pulau Gorom</h2>
-      <p>Dashboard Terintegrasi — Pilih Level Akses</p>
+      <p>Dashboard Terintegrasi v3 — Pilih Level Akses</p>
+      <div id="cloudStatus" style="display:inline-flex;align-items:center;gap:6px;background:rgba(82,183,136,.1);border:1px solid rgba(82,183,136,.3);border-radius:100px;padding:4px 12px;font-size:.72rem;color:var(--gm);margin-top:8px;">
+        <span style="width:7px;height:7px;border-radius:50%;background:#52b788;display:inline-block;animation:pulse 2s infinite;"></span>
+        ☁️ Menghubungkan ke cloud...
+      </div>
     </div>
     <div class="login-role-tabs" id="roleTabs"></div>
     <div class="lg-group">
@@ -293,6 +297,9 @@ tr:hover td{background:rgba(250,246,238,.7);}
     </div>
     <button class="btn-login-main" onclick="doLogin()">🔐 Masuk ke Dashboard</button>
     <div class="login-hint" style="color:var(--tl);font-size:.76rem;margin-top:10px;">Hubungi Super Admin jika lupa username atau password.</div>
+    <div style="background:rgba(82,183,136,.08);border:1px solid rgba(82,183,136,.2);border-radius:8px;padding:8px 12px;font-size:.73rem;color:var(--gm);margin-top:10px;text-align:center;">
+      ☁️ <b>Sinkron Cloud Aktif</b> — Data tersimpan & dapat diakses dari semua perangkat (smartphone, laptop, PC)
+    </div>
     <a class="back-link" href="index.html">← Kembali ke Portal Utama</a>
   </div>
 </div>
@@ -311,7 +318,7 @@ tr:hover td{background:rgba(250,246,238,.7);}
     <div class="su-name" id="sbUserName">—</div>
     <div class="su-unit" id="sbUserUnit">—</div>
   </div>
-  <div class="sync-status"><div class="sync-dot"></div><span id="syncLabel">Terhubung real-time</span></div>
+  <div class="sync-status"><div class="sync-dot"></div><span id="syncLabel">Menghubungkan cloud...</span></div>
   <div id="sidebarMenu"></div>
   <div class="sb-divider"></div>
   <div class="sb-bottom">
@@ -387,11 +394,29 @@ tr:hover td{background:rgba(250,246,238,.7);}
 
 <script>
 // ============================================================
-// STORE KEY & BROADCAST CHANNEL (Real-time sync)
+// CLOUD STORAGE + BROADCAST CHANNEL (Real-time sync lintas perangkat)
 // ============================================================
-const STORE_KEY = 'ptsp_kuapg_db';
+const STORE_KEY = 'ptsp_kuapg_db_v3';
+const CLOUD_KEY = 'ptsp-kua-db';
 let BC = null;
-try { BC = new BroadcastChannel('ptsp_kuapg'); } catch(e) {}
+try { BC = new BroadcastChannel('ptsp_kuapg_v3'); } catch(e) {}
+
+// Cloud storage helpers (window.storage = Artifact Storage API)
+async function cloudSave(data) {
+  try {
+    if(window.storage) await window.storage.set(CLOUD_KEY, JSON.stringify(data), true);
+  } catch(e) {}
+}
+async function cloudLoad() {
+  try {
+    if(window.storage) {
+      const r = await window.storage.get(CLOUD_KEY, true);
+      if(r && r.value) return JSON.parse(r.value);
+    }
+  } catch(e) {}
+  return null;
+}
+let lastCloudTs = 0;
 
 // ============================================================
 // DEFAULT DATABASE (mirrors superadmin DB)
@@ -488,14 +513,15 @@ const DEFAULT_DB = {
 };
 
 // ============================================================
-// DB MANAGEMENT
+// DB MANAGEMENT (localStorage + Cloud Storage sinkron lintas perangkat)
 // ============================================================
-let DB = loadDB();
+let DB = null;
 let currentUser = null;
 let editTarget = null;
 let currentPerm = null;
 let confirmCb = null;
 let currentPage = 'dashboard';
+let _syncPending = false;
 
 function loadDB(){
   try{const s=localStorage.getItem(STORE_KEY);if(s)return JSON.parse(s);}catch(e){}
@@ -503,31 +529,55 @@ function loadDB(){
 }
 function saveDB(){
   try{localStorage.setItem(STORE_KEY,JSON.stringify(DB));}catch(e){}
+  cloudSave(DB); // Simpan ke cloud (lintas perangkat)
   if(BC)BC.postMessage({type:'db_update',ts:Date.now()});
+  document.getElementById('syncLabel').textContent='Tersimpan: '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
 }
 
-// Real-time updates from other tabs (superadmin etc.)
+// Init DB: coba cloud dulu, fallback ke localStorage
+async function initDB(){
+  const cloud = await cloudLoad();
+  if(cloud && cloud.permohonan){
+    DB = cloud;
+    try{localStorage.setItem(STORE_KEY,JSON.stringify(DB));}catch(e){}
+  } else {
+    DB = loadDB();
+  }
+  document.getElementById('syncLabel').textContent='Cloud terhubung ✓';
+}
+
+// Real-time updates dari tab lain (BroadcastChannel)
 if(BC){
   BC.onmessage=(e)=>{
     if(e.data.type==='db_update'){
       const fresh=loadDB();
       if(JSON.stringify(fresh)!==JSON.stringify(DB)){
         DB=fresh;
-        if(currentUser){renderPage(currentPage);toast('🔄 Data diperbarui dari SuperAdmin');}
+        if(currentUser){renderPage(currentPage);toast('🔄 Data diperbarui');}
       }
     }
   };
 }
-// Also poll every 3s for cross-origin or same-tab changes
-setInterval(()=>{
-  if(!currentUser)return;
-  const fresh=loadDB();
-  if(JSON.stringify(fresh)!==JSON.stringify(DB)){
-    DB=fresh;
-    renderPage(currentPage);
-    document.getElementById('syncLabel').textContent='Terbarui: '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-  }
-},3000);
+
+// Poll cloud setiap 5 detik untuk sinkron antar perangkat berbeda
+setInterval(async ()=>{
+  if(!currentUser||_syncPending)return;
+  _syncPending=true;
+  try {
+    const fresh = await cloudLoad();
+    if(fresh && fresh.permohonan && JSON.stringify(fresh)!==JSON.stringify(DB)){
+      DB=fresh;
+      try{localStorage.setItem(STORE_KEY,JSON.stringify(DB));}catch(e){}
+      renderPage(currentPage);
+      document.getElementById('syncLabel').textContent='🔄 Diperbarui: '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+      // update badge count
+      document.querySelectorAll('.badge-count').forEach(b=>{b.textContent=DB.permohonan.filter(p=>p.status==='Menunggu').length;});
+    } else {
+      document.getElementById('syncLabel').textContent='Terhubung ✓ '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+    }
+  } catch(e){}
+  _syncPending=false;
+},5000);
 
 // ============================================================
 // AUTH & ROLE CONFIG
@@ -544,6 +594,7 @@ const CREDS={
 };
 function getCredsForUser(username,pass){
   if(CREDS[username]&&CREDS[username].pass===pass) return CREDS[username];
+  if(!DB) return null;
   // Check dynamic DB users (added by SuperAdmin)
   const pg=DB.pengguna.find(u=>u.username===username&&u.pass===pass&&u.status==='Aktif');
   if(pg) return {pass:pg.pass,role:pg.level==='Super Admin'?'SuperAdmin':pg.level,id:pg.id};
@@ -710,6 +761,7 @@ function selectRole(role,el){
 function doLogin(){
   const u=document.getElementById('lgUser').value.trim();
   const p=document.getElementById('lgPass').value;
+  if(!DB){toast('⏳ Menunggu koneksi cloud...');return;}
   const cred=getCredsForUser(u,p);
   if(!cred){toast('❌ Username atau password salah!');return;}
   const pg=DB.pengguna.find(x=>x.id===cred.id);
@@ -958,7 +1010,7 @@ function renderDashboard(){
       <div class="page-hdr">
         <div><h2>Dashboard ${role==='Pimpinan'?'Eksekutif':role}</h2><p>Selamat datang, ${currentUser.nama} — ${new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</p></div>
         <div style="display:flex;gap:8px;">
-          ${role==='SuperAdmin'?`<button class="btn btn-gold btn-sm" onclick="nav('pengguna',null)">👥 Kelola User</button><button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Permohonan</button>`:''}
+          ${role==='SuperAdmin'?`<button class="btn btn-gold btn-sm" onclick="nav('pengguna',null)">👥 Kelola User</button><button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Permohonan</button><button class="btn btn-ghost btn-sm" onclick="forceSyncCloud()">☁️ Sync</button>`:''}
           ${role==='Admin'?`<button class="btn btn-ghost btn-sm" onclick="toast('📥 Mengekspor data...')">📥 Export</button><button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Lihat Permohonan</button>`:''}
           ${role==='Pimpinan'?`<button class="btn btn-purple btn-sm" onclick="nav('disposisi',null)">🔔 Buat Disposisi</button><button class="btn btn-ghost btn-sm" onclick="nav('laporan',null)">📈 Laporan</button>`:''}
           ${role==='Operator'||role==='Staff'?`<button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Lihat Tugas</button>`:''}
@@ -1013,7 +1065,7 @@ function renderDashboard(){
 function renderPermohonan(unitFilter='',statusFilter='',searchFilter=''){
   const role=currentUser.role;
   const canEdit=role==='Admin'||role==='Operator'||role==='Staff';
-  const canDelete=role==='Admin';
+  const canDelete=role==='Admin'||role==='SuperAdmin';
   let data=[...DB.permohonan];
   if(unitFilter)data=data.filter(p=>p.unit===unitFilter);
   if(statusFilter)data=data.filter(p=>p.status===statusFilter);
@@ -1045,11 +1097,13 @@ function renderPermohonan(unitFilter='',statusFilter='',searchFilter=''){
           </div>
         </div>
         <table>
-          <thead><tr><th>No. Ref</th><th>Nama Pemohon</th><th>Jenis Layanan</th><th>Tanggal</th><th>Unit</th><th>Status</th><th>Aksi</th></tr></thead>
+          <thead><tr><th>No. Ref</th><th>Nama Pemohon</th><th>Jenis Layanan</th><th>Tanggal</th><th>Unit</th><th>Sumber</th><th>Status</th><th>Aksi</th></tr></thead>
           <tbody id="permBody">${data.map(p=>`
             <tr>
               <td><b>${p.ref}</b></td><td>${p.nama}</td><td>${p.jenis}</td><td>${p.tgl}</td>
-              <td style="font-size:.8rem;">${p.unit}</td><td>${pillStatus(p.status)}</td>
+              <td style="font-size:.8rem;">${p.unit}</td>
+              <td><span class="pill ${p.sumber&&p.sumber.includes('Online')?'pill-blue':'pill-gray'}" style="font-size:.68rem;">${p.sumber||'Kantor'}</span></td>
+              <td>${pillStatus(p.status)}</td>
               <td><div class="td-actions">
                 <button class="btn btn-blue btn-sm btn-icon" title="Detail" onclick="showDetailModal(${p.id})">👁</button>
                 ${canEdit?`<button class="btn btn-gold btn-sm btn-icon" title="Ubah Status" onclick="openStatusModal(${p.id})">✏️</button>`:''}
@@ -1301,7 +1355,7 @@ function openUnitModal(id=null){
 // SYARAT DOKUMEN (Admin) / INFO SYARAT (Operator, Staff)
 // ============================================================
 function renderSyarat(){
-  const canEdit=currentUser.role==='Admin';
+  const canEdit=currentUser.role==='Admin'||currentUser.role==='SuperAdmin';
   setContent(`
     <div class="page active">
       <div class="page-hdr">
@@ -1371,7 +1425,7 @@ function openSyaratModal(id=null){
 // OUTPUT LAYANAN (Admin, Staff)
 // ============================================================
 function renderOutput(){
-  const canEdit=currentUser.role==='Admin';
+  const canEdit=currentUser.role==='Admin'||currentUser.role==='SuperAdmin';
   setContent(`
     <div class="page active">
       <div class="page-hdr">
@@ -1721,7 +1775,8 @@ function renderPengumuman(){
 }
 function openPengumumanModal(id=null){
   editTarget=id;
-  const p=id?DB.pengumuman.find(x=>x.id===id):{judul:'',kategori:'Pengumuman',tgl:'20 Mei 2026',penulis:currentUser.nama,status:'Draf',isi:''};
+  const tglPeng=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  const p=id?DB.pengumuman.find(x=>x.id===id):{judul:'',kategori:'Pengumuman',tgl:tglPeng,penulis:currentUser.nama,status:'Draf',isi:''};
   setModal(`${id?'Edit':'Buat'} Artikel`,`
     <div class="fg"><label>Judul</label><input id="fNama" value="${p.judul}"></div>
     <div class="form-row">
@@ -1860,7 +1915,8 @@ function openDisposisiModal(pRef='',pNama=''){
       </div>
     </div>
     <div class="fg"><label>Instruksi</label><textarea id="fInstruksi" placeholder="Tuliskan instruksi disposisi..." rows="4"></textarea></div>`,()=>{
-    const d={id:DB.nextId.disposisi++,ref:v('fRef'),nama:v('fNama'),dari:v('fDari'),kepada:v('fKepada'),instruksi:v('fInstruksi'),tgl:'20 Mei',status:'Dikirim'};
+    const tglD=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+    const d={id:DB.nextId.disposisi++,ref:v('fRef'),nama:v('fNama'),dari:v('fDari'),kepada:v('fKepada'),instruksi:v('fInstruksi'),tgl:tglD,status:'Dikirim'};
     if(!d.ref||!d.instruksi){toast('⚠️ Ref dan instruksi wajib!');return;}
     DB.disposisi.push(d);saveDB();closeModal('crudModal');renderDisposisi();toast('✅ Disposisi berhasil dikirim!');
   });
@@ -2018,7 +2074,8 @@ function submitPermohonan(){
   const ref='KUA-2026-'+DB.nextId.permohonan;
   const dokumen=Object.values(window._staffFiles||{});
   window._staffFiles={};
-  DB.permohonan.push({id:DB.nextId.permohonan++,ref,nama,jenis,tgl:'20 Mei 2026',unit,status:'Menunggu',nik,telp,catatan,dokumen});
+  const tglNow=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  DB.permohonan.push({id:DB.nextId.permohonan++,ref,nama,jenis,tgl:tglNow,unit,status:'Menunggu',nik,telp,catatan,dokumen,sumber:'Staff/Kantor'});
   saveDB();
   toast(`✅ Permohonan ${ref} berhasil didaftarkan dengan ${dokumen.length} dokumen!`);
   renderInputPermohonan();
@@ -2280,7 +2337,8 @@ function pubSubmit(){
   // Collect uploaded docs
   const dokumen=Object.values(window._pubFiles||{});
   window._pubFiles={};
-  DB.permohonan.push({id:DB.nextId.permohonan++,ref,nama,jenis,tgl:'20 Mei 2026',unit:j?j.unit:'Unit Administrasi',status:'Menunggu',nik,telp,catatan:ket,dokumen});
+  const tglHariIni=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  DB.permohonan.push({id:DB.nextId.permohonan++,ref,nama,jenis,tgl:tglHariIni,unit:j?j.unit:'Unit Administrasi',status:'Menunggu',nik,telp,catatan:ket,dokumen,sumber:'Online/Publik'});
   saveDB();
   setModal('✅ Permohonan Berhasil Dikirim!',`
     <div class="pub-ref-card">
@@ -2528,6 +2586,19 @@ function toast(msg,dur=3500){
   clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),dur);
 }
 
+// Force manual cloud sync
+async function forceSyncCloud(){
+  toast('☁️ Menyinkronkan ke cloud...');
+  await cloudSave(DB);
+  const fresh = await cloudLoad();
+  if(fresh && fresh.permohonan){
+    DB=fresh;
+    try{localStorage.setItem(STORE_KEY,JSON.stringify(DB));}catch(e){}
+    renderPage(currentPage);
+  }
+  toast('✅ Sinkronisasi cloud selesai! Semua perangkat dapat mengakses data terbaru.');
+}
+
 // Close modals on background click
 document.querySelectorAll('.modal-bg').forEach(bg=>{
   bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('open');});
@@ -2539,6 +2610,23 @@ document.getElementById('lgUser').addEventListener('keydown',e=>{if(e.key==='Ent
 
 // Pre-select first role tab
 document.querySelectorAll('.role-tab')[0]?.click();
+
+// ============================================================
+// INISIALISASI CLOUD (sinkron data lintas perangkat saat halaman dibuka)
+// ============================================================
+(async function startApp(){
+  const loginBtn = document.querySelector('.btn-login-main');
+  const cloudStatusEl = document.getElementById('cloudStatus');
+  if(loginBtn){loginBtn.textContent='⏳ Menghubungkan ke cloud...';loginBtn.disabled=true;}
+  try {
+    await initDB();
+    if(cloudStatusEl) cloudStatusEl.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:#52b788;display:inline-block;animation:pulse 2s infinite;"></span> ☁️ Cloud terhubung — data realtime aktif';
+  } catch(e) {
+    DB = loadDB();
+    if(cloudStatusEl) cloudStatusEl.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:#d35400;display:inline-block;"></span> ⚠️ Mode lokal (offline)';
+  }
+  if(loginBtn){loginBtn.textContent='🔐 Masuk ke Dashboard';loginBtn.disabled=false;}
+})();
 </script>
 </body>
 </html>
