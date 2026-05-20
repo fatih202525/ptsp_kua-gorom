@@ -1,0 +1,2270 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — PTSP KUA Pulau Gorom</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gd:#0f2419;--gm:#1e4d34;--gl:#2d6a4f;--ga:#52b788;
+  --gold:#d4a017;--goldf:#f0c040;
+  --white:#fff;--bg:#f4f1eb;--card:#fff;--border:#e4dfd4;
+  --td:#1a2217;--tm:#3a4a3a;--tl:#7a8a7a;
+  --red:#c0392b;--redf:#e74c3c;--blue:#2471a3;--orange:#d35400;--purple:#8e44ad;--teal:#17a589;
+  --shadow:0 4px 24px rgba(15,36,25,.10);
+  --sidebar-w:260px;
+  --role-color: var(--gl);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--td);display:flex;height:100vh;overflow:hidden;}
+
+/* ===== SIDEBAR ===== */
+#sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--gd);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;transition:width .25s;z-index:50;}
+.sb-logo{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:12px;}
+.sb-logo-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 2px 6px rgba(212,160,23,.5));}
+.sb-logo-icon img{width:44px;height:44px;object-fit:contain;}
+.sb-logo-text h2{font-family:'Playfair Display',serif;font-size:.9rem;color:var(--white);line-height:1.2;}
+.sb-logo-text p{font-size:.65rem;color:rgba(255,255,255,.45);letter-spacing:.08em;text-transform:uppercase;margin-top:2px;}
+.sb-badge{margin:10px 16px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:8px 12px;display:flex;align-items:center;gap:8px;}
+.sb-badge-dot{width:8px;height:8px;border-radius:50%;background:var(--role-color);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.sb-badge span{font-size:.72rem;color:var(--white);font-weight:700;letter-spacing:.06em;}
+.sb-user-info{margin:0 16px 8px;padding:8px 12px;background:rgba(255,255,255,.05);border-radius:6px;}
+.sb-user-info .su-name{font-size:.82rem;color:var(--white);font-weight:700;}
+.sb-user-info .su-unit{font-size:.7rem;color:rgba(255,255,255,.45);margin-top:2px;}
+.sb-section{padding:16px 12px 4px;font-size:.6rem;color:rgba(255,255,255,.3);letter-spacing:.12em;text-transform:uppercase;font-weight:700;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 16px;color:rgba(255,255,255,.6);font-size:.83rem;cursor:pointer;transition:all .15s;border-left:3px solid transparent;border-radius:0 4px 4px 0;margin:1px 0;white-space:nowrap;user-select:none;}
+.sb-item:hover{background:rgba(255,255,255,.07);color:var(--white);border-left-color:rgba(255,255,255,.2);}
+.sb-item.active{background:rgba(255,255,255,.12);color:var(--white);border-left-color:var(--role-color);}
+.sb-item .ic{width:20px;text-align:center;font-size:.95rem;flex-shrink:0;}
+.sb-item .badge-count{margin-left:auto;background:var(--redf);color:#fff;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:100px;}
+.sb-divider{height:1px;background:rgba(255,255,255,.07);margin:10px 16px;}
+.sb-bottom{margin-top:auto;border-top:1px solid rgba(255,255,255,.08);padding:12px;}
+.sync-status{margin:4px 16px 8px;display:flex;align-items:center;gap:6px;font-size:.68rem;color:rgba(255,255,255,.35);}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:#52b788;animation:pulse 2s infinite;}
+
+/* ===== MAIN ===== */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+#topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,.05);flex-shrink:0;}
+.tb-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--gd);font-weight:700;flex:1;}
+.tb-search{display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:7px 14px;font-size:.85rem;color:var(--tl);}
+.tb-search input{border:none;background:transparent;outline:none;font-family:'Lato',sans-serif;font-size:.85rem;color:var(--td);width:180px;}
+.tb-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--gm),var(--gl));border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--white);font-weight:700;font-size:.85rem;cursor:pointer;}
+.tb-notif{position:relative;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--bg);border-radius:8px;border:1.5px solid var(--border);font-size:1rem;}
+.tb-notif-badge{position:absolute;top:-2px;right:-2px;background:var(--redf);color:#fff;font-size:.55rem;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.tb-role-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:100px;font-size:.72rem;font-weight:700;border:1.5px solid currentColor;}
+#content{flex:1;overflow-y:auto;padding:28px;}
+
+/* ===== PAGE ===== */
+.page{display:none;}
+.page.active{display:block;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.page-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.page-hdr h2{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gd);}
+.page-hdr p{color:var(--tl);font-size:.85rem;margin-top:2px;}
+
+/* ===== BUTTONS ===== */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;font-family:'Lato',sans-serif;font-size:.85rem;font-weight:700;transition:all .2s;}
+.btn-green{background:var(--gl);color:#fff;}.btn-green:hover{background:var(--gm);}
+.btn-gold{background:var(--gold);color:var(--gd);}.btn-gold:hover{background:var(--goldf);}
+.btn-red{background:var(--red);color:#fff;}.btn-red:hover{background:var(--redf);}
+.btn-blue{background:var(--blue);color:#fff;}.btn-blue:hover{opacity:.85;}
+.btn-purple{background:var(--purple);color:#fff;}.btn-purple:hover{opacity:.85;}
+.btn-ghost{background:transparent;color:var(--gl);border:1.5px solid var(--border);}.btn-ghost:hover{border-color:var(--gl);}
+.btn-sm{padding:6px 12px;font-size:.78rem;}
+.btn-icon{padding:7px;border-radius:7px;min-width:32px;justify-content:center;}
+
+/* ===== STATS ===== */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;}
+.stat-card{background:var(--card);border-radius:12px;padding:20px 22px;border:1px solid var(--border);box-shadow:var(--shadow);position:relative;overflow:hidden;}
+.stat-card::after{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(45,106,79,.06);}
+.stat-card.gold::after{background:rgba(212,160,23,.08);}
+.stat-card.red::after{background:rgba(192,57,43,.07);}
+.stat-card.blue::after{background:rgba(36,113,163,.07);}
+.stat-card.purple::after{background:rgba(142,68,173,.07);}
+.sc-icon{font-size:1.5rem;margin-bottom:10px;}
+.sc-num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--gd);}
+.sc-label{color:var(--tl);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;margin-top:2px;}
+.sc-change{font-size:.75rem;margin-top:6px;font-weight:700;}
+.sc-change.up{color:#1a7a50;}.sc-change.down{color:var(--red);}
+
+/* ===== TABLE ===== */
+.table-card{background:var(--card);border-radius:12px;border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;margin-bottom:24px;}
+.table-hdr{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;}
+.table-hdr h3{font-size:.95rem;font-weight:700;color:var(--gd);}
+.table-filters{display:flex;gap:8px;flex-wrap:wrap;}
+.filter-input{padding:6px 12px;border:1.5px solid var(--border);border-radius:7px;font-family:'Lato',sans-serif;font-size:.8rem;background:var(--bg);color:var(--td);outline:none;}
+.filter-input:focus{border-color:var(--gl);}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--bg);}
+th{padding:11px 16px;text-align:left;font-size:.72rem;font-weight:700;color:var(--tl);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);}
+td{padding:11px 16px;font-size:.84rem;color:var(--tm);border-bottom:1px solid #f0ede6;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(250,246,238,.7);}
+.td-actions{display:flex;gap:6px;flex-wrap:wrap;}
+
+/* ===== PILLS ===== */
+.pill{display:inline-block;padding:3px 10px;border-radius:100px;font-size:.72rem;font-weight:700;}
+.pill-green{background:rgba(82,183,136,.15);color:#1a7a50;}
+.pill-yellow{background:rgba(240,192,64,.2);color:#7a5800;}
+.pill-red{background:rgba(192,57,43,.12);color:#8a1a1a;}
+.pill-blue{background:rgba(36,113,163,.12);color:#1a4a8a;}
+.pill-gray{background:rgba(120,120,120,.12);color:#555;}
+.pill-gold{background:rgba(212,160,23,.18);color:#7a5000;}
+.pill-purple{background:rgba(142,68,173,.12);color:#5a1a8a;}
+.pill-orange{background:rgba(211,84,0,.12);color:#7a2a00;}
+
+/* ===== MODAL ===== */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(10,25,15,.65);z-index:999;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-bg.open{display:flex;}
+.modal{background:var(--white);border-radius:14px;width:100%;max-width:560px;margin:16px;max-height:90vh;overflow-y:auto;box-shadow:0 40px 100px rgba(0,0,0,.3);animation:mIn .25s cubic-bezier(.34,1.56,.64,1);}
+.modal-lg{max-width:720px;}
+.modal-xl{max-width:900px;}
+@keyframes mIn{from{opacity:0;transform:scale(.9) translateY(16px);}to{opacity:1;transform:none;}}
+.modal-head{background:var(--gd);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;border-radius:14px 14px 0 0;position:sticky;top:0;z-index:1;}
+.modal-head h3{font-family:'Playfair Display',serif;color:var(--white);font-size:1rem;}
+.modal-close{background:rgba(255,255,255,.15);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:var(--white);font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+.modal-close:hover{background:rgba(255,255,255,.28);}
+.modal-body{padding:24px;}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+
+/* ===== FORM ===== */
+.fg{margin-bottom:16px;}
+.fg label{display:block;font-size:.78rem;font-weight:700;color:var(--tm);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px;}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:'Lato',sans-serif;font-size:.88rem;color:var(--td);background:var(--bg);outline:none;transition:border-color .2s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gl);}
+.fg textarea{resize:vertical;min-height:80px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+
+/* ===== TOGGLE ===== */
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;inset:0;background:#ccc;border-radius:22px;cursor:pointer;transition:.3s;}
+.toggle-slider::before{content:'';position:absolute;width:16px;height:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;}
+.toggle input:checked + .toggle-slider{background:var(--gl);}
+.toggle input:checked + .toggle-slider::before{transform:translateX(18px);}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--gd);color:#fff;padding:14px 20px;border-radius:10px;font-size:.88rem;border-left:4px solid var(--gold);box-shadow:0 8px 32px rgba(0,0,0,.3);z-index:9999;display:none;max-width:320px;animation:tIn .3s ease;}
+.toast.show{display:flex;align-items:center;gap:10px;}
+@keyframes tIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+
+/* ===== CHARTS ===== */
+.mini-chart{display:flex;align-items:flex-end;gap:6px;height:80px;margin-top:12px;}
+.bar{flex:1;border-radius:4px 4px 0 0;background:linear-gradient(to top,var(--gm),var(--ga));min-height:6px;transition:height .5s;}
+.bar:hover{opacity:.8;cursor:pointer;}
+
+/* ===== ACTIVITY ===== */
+.activity-feed{display:flex;flex-direction:column;gap:0;}
+.af-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #f0ede6;}
+.af-item:last-child{border-bottom:none;}
+.af-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;margin-top:2px;}
+.af-dot.green{background:rgba(82,183,136,.15);}
+.af-dot.gold{background:rgba(212,160,23,.15);}
+.af-dot.red{background:rgba(192,57,43,.1);}
+.af-dot.blue{background:rgba(36,113,163,.1);}
+.af-text strong{display:block;font-size:.85rem;color:var(--td);}
+.af-text span{font-size:.78rem;color:var(--tl);}
+.af-time{font-size:.72rem;color:var(--tl);white-space:nowrap;margin-top:4px;}
+
+/* ===== TWO-COL ===== */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+@media(max-width:900px){.two-col,.three-col,.form-row,.form-row-3{grid-template-columns:1fr;}}
+
+/* ===== STAG ===== */
+.stag{display:inline-block;background:rgba(45,106,79,.1);color:var(--gm);font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 10px;border-radius:100px;border:1px solid rgba(45,106,79,.2);margin-bottom:6px;}
+.stag-blue{background:rgba(36,113,163,.1);color:var(--blue);border-color:rgba(36,113,163,.2);}
+.stag-gold{background:rgba(212,160,23,.1);color:#7a5000;border-color:rgba(212,160,23,.2);}
+.stag-purple{background:rgba(142,68,173,.1);color:var(--purple);border-color:rgba(142,68,173,.2);}
+
+/* ===== CONFIRM ===== */
+.confirm-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1999;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.confirm-bg.open{display:flex;}
+.confirm-box{background:#fff;border-radius:12px;padding:28px;max-width:360px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.confirm-box .ci{font-size:2.5rem;margin-bottom:12px;}
+.confirm-box h4{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--gd);margin-bottom:8px;}
+.confirm-box p{font-size:.85rem;color:var(--tl);margin-bottom:20px;}
+.confirm-btns{display:flex;gap:10px;justify-content:center;}
+
+/* ===== PUBLIK PORTAL ===== */
+.portal-card-pub{background:var(--card);border-radius:12px;border:1px solid var(--border);box-shadow:var(--shadow);padding:24px;transition:all .2s;cursor:pointer;}
+.portal-card-pub:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.12);}
+.pub-ref-card{background:linear-gradient(135deg,var(--gd),var(--gm));color:#fff;border-radius:14px;padding:24px;margin-bottom:16px;}
+.pub-ref-card h3{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--goldf);}
+.pub-ref-card p{font-size:.82rem;color:rgba(255,255,255,.7);margin-top:4px;}
+.pub-step{display:flex;align-items:flex-start;gap:14px;padding:16px 0;border-bottom:1px solid var(--border);}
+.pub-step:last-child{border-bottom:none;}
+.pub-step-num{width:32px;height:32px;border-radius:50%;background:var(--gl);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;}
+.pub-step-num.done{background:var(--ga);}
+.pub-step-num.active{background:var(--gold);color:var(--gd);}
+.pub-step-num.pending{background:var(--border);color:var(--tl);}
+.timeline-bar{position:relative;padding-left:28px;border-left:2px solid var(--border);margin-left:15px;}
+.timeline-bar::before{content:'';position:absolute;left:-5px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--gl);}
+.pengumuman-card{background:var(--card);border-radius:10px;border:1px solid var(--border);padding:18px 20px;margin-bottom:12px;display:flex;gap:16px;align-items:flex-start;}
+.pengumuman-icon{font-size:1.5rem;flex-shrink:0;margin-top:2px;}
+.pengumuman-body h4{font-size:.92rem;font-weight:700;color:var(--gd);}
+.pengumuman-body p{font-size:.8rem;color:var(--tl);margin-top:4px;line-height:1.5;}
+.pengumuman-body .meta{display:flex;gap:12px;margin-top:8px;font-size:.72rem;color:var(--tl);}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(45,106,79,.25);border-radius:3px;}
+
+/* ===== SYARAT CHIP ===== */
+.syarat-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(45,106,79,.1);color:var(--gm);padding:4px 12px;border-radius:100px;font-size:.78rem;font-weight:700;margin:3px;}
+.menu-item-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;}
+.menu-drag{color:var(--tl);font-size:1.2rem;cursor:grab;}
+.menu-label{flex:1;font-weight:700;font-size:.88rem;}
+.menu-url{font-size:.78rem;color:var(--tl);}
+
+/* ===== LOGIN SCREEN ===== */
+#loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,var(--gd) 0%,#234d38 60%,#1e4d34 100%);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.login-box{background:var(--white);border-radius:16px;padding:40px 44px;width:100%;max-width:440px;box-shadow:0 40px 100px rgba(0,0,0,.4);margin:20px;}
+.login-logo{text-align:center;margin-bottom:24px;}
+.login-logo h2{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--gd);}
+.login-logo p{font-size:.78rem;color:var(--tl);margin-top:4px;}
+.login-logo .emblem{width:72px;height:72px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;filter:drop-shadow(0 8px 20px rgba(212,160,23,.4));}
+.login-logo .emblem img{width:72px;height:72px;object-fit:contain;}
+.login-role-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:20px;}
+.role-tab{padding:8px 6px;border-radius:8px;border:1.5px solid var(--border);text-align:center;cursor:pointer;transition:all .2s;background:var(--bg);}
+.role-tab .rt-icon{font-size:1.2rem;margin-bottom:4px;}
+.role-tab .rt-label{font-size:.68rem;font-weight:700;color:var(--tl);display:block;letter-spacing:.04em;}
+.role-tab.selected{border-color:var(--gl);background:rgba(45,106,79,.08);}
+.role-tab.selected .rt-label{color:var(--gl);}
+.lg-group{margin-bottom:14px;}
+.lg-group label{display:block;font-size:.75rem;font-weight:700;color:var(--tm);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;}
+.lg-group input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:'Lato',sans-serif;font-size:.9rem;color:var(--td);background:var(--bg);outline:none;transition:border-color .2s;}
+.lg-group input:focus{border-color:var(--gl);}
+.btn-login-main{width:100%;padding:13px;background:var(--gm);color:#fff;border:none;border-radius:8px;font-family:'Lato',sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;margin-top:6px;transition:all .2s;}
+.btn-login-main:hover{background:var(--gd);}
+.login-hint{text-align:center;margin-top:12px;font-size:.76rem;color:var(--tl);line-height:1.7;}
+.login-hint code{background:rgba(45,106,79,.08);padding:2px 6px;border-radius:4px;font-size:.72rem;}
+.back-link{display:block;text-align:center;margin-top:12px;font-size:.8rem;color:var(--gl);cursor:pointer;text-decoration:underline;}
+.highlight{animation:hl 1.5s ease;}
+@keyframes hl{0%{background:rgba(212,160,23,.35);}100%{background:transparent;}}
+.perm-table{width:100%;border-collapse:collapse;}
+.perm-table th,.perm-table td{padding:10px 14px;font-size:.82rem;border:1px solid var(--border);}
+.perm-table th{background:var(--bg);font-weight:700;text-transform:uppercase;font-size:.7rem;letter-spacing:.06em;color:var(--tl);}
+.info-banner{background:linear-gradient(135deg,rgba(36,113,163,.1),rgba(36,113,163,.05));border:1px solid rgba(36,113,163,.2);border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;gap:12px;align-items:flex-start;}
+.info-banner .ib-icon{font-size:1.2rem;flex-shrink:0;}
+.info-banner p{font-size:.84rem;color:var(--tm);line-height:1.5;}
+.read-only-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(142,68,173,.1);color:var(--purple);border:1px solid rgba(142,68,173,.2);padding:3px 10px;border-radius:100px;font-size:.72rem;font-weight:700;}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="emblem"><img src="logo-kemenag.png" alt="Logo Kemenag RI" onerror="this.parentNode.innerHTML='🕌'"></div>
+      <h2>PTSP KUA Pulau Gorom</h2>
+      <p>Dashboard Terintegrasi — Pilih Level Akses</p>
+    </div>
+    <div class="login-role-tabs" id="roleTabs"></div>
+    <div class="lg-group">
+      <label>Username</label>
+      <input type="text" id="lgUser" placeholder="Masukkan username" autocomplete="off">
+    </div>
+    <div class="lg-group">
+      <label>Password</label>
+      <input type="password" id="lgPass" placeholder="Masukkan password" autocomplete="off">
+    </div>
+    <button class="btn-login-main" onclick="doLogin()">🔐 Masuk ke Dashboard</button>
+    <div class="login-hint">
+      <b>Demo:</b><br>
+      Admin: <code>fatimah.admin</code> / <code>admin123</code><br>
+      Operator: <code>umar.opr</code> / <code>opr123</code><br>
+      Pimpinan: <code>yahya.pmp</code> / <code>pmp123</code><br>
+      Staff: <code>siti.stf</code> / <code>stf123</code><br>
+      Publik: <code>publik</code> / <code>pub123</code>
+    </div>
+    <a class="back-link" href="index.html">← Kembali ke Portal Utama</a>
+  </div>
+</div>
+
+<!-- ===== SIDEBAR ===== -->
+<nav id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon"><img src="logo-kemenag.png" alt="" onerror="this.parentNode.innerHTML='🕌'"></div>
+    <div class="sb-logo-text">
+      <h2>KUA Pulau Gorom</h2>
+      <p>PTSP Dashboard</p>
+    </div>
+  </div>
+  <div class="sb-badge"><div class="sb-badge-dot"></div><span id="sbRoleLabel">Loading...</span></div>
+  <div class="sb-user-info">
+    <div class="su-name" id="sbUserName">—</div>
+    <div class="su-unit" id="sbUserUnit">—</div>
+  </div>
+  <div class="sync-status"><div class="sync-dot"></div><span id="syncLabel">Terhubung real-time</span></div>
+  <div id="sidebarMenu"></div>
+  <div class="sb-divider"></div>
+  <div class="sb-bottom">
+    <div class="sb-item" onclick="doLogout()" style="color:rgba(255,100,100,.7);">
+      <span class="ic">🚪</span> Keluar
+    </div>
+  </div>
+</nav>
+
+<!-- ===== MAIN ===== -->
+<div id="main">
+  <div id="topbar">
+    <div class="tb-title" id="tbTitle">Dashboard</div>
+    <div class="tb-search">🔍 <input type="text" id="globalSearch" placeholder="Cari data..." oninput="globalSearchFn(this.value)"></div>
+    <div class="tb-notif" onclick="toast('📬 Tidak ada notifikasi baru')">🔔<span class="tb-notif-badge" id="notifCount">3</span></div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="font-size:.82rem;color:var(--tl);text-align:right;">
+        <div style="color:var(--td);font-weight:700;" id="topbarName">—</div>
+        <div id="topbarRole">—</div>
+      </div>
+      <div class="tb-avatar" id="topbarAvatar">?</div>
+    </div>
+  </div>
+  <div id="content">
+    <!-- Pages rendered by JS -->
+  </div>
+</div>
+
+<!-- ===== CRUD MODAL ===== -->
+<div class="modal-bg" id="crudModal">
+  <div class="modal" id="crudModalBox">
+    <div class="modal-head">
+      <h3 id="crudModalTitle">Form</h3>
+      <button class="modal-close" onclick="closeModal('crudModal')">✕</button>
+    </div>
+    <div class="modal-body" id="crudModalBody"></div>
+    <div class="modal-foot" id="crudModalFoot">
+      <button class="btn btn-ghost" onclick="closeModal('crudModal')">Batal</button>
+      <button class="btn btn-green" id="crudModalSave">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DETAIL MODAL ===== -->
+<div class="modal-bg" id="detailModal">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <h3>📋 Detail Permohonan</h3>
+      <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+    <div class="modal-foot" id="detailFoot">
+      <button class="btn btn-ghost" onclick="closeModal('detailModal')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CONFIRM ===== -->
+<div class="confirm-bg" id="confirmBg">
+  <div class="confirm-box">
+    <div class="ci" id="confirmIcon">⚠️</div>
+    <h4 id="confirmTitle">Konfirmasi</h4>
+    <p id="confirmMsg">Apakah Anda yakin?</p>
+    <div class="confirm-btns">
+      <button class="btn btn-ghost" onclick="closeConfirm()">Batal</button>
+      <button class="btn btn-red" id="confirmOkBtn">Ya, Lanjutkan</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✅ <span id="toastMsg"></span></div>
+
+<script>
+// ============================================================
+// STORE KEY & BROADCAST CHANNEL (Real-time sync)
+// ============================================================
+const STORE_KEY = 'ptsp_kuapg_db';
+let BC = null;
+try { BC = new BroadcastChannel('ptsp_kuapg'); } catch(e) {}
+
+// ============================================================
+// DEFAULT DATABASE (mirrors superadmin DB)
+// ============================================================
+const DEFAULT_DB = {
+  jenis:[
+    {id:1,ikon:'💍',nama:'Pencatatan Nikah',desk:'Pendaftaran dan pencatatan pernikahan',unit:'Unit Nikah',estimasi:'7',status:'Aktif'},
+    {id:2,ikon:'📜',nama:'Legalisasi Dokumen',desk:'Pengesahan dokumen keagamaan',unit:'Unit Administrasi',estimasi:'3',status:'Aktif'},
+    {id:3,ikon:'🕌',nama:'Wakaf & Ibadah Sosial',desk:'Sertifikasi tanah wakaf',unit:'Unit Wakaf',estimasi:'14',status:'Aktif'},
+    {id:4,ikon:'🤲',nama:'Bimbingan Keagamaan',desk:'Konsultasi dan penyuluhan agama',unit:'Unit Bimbingan',estimasi:'1',status:'Aktif'},
+    {id:5,ikon:'📂',nama:'Arsip & Duplikat Dokumen',desk:'Duplikat buku nikah / akta',unit:'Unit Administrasi',estimasi:'5',status:'Aktif'},
+    {id:6,ikon:'🔄',nama:'Perubahan Status & Rujuk',desk:'Proses rujuk setelah talak',unit:'Unit Nikah',estimasi:'7',status:'Nonaktif'},
+  ],
+  unit:[
+    {id:1,nama:'Unit Nikah',kepala:'Umar Tuasikal, S.Ag',kontak:'0821-1234-5678',email:'nikah@kuapg.go.id',kapasitas:'10',status:'Aktif'},
+    {id:2,nama:'Unit Administrasi',kepala:'Siti Rahmawati, S.Pd',kontak:'0812-9876-5432',email:'admin@kuapg.go.id',kapasitas:'20',status:'Aktif'},
+    {id:3,nama:'Unit Wakaf',kepala:'Ahmad Basrun, M.Ag',kontak:'0813-5555-6666',email:'wakaf@kuapg.go.id',kapasitas:'5',status:'Aktif'},
+    {id:4,nama:'Unit Bimbingan',kepala:'Halimah Marasabessy',kontak:'0811-2233-4455',email:'bimbing@kuapg.go.id',kapasitas:'8',status:'Aktif'},
+  ],
+  syarat:[
+    {id:1,nama:'Fotokopi KTP',jenis:'Pencatatan Nikah',format:'PDF/JPG',ukuran:'2MB',wajib:true,ket:'KTP kedua calon'},
+    {id:2,nama:'Fotokopi KK',jenis:'Pencatatan Nikah',format:'PDF/JPG',ukuran:'2MB',wajib:true,ket:'Kartu Keluarga terbaru'},
+    {id:3,nama:'Surat Pengantar RT/RW',jenis:'Pencatatan Nikah',format:'PDF',ukuran:'1MB',wajib:true,ket:'Asli + fotokopi'},
+    {id:4,nama:'Fotokopi Akta Lahir',jenis:'Pencatatan Nikah',format:'PDF/JPG',ukuran:'2MB',wajib:false,ket:'Jika tersedia'},
+    {id:5,nama:'Dokumen Asli yang Akan Dilegalisir',jenis:'Legalisasi Dokumen',format:'PDF',ukuran:'5MB',wajib:true,ket:'Scan resolusi tinggi'},
+    {id:6,nama:'Fotokopi KTP Pemohon',jenis:'Legalisasi Dokumen',format:'PDF/JPG',ukuran:'2MB',wajib:true,ket:''},
+    {id:7,nama:'Sertifikat Tanah',jenis:'Wakaf & Ibadah Sosial',format:'PDF',ukuran:'5MB',wajib:true,ket:'Sertifikat asli/BPN'},
+  ],
+  output:[
+    {id:1,nama:'Buku Nikah',jenis:'Pencatatan Nikah',tipe:'Fisik',template:'buku_nikah_v3',berlaku:'Seumur Hidup',status:'Aktif'},
+    {id:2,nama:'Sertifikat Pranikah',jenis:'Pencatatan Nikah',tipe:'Digital+Fisik',template:'sertif_pranikah',berlaku:'365',status:'Aktif'},
+    {id:3,nama:'Dokumen Terlegalisir',jenis:'Legalisasi Dokumen',tipe:'Fisik',template:'-',berlaku:'90',status:'Aktif'},
+    {id:4,nama:'Akta Ikrar Wakaf',jenis:'Wakaf & Ibadah Sosial',tipe:'Fisik',template:'akta_wakaf_v2',berlaku:'Seumur Hidup',status:'Aktif'},
+    {id:5,nama:'Sertifikat Bimbingan',jenis:'Bimbingan Keagamaan',tipe:'Digital',template:'sertif_bimbing',berlaku:'365',status:'Aktif'},
+  ],
+  akses:[
+    {id:1,nama:'Super Admin',kode:'SUPER',warna:'#d4a017',desk:'Akses penuh ke seluruh sistem',jumlah:1,status:'Aktif'},
+    {id:2,nama:'Admin',kode:'ADMIN',warna:'#2d6a4f',desk:'Kelola user, master data, dan laporan',jumlah:3,status:'Aktif'},
+    {id:3,nama:'Operator',kode:'OPR',warna:'#2471a3',desk:'Proses permohonan dan arsip',jumlah:5,status:'Aktif'},
+    {id:4,nama:'Pimpinan',kode:'PMP',warna:'#8e44ad',desk:'Monitoring dan disposisi',jumlah:1,status:'Aktif'},
+    {id:5,nama:'Staff',kode:'STF',warna:'#d35400',desk:'Input permohonan dan unggah output',jumlah:8,status:'Aktif'},
+    {id:6,nama:'Publik',kode:'PBL',warna:'#7a8a7a',desk:'Ajukan permohonan online',jumlah:247,status:'Aktif'},
+  ],
+  pengguna:[
+    {id:1,nama:"Sa'ban Marasabessy",username:'superadmin',email:'saban@kuapg.go.id',level:'Super Admin',unit:'Semua Unit',login:'Hari ini',status:'Aktif'},
+    {id:2,nama:'Fatimah Rumeon',username:'fatimah.admin',email:'fatimah@kuapg.go.id',level:'Admin',unit:'Unit Administrasi',login:'Kemarin',status:'Aktif'},
+    {id:3,nama:'Umar Tuasikal',username:'umar.opr',email:'umar@kuapg.go.id',level:'Operator',unit:'Unit Nikah',login:'2 hari lalu',status:'Aktif'},
+    {id:4,nama:'H. Yahya Pattiasina',username:'yahya.pmp',email:'yahya@kuapg.go.id',level:'Pimpinan',unit:'Kepala KUA',login:'Hari ini',status:'Aktif'},
+    {id:5,nama:'Siti Rahmawati',username:'siti.stf',email:'siti@kuapg.go.id',level:'Staff',unit:'Unit Administrasi',login:'Hari ini',status:'Aktif'},
+    {id:6,nama:'Ahmad Basrun',username:'ahmad.opr',email:'ahmad@kuapg.go.id',level:'Operator',unit:'Unit Wakaf',login:'3 hari lalu',status:'Aktif'},
+    {id:7,nama:'Barakah Leimena',username:'barakah.stf',email:'barakah@kuapg.go.id',level:'Staff',unit:'Unit Nikah',login:'Seminggu lalu',status:'Nonaktif'},
+  ],
+  permohonan:[
+    {id:1,ref:'KUA-2026-1001',nama:'Ahmad Basrun',jenis:'Pencatatan Nikah',tgl:'17 Mei 2026',unit:'Unit Nikah',status:'Diproses',nik:'3210000001',telp:'0821-1111-2222',catatan:''},
+    {id:2,ref:'KUA-2026-1002',nama:'Siti Rahmawati',jenis:'Legalisasi Dokumen',tgl:'16 Mei 2026',unit:'Unit Administrasi',status:'Selesai',nik:'3210000002',telp:'0812-3333-4444',catatan:'Selesai tepat waktu'},
+    {id:3,ref:'KUA-2026-1003',nama:'Umar Tuasikal',jenis:'Wakaf & Ibadah Sosial',tgl:'15 Mei 2026',unit:'Unit Wakaf',status:'Menunggu',nik:'3210000003',telp:'0813-5555-6666',catatan:''},
+    {id:4,ref:'KUA-2026-1004',nama:'Halimah Marasabessy',jenis:'Arsip & Duplikat Dokumen',tgl:'14 Mei 2026',unit:'Unit Administrasi',status:'Diproses',nik:'3210000004',telp:'0811-7777-8888',catatan:''},
+    {id:5,ref:'KUA-2026-1005',nama:'Barakah Leimena',jenis:'Bimbingan Keagamaan',tgl:'13 Mei 2026',unit:'Unit Bimbingan',status:'Selesai',nik:'3210000005',telp:'0822-9999-0000',catatan:''},
+    {id:6,ref:'KUA-2026-1006',nama:'Yahya Pattiasina',jenis:'Pencatatan Nikah',tgl:'12 Mei 2026',unit:'Unit Nikah',status:'Ditolak',nik:'3210000006',telp:'0821-1122-3344',catatan:'Dokumen tidak lengkap'},
+    {id:7,ref:'KUA-2026-1007',nama:'Nur Fadilah',jenis:'Legalisasi Dokumen',tgl:'11 Mei 2026',unit:'Unit Administrasi',status:'Selesai',nik:'3210000007',telp:'0812-5566-7788',catatan:''},
+    {id:8,ref:'KUA-2026-1008',nama:'Ismail Rumeon',jenis:'Pencatatan Nikah',tgl:'10 Mei 2026',unit:'Unit Nikah',status:'Diproses',nik:'3210000008',telp:'0813-9900-1122',catatan:''},
+  ],
+  disposisi:[
+    {id:1,ref:'KUA-2026-1001',nama:'Ahmad Basrun',dari:'Pimpinan',kepada:'Operator Nikah',instruksi:'Proses sesuai SOP, prioritas.',tgl:'17 Mei',status:'Diterima'},
+    {id:2,ref:'KUA-2026-1003',nama:'Umar Tuasikal',dari:'Admin',kepada:'Unit Wakaf',instruksi:'Verifikasi lapangan terlebih dahulu.',tgl:'15 Mei',status:'Menunggu'},
+  ],
+  arsip:[
+    {id:1,ref:'KUA-2026-0902',nama:'Barakah Leimena',jenis:'Bimbingan Keagamaan',tglArsip:'13 Mei 2026',operator:'Siti Rahmawati'},
+    {id:2,ref:'KUA-2026-0901',nama:'Nur Fadilah',jenis:'Legalisasi Dokumen',tglArsip:'11 Mei 2026',operator:'Fatimah Rumeon'},
+  ],
+  menu:[
+    {id:1,ikon:'🏠',label:'Beranda',url:'#beranda',aktif:true},
+    {id:2,ikon:'📋',label:'Layanan',url:'#layanan',aktif:true},
+    {id:3,ikon:'📝',label:'Permohonan',url:'#permohonan',aktif:true},
+    {id:4,ikon:'🔍',label:'Lacak Status',url:'#lacak',aktif:true},
+    {id:5,ikon:'📢',label:'Pengumuman',url:'#pengumuman',aktif:true},
+    {id:6,ikon:'📞',label:'Kontak',url:'#kontak',aktif:true},
+  ],
+  layananWeb:[
+    {id:1,ikon:'💍',judul:'Pencatatan Nikah',desk:'Pendaftaran dan pencatatan pernikahan sesuai peraturan Kemenag RI.',aktif:true},
+    {id:2,ikon:'📜',judul:'Legalisasi Dokumen',desk:'Legalisasi dan pengesahan dokumen keagamaan dari KUA.',aktif:true},
+    {id:3,ikon:'🕌',judul:'Wakaf & Ibadah Sosial',desk:'Pengurusan sertifikasi tanah wakaf dan rumah ibadah.',aktif:true},
+    {id:4,ikon:'🤲',judul:'Bimbingan Keagamaan',desk:'Konsultasi, penyuluhan, dan bimbingan haji umrah.',aktif:true},
+    {id:5,ikon:'📂',judul:'Arsip & Duplikat Dokumen',desk:'Permohonan duplikat buku nikah dan dokumen lain.',aktif:true},
+    {id:6,ikon:'🔄',judul:'Perubahan Status & Rujuk',desk:"Proses rujuk setelah talak raj'i.",aktif:false},
+  ],
+  pengumuman:[
+    {id:1,judul:'Jadwal Pelayanan Hari Raya Idul Adha 2026',kategori:'Pengumuman',tgl:'15 Mei 2026',penulis:'Admin',status:'Diterbitkan',isi:'Sehubungan dengan Hari Raya Idul Adha 2026, layanan KUA akan beroperasi sesuai jadwal khusus. Silakan hubungi kami untuk informasi lebih lanjut.'},
+    {id:2,judul:'Bimbingan Pranikah Gratis Angkatan Juni 2026',kategori:'Program',tgl:'10 Mei 2026',penulis:'Fatimah',status:'Diterbitkan',isi:'KUA Pulau Gorom membuka pendaftaran bimbingan pranikah gratis untuk pasangan yang akan menikah pada bulan Juni 2026.'},
+    {id:3,judul:'Pembaruan Persyaratan Dokumen Nikah 2026',kategori:'Regulasi',tgl:'5 Mei 2026',penulis:'Admin',status:'Diterbitkan',isi:'Terdapat pembaruan persyaratan dokumen nikah berdasarkan peraturan terbaru Kemenag RI tahun 2026.'},
+    {id:4,judul:'Layanan Konsultasi Wakaf Online Dibuka',kategori:'Program',tgl:'1 Mei 2026',penulis:'Ahmad',status:'Draf',isi:''},
+  ],
+  nextId:{jenis:7,unit:5,syarat:8,output:6,akses:7,pengguna:8,permohonan:9,menu:7,layananWeb:7,pengumuman:5,disposisi:3,arsip:3},
+};
+
+// ============================================================
+// DB MANAGEMENT
+// ============================================================
+let DB = loadDB();
+let currentUser = null;
+let editTarget = null;
+let currentPerm = null;
+let confirmCb = null;
+let currentPage = 'dashboard';
+
+function loadDB(){
+  try{const s=localStorage.getItem(STORE_KEY);if(s)return JSON.parse(s);}catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_DB));
+}
+function saveDB(){
+  try{localStorage.setItem(STORE_KEY,JSON.stringify(DB));}catch(e){}
+  if(BC)BC.postMessage({type:'db_update',ts:Date.now()});
+}
+
+// Real-time updates from other tabs (superadmin etc.)
+if(BC){
+  BC.onmessage=(e)=>{
+    if(e.data.type==='db_update'){
+      const fresh=loadDB();
+      if(JSON.stringify(fresh)!==JSON.stringify(DB)){
+        DB=fresh;
+        if(currentUser){renderPage(currentPage);toast('🔄 Data diperbarui dari SuperAdmin');}
+      }
+    }
+  };
+}
+// Also poll every 3s for cross-origin or same-tab changes
+setInterval(()=>{
+  if(!currentUser)return;
+  const fresh=loadDB();
+  if(JSON.stringify(fresh)!==JSON.stringify(DB)){
+    DB=fresh;
+    renderPage(currentPage);
+    document.getElementById('syncLabel').textContent='Terbarui: '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+  }
+},3000);
+
+// ============================================================
+// AUTH & ROLE CONFIG
+// ============================================================
+const CREDS={
+  'fatimah.admin':{pass:'admin123',role:'Admin',id:2},
+  'umar.opr':     {pass:'opr123',  role:'Operator',id:3},
+  'yahya.pmp':    {pass:'pmp123',  role:'Pimpinan',id:4},
+  'siti.stf':     {pass:'stf123',  role:'Staff',id:5},
+  'ahmad.opr':    {pass:'opr123',  role:'Operator',id:6},
+  'barakah.stf':  {pass:'stf123',  role:'Staff',id:7},
+  'publik':       {pass:'pub123',  role:'Publik',id:null},
+};
+
+const ROLE_META={
+  'Admin':    {color:'#2d6a4f',icon:'🔑',badge:'Admin',cssVar:'var(--gl)'},
+  'Operator': {color:'#2471a3',icon:'⚙️',badge:'Operator',cssVar:'var(--blue)'},
+  'Pimpinan': {color:'#8e44ad',icon:'👔',badge:'Pimpinan',cssVar:'var(--purple)'},
+  'Staff':    {color:'#d35400',icon:'📝',badge:'Staff',cssVar:'var(--orange)'},
+  'Publik':   {color:'#17a589',icon:'🌐',badge:'Publik / Masyarakat',cssVar:'var(--teal)'},
+};
+
+const SIDEBAR_CONFIG={
+  Admin:[
+    {section:'Utama'},
+    {id:'dashboard',icon:'📊',label:'Dashboard'},
+    {section:'Permohonan'},
+    {id:'permohonan',icon:'📋',label:'Semua Permohonan',badge:true},
+    {id:'disposisi',icon:'🔔',label:'Disposisi'},
+    {id:'arsip',icon:'📁',label:'Arsip Dokumen'},
+    {section:'Master Data'},
+    {id:'jenis',icon:'🗂',label:'CRUD Jenis Layanan'},
+    {id:'unit',icon:'🏢',label:'CRUD Unit Pengolah'},
+    {id:'syarat',icon:'📄',label:'CRUD Syarat Dokumen'},
+    {id:'output',icon:'📤',label:'CRUD Output'},
+    {section:'Pengguna'},
+    {id:'pengguna',icon:'👥',label:'Manajemen Pengguna'},
+    {section:'Konten Website'},
+    {id:'menu',icon:'📌',label:'Edit Menu Navigasi'},
+    {id:'layanan_web',icon:'✏️',label:'Edit Kartu Layanan'},
+    {id:'pengumuman',icon:'📢',label:'Pengumuman & Berita'},
+    {section:'Sistem'},
+    {id:'laporan',icon:'📈',label:'Laporan & Statistik'},
+  ],
+  Operator:[
+    {section:'Utama'},
+    {id:'dashboard',icon:'📊',label:'Dashboard'},
+    {section:'Pekerjaan Saya'},
+    {id:'permohonan',icon:'📋',label:'Permohonan Masuk',badge:true},
+    {id:'proses',icon:'⚙️',label:'Sedang Diproses'},
+    {id:'arsip',icon:'📁',label:'Arsip Selesai'},
+    {section:'Koordinasi'},
+    {id:'disposisi',icon:'🔔',label:'Disposisi Masuk'},
+    {section:'Referensi'},
+    {id:'layanan_ref',icon:'🗂',label:'Info Jenis Layanan'},
+    {id:'syarat_ref',icon:'📄',label:'Info Syarat'},
+  ],
+  Pimpinan:[
+    {section:'Monitoring'},
+    {id:'dashboard',icon:'📊',label:'Dashboard Eksekutif'},
+    {id:'overview',icon:'🔭',label:'Ikhtisar Permohonan'},
+    {section:'Disposisi'},
+    {id:'disposisi',icon:'🔔',label:'Kelola Disposisi'},
+    {section:'Laporan'},
+    {id:'laporan',icon:'📈',label:'Laporan & Statistik'},
+    {id:'pengguna_view',icon:'👥',label:'Daftar Pengguna'},
+    {section:'Informasi'},
+    {id:'pengumuman',icon:'📢',label:'Pengumuman'},
+  ],
+  Staff:[
+    {section:'Utama'},
+    {id:'dashboard',icon:'📊',label:'Dashboard'},
+    {section:'Permohonan'},
+    {id:'input_permohonan',icon:'➕',label:'Input Permohonan Baru'},
+    {id:'permohonan_unit',icon:'📋',label:'Permohonan Unit Saya'},
+    {section:'Arsip & Output'},
+    {id:'output_upload',icon:'📤',label:'Upload Output Layanan'},
+    {id:'arsip',icon:'📁',label:'Arsip Dokumen'},
+    {section:'Disposisi'},
+    {id:'disposisi',icon:'🔔',label:'Disposisi Masuk'},
+    {section:'Referensi'},
+    {id:'syarat_ref',icon:'📄',label:'Info Syarat Dokumen'},
+  ],
+  Publik:[
+    {section:'Beranda'},
+    {id:'beranda',icon:'🏠',label:'Beranda'},
+    {section:'Layanan'},
+    {id:'info_layanan',icon:'📋',label:'Info Layanan'},
+    {id:'ajukan',icon:'✍️',label:'Ajukan Permohonan'},
+    {section:'Permohonan Saya'},
+    {id:'lacak',icon:'🔍',label:'Lacak Status'},
+    {id:'riwayat',icon:'🕐',label:'Riwayat Permohonan'},
+    {section:'Informasi'},
+    {id:'pengumuman_pub',icon:'📢',label:'Pengumuman & Berita'},
+    {id:'kontak',icon:'📞',label:'Kontak & Jam Layanan'},
+  ],
+};
+
+const PAGE_TITLES={
+  dashboard:'Dashboard',overview:'Ikhtisar Permohonan',proses:'Permohonan Diproses',
+  permohonan:'Semua Permohonan',permohonan_unit:'Permohonan Unit Saya',
+  jenis:'CRUD Jenis Layanan',unit:'CRUD Unit Pengolah',syarat:'CRUD Syarat Dokumen',
+  output:'CRUD Output Layanan',pengguna:'Manajemen Pengguna',pengguna_view:'Daftar Pengguna',
+  menu:'Edit Menu Navigasi',layanan_web:'Edit Kartu Layanan',pengumuman:'Pengumuman & Berita',
+  laporan:'Laporan & Statistik',disposisi:'Disposisi',arsip:'Arsip Dokumen',
+  input_permohonan:'Input Permohonan Baru',output_upload:'Upload Output Layanan',
+  layanan_ref:'Info Jenis Layanan',syarat_ref:'Info Syarat Dokumen',
+  beranda:'Beranda',info_layanan:'Informasi Layanan',ajukan:'Ajukan Permohonan',
+  lacak:'Lacak Status Permohonan',riwayat:'Riwayat Permohonan',
+  pengumuman_pub:'Pengumuman & Berita',kontak:'Kontak & Jam Layanan',
+};
+
+// ============================================================
+// LOGIN
+// ============================================================
+(function buildRoleTabs(){
+  const tabs=document.getElementById('roleTabs');
+  const roles=[
+    {key:'Admin',icon:'🔑',label:'Admin'},
+    {key:'Operator',icon:'⚙️',label:'Operator'},
+    {key:'Pimpinan',icon:'👔',label:'Pimpinan'},
+    {key:'Staff',icon:'📝',label:'Staff'},
+    {key:'Publik',icon:'🌐',label:'Publik'},
+  ];
+  tabs.innerHTML=roles.map(r=>`
+    <div class="role-tab" onclick="selectRole('${r.key}',this)">
+      <div class="rt-icon">${r.icon}</div>
+      <span class="rt-label">${r.label}</span>
+    </div>`).join('');
+})();
+
+function selectRole(role,el){
+  document.querySelectorAll('.role-tab').forEach(t=>t.classList.remove('selected'));
+  el.classList.add('selected');
+  const hints={
+    Admin:"fatimah.admin / admin123",
+    Operator:"umar.opr / opr123",
+    Pimpinan:"yahya.pmp / pmp123",
+    Staff:"siti.stf / stf123",
+    Publik:"publik / pub123",
+  };
+  const [u,p]=hints[role].split(' / ');
+  document.getElementById('lgUser').value=u;
+  document.getElementById('lgPass').value=p;
+}
+
+function doLogin(){
+  const u=document.getElementById('lgUser').value.trim();
+  const p=document.getElementById('lgPass').value;
+  const cred=CREDS[u];
+  if(!cred||cred.pass!==p){toast('❌ Username atau password salah!');return;}
+  const pg=DB.pengguna.find(x=>x.id===cred.id);
+  currentUser={username:u,role:cred.role,id:cred.id,
+    nama:pg?pg.nama:(u==='publik'?'Pengguna Publik':u),
+    unit:pg?pg.unit:'Publik',
+  };
+  document.getElementById('loginScreen').style.display='none';
+  initDashboard();
+  const m=ROLE_META[cred.role];
+  toast(`✅ Selamat datang, ${currentUser.nama}! Akses ${cred.role} aktif.`);
+}
+function doLogout(){
+  showConfirm('🚪','Keluar dari Sistem','Anda yakin ingin keluar dari dashboard?',()=>{
+    currentUser=null;
+    document.getElementById('loginScreen').style.display='flex';
+  });
+}
+
+// ============================================================
+// INIT DASHBOARD
+// ============================================================
+function initDashboard(){
+  const role=currentUser.role;
+  const m=ROLE_META[role];
+  // Set CSS var
+  document.documentElement.style.setProperty('--role-color',m.color);
+  // Topbar
+  document.getElementById('topbarName').textContent=currentUser.nama;
+  document.getElementById('topbarRole').textContent=role;
+  document.getElementById('topbarAvatar').textContent=currentUser.nama.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  // Sidebar
+  document.getElementById('sbRoleLabel').textContent=`${m.icon} ${m.badge}`;
+  document.getElementById('sbUserName').textContent=currentUser.nama;
+  document.getElementById('sbUserUnit').textContent=currentUser.unit;
+  buildSidebar(role);
+  // First page
+  const firstPage=SIDEBAR_CONFIG[role].find(x=>x.id);
+  nav(firstPage?firstPage.id:'dashboard',null);
+}
+
+function buildSidebar(role){
+  const cfg=SIDEBAR_CONFIG[role]||[];
+  let html='';
+  cfg.forEach(item=>{
+    if(item.section){html+=`<div class="sb-section">${item.section}</div>`;return;}
+    const bc=item.badge?`<span class="badge-count">${DB.permohonan.filter(p=>p.status==='Menunggu').length}</span>`:'';
+    html+=`<div class="sb-item" id="nav-${item.id}" onclick="nav('${item.id}',this)"><span class="ic">${item.icon}</span>${item.label}${bc}</div>`;
+  });
+  document.getElementById('sidebarMenu').innerHTML=html;
+}
+
+function nav(pageId,el){
+  currentPage=pageId;
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  const navEl=el||document.getElementById('nav-'+pageId);
+  if(navEl)navEl.classList.add('active');
+  document.getElementById('tbTitle').textContent=PAGE_TITLES[pageId]||pageId;
+  renderPage(pageId);
+}
+
+function renderPage(id){
+  const fn={
+    dashboard:renderDashboard,
+    permohonan:renderPermohonan,permohonan_unit:()=>renderPermohonan(currentUser.unit),
+    proses:()=>renderPermohonan('','Diproses'),
+    jenis:renderJenis,unit:renderUnit,syarat:renderSyarat,output:renderOutput,
+    pengguna:renderPengguna,pengguna_view:renderPenggunaView,
+    menu:renderMenu,layanan_web:renderLayananWeb,pengumuman:renderPengumuman,
+    laporan:renderLaporan,disposisi:renderDisposisi,arsip:renderArsip,
+    overview:renderOverview,input_permohonan:renderInputPermohonan,
+    output_upload:renderOutputUpload,layanan_ref:renderLayananRef,
+    syarat_ref:renderSyaratRef,beranda:renderBeranda,info_layanan:renderInfoLayanan,
+    ajukan:renderAjukan,lacak:renderLacak,riwayat:renderRiwayat,
+    pengumuman_pub:renderPengumumanPub,kontak:renderKontak,
+  }[id];
+  if(fn)fn();
+}
+
+// ============================================================
+// RENDER HELPERS
+// ============================================================
+function setContent(html){document.getElementById('content').innerHTML=html;}
+
+function pillStatus(s){
+  const m={'Aktif':'green','Selesai':'green','Diterima':'green','Diterbitkan':'green',
+           'Diproses':'yellow','Menunggu':'gray','Dikirim':'blue','Draf':'yellow',
+           'Nonaktif':'gray','Ditolak':'red'};
+  return `<span class="pill pill-${m[s]||'gray'}">${s}</span>`;
+}
+function pillLevel(l){
+  const m={'Super Admin':'gold','Admin':'green','Operator':'blue','Pimpinan':'purple','Staff':'orange','Publik':'gray'};
+  return `<span class="pill pill-${m[l]||'gray'}">${l}</span>`;
+}
+
+function animNum(id,end){
+  const el=document.getElementById(id);if(!el)return;
+  let s=0;const step=(end/600)*16;
+  const t=setInterval(()=>{s=Math.min(s+step,end);el.textContent=Math.floor(s);if(s>=end){clearInterval(t);el.textContent=end;}},16);
+}
+
+// ============================================================
+// SHARED COMPONENTS
+// ============================================================
+function renderStatusBadge(role){
+  if(role==='Pimpinan'||role==='Operator'||role==='Staff')
+    return `<div class="read-only-badge">👁 Mode ${role==='Pimpinan'?'Monitoring':role}</div>`;
+  return '';
+}
+
+function permohonanDetailHTML(p){
+  const syaratsForJenis=DB.syarat.filter(s=>s.jenis===p.jenis);
+  return `
+    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+      <div class="stat-card" style="padding:14px;"><div class="sc-label">No. Referensi</div><div style="font-weight:700;font-size:.9rem;margin-top:4px;">${p.ref}</div></div>
+      <div class="stat-card" style="padding:14px;"><div class="sc-label">Status</div><div style="margin-top:4px;">${pillStatus(p.status)}</div></div>
+      <div class="stat-card" style="padding:14px;"><div class="sc-label">Tanggal</div><div style="font-weight:700;font-size:.88rem;margin-top:4px;">${p.tgl}</div></div>
+    </div>
+    <div class="two-col" style="gap:16px;">
+      <div>
+        <div class="stag">Data Pemohon</div>
+        <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px;">
+          <div><span style="font-size:.72rem;color:var(--tl);text-transform:uppercase;letter-spacing:.06em;">Nama Lengkap</span><div style="font-weight:700;">${p.nama}</div></div>
+          <div><span style="font-size:.72rem;color:var(--tl);text-transform:uppercase;letter-spacing:.06em;">NIK</span><div style="font-weight:700;">${p.nik||'-'}</div></div>
+          <div><span style="font-size:.72rem;color:var(--tl);text-transform:uppercase;letter-spacing:.06em;">Telepon</span><div style="font-weight:700;">${p.telp||'-'}</div></div>
+          <div><span style="font-size:.72rem;color:var(--tl);text-transform:uppercase;letter-spacing:.06em;">Jenis Layanan</span><div style="font-weight:700;">${p.jenis}</div></div>
+          <div><span style="font-size:.72rem;color:var(--tl);text-transform:uppercase;letter-spacing:.06em;">Unit Pengolah</span><div style="font-weight:700;">${p.unit}</div></div>
+          ${p.catatan?`<div><span style="font-size:.72rem;color:var(--tl);text-transform:uppercase;letter-spacing:.06em;">Catatan</span><div style="font-size:.84rem;color:var(--tm);">${p.catatan}</div></div>`:''}
+        </div>
+      </div>
+      <div>
+        <div class="stag">Dokumen Persyaratan</div>
+        <div style="margin-top:10px;">
+          ${syaratsForJenis.map(s=>`
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0ede6;font-size:.84rem;">
+              <span>${s.nama}${s.wajib?' <span style="color:var(--red);font-size:.7rem;">*</span>':''}</span>
+              <span class="pill pill-green" style="font-size:.65rem;">✓ Diunggah</span>
+            </div>`).join('')}
+          ${syaratsForJenis.length===0?'<p style="font-size:.82rem;color:var(--tl);">Tidak ada persyaratan spesifik</p>':''}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ============================================================
+// DASHBOARD - SHARED
+// ============================================================
+function renderDashboard(){
+  const role=currentUser.role;
+  const total=DB.permohonan.length;
+  const diproses=DB.permohonan.filter(p=>p.status==='Diproses').length;
+  const selesai=DB.permohonan.filter(p=>p.status==='Selesai').length;
+  const menunggu=DB.permohonan.filter(p=>p.status==='Menunggu').length;
+  const ditolak=DB.permohonan.filter(p=>p.status==='Ditolak').length;
+  const peng=DB.pengguna.length;
+
+  let extraStats='';
+  if(role==='Admin'){
+    extraStats=`
+      <div class="stat-card blue"><div class="sc-icon">👥</div><div class="sc-num" id="sPeng">0</div><div class="sc-label">Total Pengguna</div></div>
+      <div class="stat-card"><div class="sc-icon">🗂</div><div class="sc-num">${DB.jenis.filter(j=>j.status==='Aktif').length}</div><div class="sc-label">Jenis Layanan Aktif</div></div>`;
+  } else if(role==='Operator'){
+    const myUnit=currentUser.unit;
+    const myWork=DB.permohonan.filter(p=>p.unit===myUnit);
+    extraStats=`
+      <div class="stat-card blue"><div class="sc-icon">🏢</div><div class="sc-num">${myWork.length}</div><div class="sc-label">Tugas Unit Saya</div></div>
+      <div class="stat-card"><div class="sc-icon">🔔</div><div class="sc-num">${DB.disposisi.filter(d=>d.status==='Menunggu').length}</div><div class="sc-label">Disposisi Menunggu</div></div>`;
+  } else if(role==='Pimpinan'){
+    extraStats=`
+      <div class="stat-card purple"><div class="sc-icon">🔔</div><div class="sc-num">${DB.disposisi.length}</div><div class="sc-label">Total Disposisi</div></div>
+      <div class="stat-card blue"><div class="sc-icon">👥</div><div class="sc-num">${peng}</div><div class="sc-label">Total Staf Aktif</div></div>`;
+  } else if(role==='Staff'){
+    const myUnit=currentUser.unit;
+    extraStats=`
+      <div class="stat-card blue"><div class="sc-icon">🏢</div><div class="sc-num">${DB.permohonan.filter(p=>p.unit===myUnit).length}</div><div class="sc-label">Permohonan Unit</div></div>
+      <div class="stat-card"><div class="sc-icon">📤</div><div class="sc-num">${selesai}</div><div class="sc-label">Output Tersedia</div></div>`;
+  } else if(role==='Publik'){
+    renderBeranda(); return;
+  }
+
+  const bars=[12,18,22,16,28,total].map((v,i)=>`<div class="bar" style="height:${Math.round(v/28*100)}%;"></div>`).join('');
+  const recentActivity=DB.permohonan.slice(-5).reverse().map(p=>`
+    <div class="af-item">
+      <div class="af-dot ${p.status==='Selesai'?'green':p.status==='Diproses'?'gold':p.status==='Ditolak'?'red':'blue'}">
+        ${p.status==='Selesai'?'✅':p.status==='Diproses'?'⏳':p.status==='Ditolak'?'❌':'📝'}
+      </div>
+      <div class="af-text"><strong>${p.nama} — ${p.jenis}</strong><span>Ref: ${p.ref}</span></div>
+      <div class="af-time">${p.tgl}</div>
+    </div>`).join('');
+
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>Dashboard ${role==='Pimpinan'?'Eksekutif':role}</h2><p>Selamat datang, ${currentUser.nama} — ${new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</p></div>
+        <div style="display:flex;gap:8px;">
+          ${role==='Admin'?`<button class="btn btn-ghost btn-sm" onclick="toast('📥 Mengekspor data...')">📥 Export</button><button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Lihat Permohonan</button>`:''}
+          ${role==='Pimpinan'?`<button class="btn btn-purple btn-sm" onclick="nav('disposisi',null)">🔔 Buat Disposisi</button><button class="btn btn-ghost btn-sm" onclick="nav('laporan',null)">📈 Laporan</button>`:''}
+          ${role==='Operator'||role==='Staff'?`<button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Lihat Tugas</button>`:''}
+        </div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="sc-icon">📋</div><div class="sc-num" id="sTotal">0</div><div class="sc-label">Total Permohonan</div><div class="sc-change up">↑ Data real-time</div></div>
+        <div class="stat-card gold"><div class="sc-icon">⏳</div><div class="sc-num" id="sDiproses">0</div><div class="sc-label">Sedang Diproses</div></div>
+        <div class="stat-card"><div class="sc-icon">✅</div><div class="sc-num" id="sSelesai">0</div><div class="sc-label">Selesai</div><div class="sc-change up">↑ 8%</div></div>
+        <div class="stat-card red"><div class="sc-icon">🕐</div><div class="sc-num" id="sMenunggu">0</div><div class="sc-label">Menunggu Diproses</div></div>
+        ${extraStats}
+      </div>
+      <div class="two-col">
+        <div class="table-card">
+          <div class="table-hdr"><h3>📊 Tren Permohonan (6 Bulan)</h3></div>
+          <div style="padding:16px 20px 20px;">
+            <div class="mini-chart">${bars}</div>
+            <div style="display:flex;justify-content:space-between;margin-top:8px;">
+              ${['Des','Jan','Feb','Mar','Apr','Mei'].map(m=>`<span style="font-size:.7rem;color:var(--tl);">${m}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-hdr"><h3>🕐 Aktivitas Terbaru</h3></div>
+          <div style="padding:4px 16px 16px;" class="activity-feed">${recentActivity}</div>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr">
+          <h3>📋 Permohonan Terbaru</h3>
+          <button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">Lihat Semua →</button>
+        </div>
+        <table>
+          <thead><tr><th>No. Ref</th><th>Nama</th><th>Jenis Layanan</th><th>Tanggal</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody>${DB.permohonan.slice(-6).reverse().map(p=>`
+            <tr>
+              <td><b>${p.ref}</b></td><td>${p.nama}</td><td>${p.jenis}</td><td>${p.tgl}</td>
+              <td>${pillStatus(p.status)}</td>
+              <td><button class="btn btn-blue btn-sm btn-icon" onclick="showDetailModal(${p.id})">👁</button></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`);
+  animNum('sTotal',total);animNum('sDiproses',diproses);animNum('sSelesai',selesai);animNum('sMenunggu',menunggu);
+  if(document.getElementById('sPeng'))animNum('sPeng',peng);
+}
+
+// ============================================================
+// PERMOHONAN (Admin, Operator, Staff)
+// ============================================================
+function renderPermohonan(unitFilter='',statusFilter='',searchFilter=''){
+  const role=currentUser.role;
+  const canEdit=role==='Admin'||role==='Operator'||role==='Staff';
+  const canDelete=role==='Admin';
+  let data=[...DB.permohonan];
+  if(unitFilter)data=data.filter(p=>p.unit===unitFilter);
+  if(statusFilter)data=data.filter(p=>p.status===statusFilter);
+  if(searchFilter)data=data.filter(p=>p.nama.toLowerCase().includes(searchFilter.toLowerCase())||p.ref.toLowerCase().includes(searchFilter.toLowerCase()));
+
+  const jenisOpts=DB.jenis.map(j=>`<option>${j.nama}</option>`).join('');
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>${unitFilter?'Permohonan Unit Saya':'Semua Permohonan'}</h2><p>${data.length} data ditemukan</p></div>
+        <div style="display:flex;gap:8px;">
+          ${role==='Admin'||role==='Staff'?`<button class="btn btn-green" onclick="openPermohonanModal()">➕ Tambah Manual</button>`:''}
+          ${role==='Admin'?`<button class="btn btn-ghost btn-sm" onclick="toast('📥 Mengekspor...')">📥 Export</button>`:''}
+        </div>
+      </div>
+      ${role==='Pimpinan'?`<div class="info-banner"><div class="ib-icon">👔</div><p>Mode monitoring. Anda dapat melihat semua permohonan dan membuat disposisi, namun tidak dapat mengubah data secara langsung.</p></div>`:''}
+      <div class="table-card">
+        <div class="table-hdr">
+          <h3>Daftar Permohonan (<span id="pcnt">${data.length}</span>)</h3>
+          <div class="table-filters">
+            <input class="filter-input" placeholder="Cari nama / referensi..." oninput="renderPermohonanSearch(this.value,'${unitFilter}')">
+            <select class="filter-input" onchange="renderPermohonan('${unitFilter}',this.value)">
+              <option value="">Semua Status</option>
+              <option>Menunggu</option><option>Diproses</option><option>Selesai</option><option>Ditolak</option>
+            </select>
+            <select class="filter-input" onchange="renderPermohonan('',document.querySelector(\`select.filter-input\`).value,this.value==='Semua Jenis'?'':this.value)">
+              <option>Semua Jenis</option>${jenisOpts}
+            </select>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>No. Ref</th><th>Nama Pemohon</th><th>Jenis Layanan</th><th>Tanggal</th><th>Unit</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="permBody">${data.map(p=>`
+            <tr>
+              <td><b>${p.ref}</b></td><td>${p.nama}</td><td>${p.jenis}</td><td>${p.tgl}</td>
+              <td style="font-size:.8rem;">${p.unit}</td><td>${pillStatus(p.status)}</td>
+              <td><div class="td-actions">
+                <button class="btn btn-blue btn-sm btn-icon" title="Detail" onclick="showDetailModal(${p.id})">👁</button>
+                ${canEdit?`<button class="btn btn-gold btn-sm btn-icon" title="Ubah Status" onclick="openStatusModal(${p.id})">✏️</button>`:''}
+                ${canDelete?`<button class="btn btn-red btn-sm btn-icon" title="Hapus" onclick="hapusPermohonan(${p.id})">🗑</button>`:''}
+                ${role==='Pimpinan'?`<button class="btn btn-purple btn-sm" onclick="openDisposisiFor(${p.id})">🔔 Disposisi</button>`:''}
+              </div></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`);
+}
+function renderPermohonanSearch(q,unit=''){
+  let data=[...DB.permohonan];
+  if(unit)data=data.filter(p=>p.unit===unit);
+  if(q)data=data.filter(p=>p.nama.toLowerCase().includes(q.toLowerCase())||p.ref.toLowerCase().includes(q.toLowerCase()));
+  document.getElementById('pcnt').textContent=data.length;
+  document.getElementById('permBody').innerHTML=data.map(p=>`
+    <tr><td><b>${p.ref}</b></td><td>${p.nama}</td><td>${p.jenis}</td><td>${p.tgl}</td>
+    <td style="font-size:.8rem;">${p.unit}</td><td>${pillStatus(p.status)}</td>
+    <td><div class="td-actions">
+      <button class="btn btn-blue btn-sm btn-icon" onclick="showDetailModal(${p.id})">👁</button>
+      <button class="btn btn-gold btn-sm btn-icon" onclick="openStatusModal(${p.id})">✏️</button>
+    </div></td></tr>`).join('');
+}
+
+function showDetailModal(id){
+  const p=DB.permohonan.find(x=>x.id===id);if(!p)return;
+  document.getElementById('detailBody').innerHTML=permohonanDetailHTML(p);
+  const role=currentUser.role;
+  const foot=document.getElementById('detailFoot');
+  let btns=`<button class="btn btn-ghost" onclick="closeModal('detailModal')">Tutup</button>`;
+  if(role==='Admin'||role==='Operator'||role==='Staff')
+    btns+=`<button class="btn btn-gold" onclick="closeModal('detailModal');openStatusModal(${id})">✏️ Ubah Status</button>`;
+  if(role==='Pimpinan')
+    btns+=`<button class="btn btn-purple" onclick="closeModal('detailModal');openDisposisiFor(${id})">🔔 Buat Disposisi</button>`;
+  foot.innerHTML=btns;
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function openPermohonanModal(id=null){
+  editTarget=id;
+  const p=id?DB.permohonan.find(x=>x.id===id):{ref:'KUA-2026-'+DB.nextId.permohonan,nama:'',jenis:DB.jenis[0]?.nama||'',tgl:new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}),unit:DB.unit[0]?.nama||'',status:'Menunggu',nik:'',telp:'',catatan:''};
+  const jenisOpts=DB.jenis.filter(j=>j.status==='Aktif').map(j=>`<option ${j.nama===p.jenis?'selected':''}>${j.nama}</option>`).join('');
+  const unitOpts=DB.unit.map(u=>`<option ${u.nama===p.unit?'selected':''}>${u.nama}</option>`).join('');
+  setModal(`${id?'Edit':'Tambah'} Permohonan`,`
+    <div class="form-row">
+      <div class="fg"><label>No. Referensi</label><input id="fRef" value="${p.ref}" ${id?'readonly':''}></div>
+      <div class="fg"><label>Tanggal</label><input id="fTgl" value="${p.tgl}"></div>
+    </div>
+    <div class="fg"><label>Nama Pemohon</label><input id="fNama" value="${p.nama}" placeholder="Nama lengkap pemohon"></div>
+    <div class="form-row">
+      <div class="fg"><label>NIK</label><input id="fNik" value="${p.nik||''}" placeholder="16 digit NIK"></div>
+      <div class="fg"><label>Telepon</label><input id="fTelp" value="${p.telp||''}" placeholder="08xx"></div>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label>Jenis Layanan</label><select id="fJenis" onchange="autoUnit(this.value)">${jenisOpts}</select></div>
+      <div class="fg"><label>Unit Pengolah</label><select id="fUnit">${unitOpts}</select></div>
+    </div>
+    <div class="fg"><label>Status</label><select id="fStatus">
+      <option ${p.status==='Menunggu'?'selected':''}>Menunggu</option>
+      <option ${p.status==='Diproses'?'selected':''}>Diproses</option>
+      <option ${p.status==='Selesai'?'selected':''}>Selesai</option>
+      <option ${p.status==='Ditolak'?'selected':''}>Ditolak</option>
+    </select></div>
+    <div class="fg"><label>Catatan</label><textarea id="fCatatan">${p.catatan||''}</textarea></div>
+  `,()=>savePermohonan());
+}
+function autoUnit(jenis){
+  const j=DB.jenis.find(x=>x.nama===jenis);
+  if(j){const u=DB.unit.find(u=>u.nama===j.unit);if(u){const sel=document.getElementById('fUnit');if(sel){for(let o of sel.options){if(o.text===u.nama){sel.value=o.text;break;}}}}}
+}
+function savePermohonan(){
+  const d={ref:v('fRef'),nama:v('fNama'),jenis:v('fJenis'),tgl:v('fTgl'),unit:v('fUnit'),status:v('fStatus'),nik:v('fNik'),telp:v('fTelp'),catatan:v('fCatatan')};
+  if(!d.nama){toast('⚠️ Nama pemohon wajib!');return;}
+  if(editTarget){Object.assign(DB.permohonan.find(x=>x.id===editTarget),{...d,id:editTarget});}
+  else{DB.permohonan.push({...d,id:DB.nextId.permohonan++});}
+  saveDB();closeModal('crudModal');renderPermohonan();toast('✅ Permohonan disimpan!');
+}
+function openStatusModal(id){
+  const p=DB.permohonan.find(x=>x.id===id);if(!p)return;
+  setModal('Ubah Status Permohonan',`
+    <p style="margin-bottom:16px;font-size:.88rem;color:var(--tl);">Ref: <b>${p.ref}</b> — ${p.nama}</p>
+    <div class="fg"><label>Status Baru</label>
+      <select id="fStatus">
+        <option ${p.status==='Menunggu'?'selected':''}>Menunggu</option>
+        <option ${p.status==='Diproses'?'selected':''}>Diproses</option>
+        <option ${p.status==='Selesai'?'selected':''}>Selesai</option>
+        <option ${p.status==='Ditolak'?'selected':''}>Ditolak</option>
+      </select>
+    </div>
+    <div class="fg"><label>Catatan</label><textarea id="fCatatan" placeholder="Catatan perubahan...">${p.catatan||''}</textarea></div>
+  `,()=>{
+    p.status=v('fStatus');p.catatan=v('fCatatan');
+    saveDB();closeModal('crudModal');renderPage(currentPage);
+    toast(`✅ Status ${p.ref} → "${p.status}"`);
+  });
+}
+function hapusPermohonan(id){
+  showConfirm('🗑','Hapus Permohonan','Data tidak dapat dikembalikan.',()=>{
+    DB.permohonan=DB.permohonan.filter(x=>x.id!==id);
+    saveDB();renderPermohonan();toast('🗑 Permohonan dihapus!');
+  });
+}
+
+// ============================================================
+// JENIS LAYANAN (Admin only)
+// ============================================================
+function renderJenis(){
+  const unitOpts=DB.unit.map(u=>`<option>${u.nama}</option>`).join('');
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>CRUD Jenis Layanan</h2><p>${DB.jenis.length} jenis layanan terdaftar</p></div>
+        <button class="btn btn-green" onclick="openJenisModal()">➕ Tambah Jenis</button>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr">
+          <h3>Daftar Jenis Layanan</h3>
+          <input class="filter-input" placeholder="Cari..." oninput="filterTable('jenisBody',this.value)">
+        </div>
+        <table><thead><tr><th>#</th><th>Ikon</th><th>Nama Layanan</th><th>Deskripsi</th><th>Unit</th><th>Estimasi</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody id="jenisBody">${DB.jenis.map((j,i)=>`
+          <tr><td>${i+1}</td><td style="font-size:1.3rem;">${j.ikon}</td><td><b>${j.nama}</b></td>
+          <td style="max-width:180px;font-size:.82rem;color:var(--tl);">${j.desk}</td>
+          <td>${j.unit}</td><td>${j.estimasi} hari</td><td>${pillStatus(j.status)}</td>
+          <td><div class="td-actions">
+            <button class="btn btn-blue btn-sm btn-icon" onclick="openJenisModal(${j.id})">✏️</button>
+            <button class="btn btn-red btn-sm btn-icon" onclick="deleteItem('jenis',${j.id},'jenis')">🗑</button>
+          </div></td></tr>`).join('')}
+        </tbody></table>
+      </div>
+    </div>`);
+}
+function openJenisModal(id=null){
+  editTarget=id;
+  const j=id?DB.jenis.find(x=>x.id===id):{ikon:'📋',nama:'',desk:'',unit:DB.unit[0]?.nama||'',estimasi:'7',status:'Aktif'};
+  const unitOpts=DB.unit.map(u=>`<option ${u.nama===j.unit?'selected':''}>${u.nama}</option>`).join('');
+  setModal(`${id?'Edit':'Tambah'} Jenis Layanan`,`
+    <div class="form-row">
+      <div class="fg"><label>Ikon</label><input id="fIkon" value="${j.ikon}" maxlength="4" style="font-size:1.5rem;text-align:center;"></div>
+      <div class="fg"><label>Status</label><select id="fStatus"><option ${j.status==='Aktif'?'selected':''}>Aktif</option><option ${j.status==='Nonaktif'?'selected':''}>Nonaktif</option></select></div>
+    </div>
+    <div class="fg"><label>Nama Jenis Layanan</label><input id="fNama" value="${j.nama}" placeholder="Nama layanan"></div>
+    <div class="fg"><label>Deskripsi</label><textarea id="fDesk">${j.desk}</textarea></div>
+    <div class="form-row">
+      <div class="fg"><label>Unit Pengolah</label><select id="fUnit">${unitOpts}</select></div>
+      <div class="fg"><label>Estimasi (hari)</label><input id="fEst" type="number" value="${j.estimasi}" min="1"></div>
+    </div>`,()=>{
+    const d={ikon:v('fIkon'),nama:v('fNama'),desk:v('fDesk'),unit:v('fUnit'),estimasi:v('fEst'),status:v('fStatus')};
+    if(!d.nama){toast('⚠️ Nama wajib!');return;}
+    if(editTarget){Object.assign(DB.jenis.find(x=>x.id===editTarget),{...d,id:editTarget});}
+    else{DB.jenis.push({...d,id:DB.nextId.jenis++});}
+    saveDB();closeModal('crudModal');renderJenis();toast('✅ Jenis layanan disimpan!');
+  });
+}
+
+// ============================================================
+// UNIT PENGOLAH (Admin only)
+// ============================================================
+function renderUnit(){
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>CRUD Unit Pengolah</h2><p>${DB.unit.length} unit terdaftar</p></div>
+        <button class="btn btn-green" onclick="openUnitModal()">➕ Tambah Unit</button>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Daftar Unit Pengolah</h3>
+          <input class="filter-input" placeholder="Cari..." oninput="filterTable('unitBody',this.value)">
+        </div>
+        <table><thead><tr><th>#</th><th>Nama Unit</th><th>Kepala Unit</th><th>Kontak</th><th>Email</th><th>Kapasitas</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody id="unitBody">${DB.unit.map((u,i)=>`
+          <tr><td>${i+1}</td><td><b>${u.nama}</b></td><td>${u.kepala}</td>
+          <td>${u.kontak}</td><td>${u.email}</td><td>${u.kapasitas}/hari</td>
+          <td>${pillStatus(u.status)}</td>
+          <td><div class="td-actions">
+            <button class="btn btn-blue btn-sm btn-icon" onclick="openUnitModal(${u.id})">✏️</button>
+            <button class="btn btn-red btn-sm btn-icon" onclick="deleteItem('unit',${u.id},'unit')">🗑</button>
+          </div></td></tr>`).join('')}
+        </tbody></table>
+      </div>
+    </div>`);
+}
+function openUnitModal(id=null){
+  editTarget=id;
+  const u=id?DB.unit.find(x=>x.id===id):{nama:'',kepala:'',kontak:'',email:'',kapasitas:'10',status:'Aktif'};
+  setModal(`${id?'Edit':'Tambah'} Unit Pengolah`,`
+    <div class="fg"><label>Nama Unit</label><input id="fNama" value="${u.nama}"></div>
+    <div class="fg"><label>Kepala Unit</label><input id="fKepala" value="${u.kepala}"></div>
+    <div class="form-row">
+      <div class="fg"><label>Kontak</label><input id="fKontak" value="${u.kontak}"></div>
+      <div class="fg"><label>Email</label><input id="fEmail" value="${u.email}" type="email"></div>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label>Kapasitas / Hari</label><input id="fKap" type="number" value="${u.kapasitas}"></div>
+      <div class="fg"><label>Status</label><select id="fStatus"><option ${u.status==='Aktif'?'selected':''}>Aktif</option><option ${u.status==='Nonaktif'?'selected':''}>Nonaktif</option></select></div>
+    </div>`,()=>{
+    const d={nama:v('fNama'),kepala:v('fKepala'),kontak:v('fKontak'),email:v('fEmail'),kapasitas:v('fKap'),status:v('fStatus')};
+    if(!d.nama){toast('⚠️ Nama wajib!');return;}
+    if(editTarget){Object.assign(DB.unit.find(x=>x.id===editTarget),{...d,id:editTarget});}
+    else{DB.unit.push({...d,id:DB.nextId.unit++});}
+    saveDB();closeModal('crudModal');renderUnit();toast('✅ Unit disimpan!');
+  });
+}
+
+// ============================================================
+// SYARAT DOKUMEN (Admin) / INFO SYARAT (Operator, Staff)
+// ============================================================
+function renderSyarat(){
+  const canEdit=currentUser.role==='Admin';
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>Syarat Dokumen</h2><p>${DB.syarat.length} syarat terdaftar</p></div>
+        ${canEdit?`<button class="btn btn-green" onclick="openSyaratModal()">➕ Tambah Syarat</button>`:''}
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Daftar Syarat Dokumen</h3>
+          <div class="table-filters">
+            <input class="filter-input" placeholder="Cari..." oninput="filterTable('syaratBody',this.value)">
+            <select class="filter-input" onchange="filterSyaratJenisLocal(this.value)">
+              <option value="">Semua Jenis</option>
+              ${DB.jenis.map(j=>`<option>${j.nama}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <table><thead><tr><th>#</th><th>Nama Dokumen</th><th>Jenis Layanan</th><th>Format</th><th>Ukuran</th><th>Kewajiban</th><th>Keterangan</th>${canEdit?'<th>Aksi</th>':''}</tr></thead>
+        <tbody id="syaratBody">${DB.syarat.map((s,i)=>`
+          <tr><td>${i+1}</td><td><b>${s.nama}</b></td>
+          <td><span class="pill pill-blue">${s.jenis}</span></td>
+          <td>${s.format}</td><td>${s.ukuran}</td>
+          <td><span class="pill ${s.wajib?'pill-red':'pill-gray'}">${s.wajib?'Wajib':'Opsional'}</span></td>
+          <td style="font-size:.8rem;color:var(--tl);">${s.ket||'-'}</td>
+          ${canEdit?`<td><div class="td-actions">
+            <button class="btn btn-blue btn-sm btn-icon" onclick="openSyaratModal(${s.id})">✏️</button>
+            <button class="btn btn-red btn-sm btn-icon" onclick="deleteItem('syarat',${s.id},'syarat')">🗑</button>
+          </div></td>`:''}</tr>`).join('')}
+        </tbody></table>
+      </div>
+    </div>`);
+}
+function renderSyaratRef(){renderSyarat();}
+function filterSyaratJenisLocal(v){
+  let data=v?DB.syarat.filter(s=>s.jenis===v):DB.syarat;
+  document.getElementById('syaratBody').innerHTML=data.map((s,i)=>`
+    <tr><td>${i+1}</td><td><b>${s.nama}</b></td>
+    <td><span class="pill pill-blue">${s.jenis}</span></td>
+    <td>${s.format}</td><td>${s.ukuran}</td>
+    <td><span class="pill ${s.wajib?'pill-red':'pill-gray'}">${s.wajib?'Wajib':'Opsional'}</span></td>
+    <td style="font-size:.8rem;color:var(--tl);">${s.ket||'-'}</td></tr>`).join('');
+}
+function openSyaratModal(id=null){
+  editTarget=id;
+  const s=id?DB.syarat.find(x=>x.id===id):{nama:'',jenis:DB.jenis[0]?.nama||'',format:'PDF/JPG',ukuran:'2MB',wajib:true,ket:''};
+  const jOpts=DB.jenis.map(j=>`<option ${j.nama===s.jenis?'selected':''}>${j.nama}</option>`).join('');
+  setModal(`${id?'Edit':'Tambah'} Syarat Dokumen`,`
+    <div class="fg"><label>Nama Dokumen</label><input id="fNama" value="${s.nama}"></div>
+    <div class="fg"><label>Jenis Layanan</label><select id="fJenis">${jOpts}</select></div>
+    <div class="form-row">
+      <div class="fg"><label>Format</label><input id="fFormat" value="${s.format}"></div>
+      <div class="fg"><label>Maks. Ukuran</label><input id="fUkuran" value="${s.ukuran}"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;padding:8px 0;margin-bottom:12px;">
+      <label class="toggle"><input type="checkbox" id="fWajib" ${s.wajib?'checked':''}><span class="toggle-slider"></span></label>
+      <span style="font-weight:700;font-size:.88rem;">Dokumen Wajib</span>
+    </div>
+    <div class="fg"><label>Keterangan</label><textarea id="fKet">${s.ket}</textarea></div>`,()=>{
+    const d={nama:v('fNama'),jenis:v('fJenis'),format:v('fFormat'),ukuran:v('fUkuran'),wajib:document.getElementById('fWajib').checked,ket:v('fKet')};
+    if(!d.nama){toast('⚠️ Nama wajib!');return;}
+    if(editTarget){Object.assign(DB.syarat.find(x=>x.id===editTarget),{...d,id:editTarget});}
+    else{DB.syarat.push({...d,id:DB.nextId.syarat++});}
+    saveDB();closeModal('crudModal');renderSyarat();toast('✅ Syarat dokumen disimpan!');
+  });
+}
+
+// ============================================================
+// OUTPUT LAYANAN (Admin, Staff)
+// ============================================================
+function renderOutput(){
+  const canEdit=currentUser.role==='Admin';
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>Output Layanan</h2><p>${DB.output.length} output terdaftar</p></div>
+        ${canEdit?`<button class="btn btn-green" onclick="openOutputModal()">➕ Tambah Output</button>`:''}
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Daftar Output Layanan</h3>
+          <input class="filter-input" placeholder="Cari..." oninput="filterTable('outputBody',this.value)">
+        </div>
+        <table><thead><tr><th>#</th><th>Nama Output</th><th>Jenis Layanan</th><th>Tipe</th><th>Template</th><th>Masa Berlaku</th><th>Status</th>${canEdit?'<th>Aksi</th>':''}</tr></thead>
+        <tbody id="outputBody">${DB.output.map((o,i)=>`
+          <tr><td>${i+1}</td><td><b>${o.nama}</b></td><td>${o.jenis}</td>
+          <td><span class="pill pill-blue">${o.tipe}</span></td>
+          <td style="font-size:.78rem;color:var(--tl);">${o.template}</td>
+          <td>${o.berlaku==='Seumur Hidup'?o.berlaku:o.berlaku+' hari'}</td>
+          <td>${pillStatus(o.status)}</td>
+          ${canEdit?`<td><div class="td-actions">
+            <button class="btn btn-blue btn-sm btn-icon" onclick="openOutputModal(${o.id})">✏️</button>
+            <button class="btn btn-red btn-sm btn-icon" onclick="deleteItem('output',${o.id},'output')">🗑</button>
+          </div></td>`:''}</tr>`).join('')}
+        </tbody></table>
+      </div>
+    </div>`);
+}
+function openOutputModal(id=null){
+  editTarget=id;
+  const o=id?DB.output.find(x=>x.id===id):{nama:'',jenis:DB.jenis[0]?.nama||'',tipe:'Digital',template:'',berlaku:'365',status:'Aktif'};
+  const jOpts=DB.jenis.map(j=>`<option ${j.nama===o.jenis?'selected':''}>${j.nama}</option>`).join('');
+  setModal(`${id?'Edit':'Tambah'} Output`,`
+    <div class="fg"><label>Nama Output</label><input id="fNama" value="${o.nama}"></div>
+    <div class="fg"><label>Jenis Layanan</label><select id="fJenis">${jOpts}</select></div>
+    <div class="form-row">
+      <div class="fg"><label>Tipe</label><select id="fTipe"><option ${o.tipe==='Digital'?'selected':''}>Digital</option><option ${o.tipe==='Fisik'?'selected':''}>Fisik</option><option ${o.tipe==='Digital+Fisik'?'selected':''}>Digital+Fisik</option></select></div>
+      <div class="fg"><label>Masa Berlaku</label><input id="fBerlaku" value="${o.berlaku}" placeholder="hari / Seumur Hidup"></div>
+    </div>
+    <div class="fg"><label>Template</label><input id="fTemplate" value="${o.template}"></div>
+    <div class="fg"><label>Status</label><select id="fStatus"><option ${o.status==='Aktif'?'selected':''}>Aktif</option><option ${o.status==='Nonaktif'?'selected':''}>Nonaktif</option></select></div>`,()=>{
+    const d={nama:v('fNama'),jenis:v('fJenis'),tipe:v('fTipe'),berlaku:v('fBerlaku'),template:v('fTemplate'),status:v('fStatus')};
+    if(!d.nama){toast('⚠️ Nama wajib!');return;}
+    if(editTarget){Object.assign(DB.output.find(x=>x.id===editTarget),{...d,id:editTarget});}
+    else{DB.output.push({...d,id:DB.nextId.output++});}
+    saveDB();closeModal('crudModal');renderOutput();toast('✅ Output disimpan!');
+  });
+}
+
+// ============================================================
+// PENGGUNA (Admin CRUD, Pimpinan view-only)
+// ============================================================
+function renderPengguna(){
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>Manajemen Pengguna</h2><p>${DB.pengguna.length} pengguna terdaftar</p></div>
+        <button class="btn btn-green" onclick="openPenggunaModal()">➕ Tambah Pengguna</button>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Daftar Pengguna</h3>
+          <div class="table-filters">
+            <input class="filter-input" placeholder="Cari nama / username..." oninput="filterTable('penggunaBody',this.value)">
+            <select class="filter-input" onchange="filterPenggunaLevel(this.value)">
+              <option value="">Semua Level</option>
+              ${DB.akses.map(a=>`<option>${a.nama}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <table><thead><tr><th>#</th><th>Nama</th><th>Username</th><th>Email</th><th>Level</th><th>Unit</th><th>Login Terakhir</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody id="penggunaBody">${DB.pengguna.map((p,i)=>`
+          <tr><td>${i+1}</td><td><b>${p.nama}</b></td>
+          <td style="font-family:monospace;font-size:.8rem;">${p.username}</td>
+          <td style="font-size:.82rem;">${p.email}</td>
+          <td>${pillLevel(p.level)}</td>
+          <td style="font-size:.82rem;">${p.unit}</td>
+          <td style="font-size:.78rem;color:var(--tl);">${p.login}</td>
+          <td>${pillStatus(p.status)}</td>
+          <td><div class="td-actions">
+            <button class="btn btn-blue btn-sm btn-icon" onclick="openPenggunaModal(${p.id})">✏️</button>
+            <button class="btn btn-red btn-sm btn-icon" onclick="deleteItem('pengguna',${p.id},'pengguna')">🗑</button>
+          </div></td></tr>`).join('')}
+        </tbody></table>
+      </div>
+    </div>`);
+}
+function renderPenggunaView(){
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>Daftar Pengguna Sistem</h2><p>Mode monitoring — ${DB.pengguna.length} pengguna</p></div>
+        <div class="read-only-badge">👁 View Only</div>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Seluruh Pengguna</h3>
+          <input class="filter-input" placeholder="Cari..." oninput="filterTable('penggunaBody',this.value)">
+        </div>
+        <table><thead><tr><th>#</th><th>Nama</th><th>Username</th><th>Level</th><th>Unit</th><th>Login Terakhir</th><th>Status</th></tr></thead>
+        <tbody id="penggunaBody">${DB.pengguna.map((p,i)=>`
+          <tr><td>${i+1}</td><td><b>${p.nama}</b></td>
+          <td style="font-family:monospace;font-size:.8rem;">${p.username}</td>
+          <td>${pillLevel(p.level)}</td>
+          <td style="font-size:.82rem;">${p.unit}</td>
+          <td style="font-size:.78rem;color:var(--tl);">${p.login}</td>
+          <td>${pillStatus(p.status)}</td></tr>`).join('')}
+        </tbody></table>
+      </div>
+    </div>`);
+}
+function filterPenggunaLevel(v){
+  const data=v?DB.pengguna.filter(p=>p.level===v):DB.pengguna;
+  document.getElementById('penggunaBody').innerHTML=data.map((p,i)=>`
+    <tr><td>${i+1}</td><td><b>${p.nama}</b></td>
+    <td style="font-family:monospace;font-size:.8rem;">${p.username}</td>
+    <td style="font-size:.82rem;">${p.email}</td><td>${pillLevel(p.level)}</td>
+    <td style="font-size:.82rem;">${p.unit}</td>
+    <td style="font-size:.78rem;color:var(--tl);">${p.login}</td>
+    <td>${pillStatus(p.status)}</td>
+    <td><div class="td-actions">
+      <button class="btn btn-blue btn-sm btn-icon" onclick="openPenggunaModal(${p.id})">✏️</button>
+      <button class="btn btn-red btn-sm btn-icon" onclick="deleteItem('pengguna',${p.id},'pengguna')">🗑</button>
+    </div></td></tr>`).join('');
+}
+function openPenggunaModal(id=null){
+  editTarget=id;
+  const p=id?DB.pengguna.find(x=>x.id===id):{nama:'',username:'',email:'',level:'Operator',unit:DB.unit[0]?.nama||'',status:'Aktif'};
+  const lvlOpts=DB.akses.map(a=>`<option ${a.nama===p.level?'selected':''}>${a.nama}</option>`).join('');
+  const unitOpts=DB.unit.map(u=>`<option ${u.nama===p.unit?'selected':''}>${u.nama}</option>`).join('');
+  setModal(`${id?'Edit':'Tambah'} Pengguna`,`
+    <div class="form-row">
+      <div class="fg"><label>Nama Lengkap</label><input id="fNama" value="${p.nama}"></div>
+      <div class="fg"><label>Username</label><input id="fUser" value="${p.username}"></div>
+    </div>
+    <div class="fg"><label>Email</label><input id="fEmail" type="email" value="${p.email}"></div>
+    <div class="form-row">
+      <div class="fg"><label>Level</label><select id="fLevel">${lvlOpts}</select></div>
+      <div class="fg"><label>Unit</label><select id="fUnit">${unitOpts}</select></div>
+    </div>
+    ${id?'':`<div class="fg"><label>Password Awal</label><input id="fPass" type="password" placeholder="Password awal pengguna"></div>`}
+    <div class="fg"><label>Status</label><select id="fStatus"><option ${p.status==='Aktif'?'selected':''}>Aktif</option><option ${p.status==='Nonaktif'?'selected':''}>Nonaktif</option></select></div>`,()=>{
+    const d={nama:v('fNama'),username:v('fUser'),email:v('fEmail'),level:v('fLevel'),unit:v('fUnit'),status:v('fStatus'),login:'Baru dibuat'};
+    if(!d.nama||!d.username){toast('⚠️ Nama dan username wajib!');return;}
+    if(editTarget){Object.assign(DB.pengguna.find(x=>x.id===editTarget),{...d,id:editTarget});}
+    else{DB.pengguna.push({...d,id:DB.nextId.pengguna++});}
+    saveDB();closeModal('crudModal');renderPengguna();toast('✅ Pengguna disimpan!');
+  });
+}
+
+// ============================================================
+// MENU NAVIGASI (Admin)
+// ============================================================
+function renderMenu(){
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>Edit Menu Navigasi</h2><p>Kelola menu website publik</p></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="openMenuModal()">➕ Tambah Menu</button>
+          <button class="btn btn-green btn-sm" onclick="saveDB();toast('✅ Menu disimpan!')">💾 Simpan Urutan</button>
+        </div>
+      </div>
+      <div class="table-card" style="padding:0;">
+        <div class="table-hdr"><h3>📌 Susunan Menu</h3></div>
+        <div style="padding:16px 20px;" id="menuList">
+          ${DB.menu.map(m=>`
+            <div class="menu-item-row">
+              <span class="menu-drag">⣿</span>
+              <span style="font-size:1.2rem;">${m.ikon}</span>
+              <span class="menu-label">${m.label}</span>
+              <span class="menu-url">${m.url}</span>
+              <label class="toggle" style="margin-left:auto;">
+                <input type="checkbox" ${m.aktif?'checked':''} onchange="toggleMenu(${m.id},this.checked)">
+                <span class="toggle-slider"></span>
+              </label>
+              <button class="btn btn-blue btn-sm btn-icon" onclick="openMenuModal(${m.id})">✏️</button>
+              <button class="btn btn-red btn-sm btn-icon" onclick="deleteItem('menu',${m.id},'menu')">🗑</button>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`);
+}
+function toggleMenu(id,val){DB.menu.find(m=>m.id===id).aktif=val;saveDB();toast(val?'✅ Menu diaktifkan':'Menu dinonaktifkan');}
+function openMenuModal(id=null){
+  editTarget=id;
+  const m=id?DB.menu.find(x=>x.id===id):{ikon:'📌',label:'',url:'#',aktif:true};
+  setModal(`${id?'Edit':'Tambah'} Menu`,`
+    <div class="form-row">
+      <div class="fg"><label>Ikon</label><input id="fIkon" value="${m.ikon}" maxlength="4" style="font-size:1.4rem;text-align:center;"></div>
+      <div class="fg"><label>Label</label><input id="fNama" value="${m.label}" placeholder="Nama menu"></div>
+    </div>
+    <div class="fg"><label>URL / Anchor</label><input id="fUrl" value="${m.url}"></div>
+    <div style="display:flex;align-items:center;gap:12px;padding:8px 0;">
+      <label class="toggle"><input type="checkbox" id="fAktif" ${m.aktif?'checked':''}><span class="toggle-slider"></span></label>
+      <span style="font-weight:700;">Tampilkan di menu</span>
+    </div>`,()=>{
+    const d={ikon:v('fIkon'),label:v('fNama'),url:v('fUrl'),aktif:document.getElementById('fAktif').checked};
+    if(!d.label){toast('⚠️ Label wajib!');return;}
+    if(editTarget){Object.assign(DB.menu.find(x=>x.id===editTarget),{...d,id:editTarget});}
+    else{DB.menu.push({...d,id:DB.nextId.menu++});}
+    saveDB();closeModal('crudModal');renderMenu();toast('✅ Menu disimpan!');
+  });
+}
+
+// ============================================================
+// LAYANAN WEB (Admin)
+// ============================================================
+function renderLayananWeb(){
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>Edit Kartu Layanan</h2><p>Konten yang ditampilkan di website publik</p></div>
+        <button class="btn btn-green" onclick="openLayananWebModal()">➕ Tambah Kartu</button>
+      </div>
+      <div class="three-col" id="lwGrid">
+        ${DB.layananWeb.map(l=>`
+          <div class="table-card" style="padding:0;opacity:${l.aktif?1:.5};">
+            <div style="padding:18px 18px 12px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <span style="font-size:1.8rem;">${l.ikon}</span>
+                <div style="display:flex;gap:6px;">
+                  <button class="btn btn-blue btn-sm btn-icon" onclick="openLayananWebModal(${l.id})">✏️</button>
+                  <button class="btn btn-red btn-sm btn-icon" onclick="deleteItem('layananWeb',${l.id},'layanan_web')">🗑</button>
+                </div>
+              </div>
+              <div style="font-weight:700;font-size:.92rem;margin-bottom:6px;">${l.judul}</div>
+              <div style="font-size:.8rem;color:var(--tl);line-height:1.5;">${l.desk}</div>
+              <div style="margin-top:12px;display:flex;align-items:center;gap:8px;">
+                <label class="toggle"><input type="checkbox" ${l.aktif?'checked':''} onchange="DB.layananWeb.find(x=>x.id===${l.id}).aktif=this.checked;saveDB();renderLayananWeb()"><span class="toggle-slider"></span></label>
+                <span style="font-size:.75rem;color:var(--tl);">${l.aktif?'Ditampilkan':'Disembunyikan'}</span>
+              </div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`);
+}
+function openLayananWebModal(id=null){
+  editTarget=id;
+  const l=id?DB.layananWeb.find(x=>x.id===id):{ikon:'📋',judul:'',desk:'',aktif:true};
+  setModal(`${id?'Edit':'Tambah'} Kartu Layanan`,`
+    <div class="form-row">
+      <div class="fg"><label>Ikon</label><input id="fIkon" value="${l.ikon}" maxlength="4" style="font-size:1.5rem;text-align:center;"></div>
+      <div style="display:flex;align-items:center;gap:12px;padding-top:22px;">
+        <label class="toggle"><input type="checkbox" id="fAktif" ${l.aktif?'checked':''}><span class="toggle-slider"></span></label>
+        <span style="font-size:.85rem;font-weight:700;">Tampilkan</span>
+      </div>
+    </div>
+    <div class="fg"><label>Judul</label><input id="fNama" value="${l.judul}"></div>
+    <div class="fg"><label>Deskripsi</label><textarea id="fDesk" rows="3">${l.desk}</textarea></div>`,()=>{
+    const d={ikon:v('fIkon'),judul:v('fNama'),desk:v('fDesk'),aktif:document.getElementById('fAktif').checked};
+    if(!d.judul){toast('⚠️ Judul wajib!');return;}
+    if(editTarget){Object.assign(DB.layananWeb.find(x=>x.id===editTarget),{...d,id:editTarget});}
+    else{DB.layananWeb.push({...d,id:DB.nextId.layananWeb++});}
+    saveDB();closeModal('crudModal');renderLayananWeb();toast('✅ Kartu disimpan!');
+  });
+}
+
+// ============================================================
+// PENGUMUMAN (Admin, Pimpinan view)
+// ============================================================
+function renderPengumuman(){
+  const canEdit=currentUser.role==='Admin';
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>Pengumuman & Berita</h2><p>${DB.pengumuman.length} artikel</p></div>
+        ${canEdit?`<button class="btn btn-green" onclick="openPengumumanModal()">➕ Buat Artikel</button>`:''}
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Semua Artikel</h3>
+          <input class="filter-input" placeholder="Cari..." oninput="filterTable('pengBody',this.value)">
+        </div>
+        <table><thead><tr><th>#</th><th>Judul</th><th>Kategori</th><th>Tanggal</th><th>Penulis</th><th>Status</th>${canEdit?'<th>Aksi</th>':''}</tr></thead>
+        <tbody id="pengBody">${DB.pengumuman.map((p,i)=>`
+          <tr><td>${i+1}</td><td><b>${p.judul}</b></td>
+          <td><span class="pill pill-blue">${p.kategori}</span></td>
+          <td>${p.tgl}</td><td>${p.penulis}</td>
+          <td><span class="pill ${p.status==='Diterbitkan'?'pill-green':'pill-yellow'}">${p.status}</span></td>
+          ${canEdit?`<td><div class="td-actions">
+            <button class="btn btn-blue btn-sm btn-icon" onclick="openPengumumanModal(${p.id})">✏️</button>
+            <button class="btn btn-red btn-sm btn-icon" onclick="deleteItem('pengumuman',${p.id},'pengumuman')">🗑</button>
+          </div></td>`:''}</tr>`).join('')}
+        </tbody></table>
+      </div>
+    </div>`);
+}
+function openPengumumanModal(id=null){
+  editTarget=id;
+  const p=id?DB.pengumuman.find(x=>x.id===id):{judul:'',kategori:'Pengumuman',tgl:'20 Mei 2026',penulis:currentUser.nama,status:'Draf',isi:''};
+  setModal(`${id?'Edit':'Buat'} Artikel`,`
+    <div class="fg"><label>Judul</label><input id="fNama" value="${p.judul}"></div>
+    <div class="form-row">
+      <div class="fg"><label>Kategori</label><select id="fKat"><option ${p.kategori==='Pengumuman'?'selected':''}>Pengumuman</option><option ${p.kategori==='Program'?'selected':''}>Program</option><option ${p.kategori==='Regulasi'?'selected':''}>Regulasi</option><option ${p.kategori==='Berita'?'selected':''}>Berita</option></select></div>
+      <div class="fg"><label>Status</label><select id="fStatus"><option ${p.status==='Draf'?'selected':''}>Draf</option><option ${p.status==='Diterbitkan'?'selected':''}>Diterbitkan</option></select></div>
+    </div>
+    <div class="fg"><label>Tanggal</label><input id="fTgl" value="${p.tgl}"></div>
+    <div class="fg"><label>Isi Artikel</label><textarea id="fDesk" rows="5">${p.isi||''}</textarea></div>`,()=>{
+    const d={judul:v('fNama'),kategori:v('fKat'),status:v('fStatus'),tgl:v('fTgl'),penulis:currentUser.nama,isi:v('fDesk')};
+    if(!d.judul){toast('⚠️ Judul wajib!');return;}
+    if(editTarget){Object.assign(DB.pengumuman.find(x=>x.id===editTarget),{...d,id:editTarget});}
+    else{DB.pengumuman.push({...d,id:DB.nextId.pengumuman++});}
+    saveDB();closeModal('crudModal');renderPengumuman();toast('✅ Artikel disimpan!');
+  });
+}
+
+// ============================================================
+// LAPORAN (Admin, Pimpinan)
+// ============================================================
+function renderLaporan(){
+  const total=DB.permohonan.length;
+  const selesai=DB.permohonan.filter(p=>p.status==='Selesai').length;
+  const diproses=DB.permohonan.filter(p=>p.status==='Diproses').length;
+  const ditolak=DB.permohonan.filter(p=>p.status==='Ditolak').length;
+  const rasio=total?Math.round(selesai/total*100):0;
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>Laporan & Statistik</h2><p>Data real-time — Diperbarui otomatis</p></div>
+        <button class="btn btn-ghost btn-sm" onclick="toast('🖨 Menyiapkan cetak...')">🖨 Cetak</button>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="sc-icon">📋</div><div class="sc-num">${total}</div><div class="sc-label">Total Permohonan</div></div>
+        <div class="stat-card"><div class="sc-icon">✅</div><div class="sc-num">${selesai}</div><div class="sc-label">Selesai</div><div class="sc-change up">Rasio: ${rasio}%</div></div>
+        <div class="stat-card gold"><div class="sc-icon">⏳</div><div class="sc-num">${diproses}</div><div class="sc-label">Sedang Diproses</div></div>
+        <div class="stat-card red"><div class="sc-icon">❌</div><div class="sc-num">${ditolak}</div><div class="sc-label">Ditolak</div></div>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>📊 Permohonan per Jenis Layanan</h3></div>
+        <table><thead><tr><th>Jenis Layanan</th><th>Total</th><th>Diproses</th><th>Selesai</th><th>Ditolak</th><th>Rata-rata (hari)</th><th>Tingkat Selesai</th></tr></thead>
+        <tbody id="lapBody">
+          ${DB.jenis.map(j=>{
+            const jPerms=DB.permohonan.filter(p=>p.jenis===j.nama);
+            const jTotal=jPerms.length;const jSel=jPerms.filter(p=>p.status==='Selesai').length;
+            const jDip=jPerms.filter(p=>p.status==='Diproses').length;const jDit=jPerms.filter(p=>p.status==='Ditolak').length;
+            const jRasio=jTotal?Math.round(jSel/jTotal*100):0;
+            return `<tr><td><b>${j.ikon} ${j.nama}</b></td><td>${jTotal}</td><td>${jDip}</td><td>${jSel}</td><td>${jDit}</td>
+              <td>${(Math.random()*4+1).toFixed(1)}</td>
+              <td><div style="display:flex;align-items:center;gap:8px;">
+                <div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
+                  <div style="width:${jRasio}%;height:100%;background:var(--ga);border-radius:3px;"></div>
+                </div>
+                <span style="font-size:.78rem;font-weight:700;">${jRasio}%</span>
+              </div></td></tr>`;
+          }).join('')}
+        </tbody></table>
+      </div>
+      <div class="two-col">
+        <div class="table-card">
+          <div class="table-hdr"><h3>🏢 Kinerja Per Unit</h3></div>
+          <table><thead><tr><th>Unit</th><th>Tugas</th><th>Selesai</th><th>Status</th></tr></thead>
+          <tbody>${DB.unit.map(u=>{
+            const uPerms=DB.permohonan.filter(p=>p.unit===u.nama);
+            const uSel=uPerms.filter(p=>p.status==='Selesai').length;
+            const rasioU=uPerms.length?Math.round(uSel/uPerms.length*100):0;
+            return `<tr><td><b>${u.nama}</b></td><td>${uPerms.length}</td><td>${uSel}</td><td>${pillStatus(rasioU>=80?'Aktif':rasioU>=50?'Diproses':'Menunggu')}</td></tr>`;
+          }).join('')}</tbody>
+        </table></div>
+        <div class="table-card">
+          <div class="table-hdr"><h3>📅 Distribusi Status</h3></div>
+          <div style="padding:20px;">
+            ${[['Menunggu','gray'],['Diproses','gold'],['Selesai','green'],['Ditolak','red']].map(([s,c])=>{
+              const cnt=DB.permohonan.filter(p=>p.status===s).length;
+              const pct=total?Math.round(cnt/total*100):0;
+              return `<div style="margin-bottom:14px;">
+                <div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:6px;">
+                  <span style="font-weight:700;">${s}</span><span style="color:var(--tl);">${cnt} (${pct}%)</span>
+                </div>
+                <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;">
+                  <div style="width:${pct}%;height:100%;background:${c==='green'?'var(--ga)':c==='gold'?'var(--gold)':c==='red'?'var(--red)':'var(--border)'};border-radius:4px;transition:width .5s;"></div>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`);
+}
+
+// ============================================================
+// DISPOSISI (All roles, Pimpinan can create)
+// ============================================================
+function renderDisposisi(){
+  const canCreate=currentUser.role==='Admin'||currentUser.role==='Pimpinan';
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>Disposisi</h2><p>${DB.disposisi.length} disposisi tercatat</p></div>
+        ${canCreate?`<button class="btn btn-purple" onclick="openDisposisiModal()">🔔 Buat Disposisi</button>`:''}
+      </div>
+      ${!canCreate?`<div class="info-banner"><div class="ib-icon">📨</div><p>Daftar disposisi yang ditugaskan kepada unit Anda. Konfirmasi penerimaan untuk memulai proses.</p></div>`:''}
+      <div class="table-card">
+        <div class="table-hdr"><h3>Semua Disposisi</h3></div>
+        <table><thead><tr><th>No. Ref</th><th>Nama Pemohon</th><th>Dari</th><th>Kepada</th><th>Instruksi</th><th>Tanggal</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody>${DB.disposisi.map(d=>`
+          <tr>
+            <td><b>${d.ref}</b></td><td>${d.nama}</td><td>${d.dari}</td><td>${d.kepada}</td>
+            <td style="font-size:.82rem;max-width:180px;">${d.instruksi}</td><td>${d.tgl}</td>
+            <td>${pillStatus(d.status)}</td>
+            <td><div class="td-actions">
+              ${d.status==='Menunggu'?`<button class="btn btn-green btn-sm" onclick="konfirmasiDisposisi(${d.id})">✅ Konfirmasi</button>`:''}
+              ${canCreate?`<button class="btn btn-red btn-sm btn-icon" onclick="deleteItem('disposisi',${d.id},'disposisi')">🗑</button>`:''}
+            </div></td>
+          </tr>`).join('')}
+        </tbody></table>
+      </div>
+    </div>`);
+}
+function konfirmasiDisposisi(id){
+  const d=DB.disposisi.find(x=>x.id===id);if(!d)return;
+  d.status='Diterima';saveDB();renderDisposisi();toast('✅ Disposisi dikonfirmasi!');
+}
+function openDisposisiModal(pRef='',pNama=''){
+  setModal('Buat Disposisi Baru',`
+    <div class="form-row">
+      <div class="fg"><label>No. Referensi</label><input id="fRef" value="${pRef}" placeholder="KUA-2026-XXXX"></div>
+      <div class="fg"><label>Nama Pemohon</label><input id="fNama" value="${pNama}" placeholder="Nama pemohon"></div>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label>Dari (Jabatan)</label><input id="fDari" value="${currentUser.role==='Pimpinan'?'Pimpinan KUA':currentUser.role}"></div>
+      <div class="fg"><label>Kepada (Jabatan/Unit)</label>
+        <select id="fKepada">
+          ${DB.unit.map(u=>`<option>${u.nama}</option>`).join('')}
+          <option>Operator Nikah</option><option>Operator Wakaf</option><option>Admin</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label>Instruksi</label><textarea id="fInstruksi" placeholder="Tuliskan instruksi disposisi..." rows="4"></textarea></div>`,()=>{
+    const d={id:DB.nextId.disposisi++,ref:v('fRef'),nama:v('fNama'),dari:v('fDari'),kepada:v('fKepada'),instruksi:v('fInstruksi'),tgl:'20 Mei',status:'Dikirim'};
+    if(!d.ref||!d.instruksi){toast('⚠️ Ref dan instruksi wajib!');return;}
+    DB.disposisi.push(d);saveDB();closeModal('crudModal');renderDisposisi();toast('✅ Disposisi berhasil dikirim!');
+  });
+}
+function openDisposisiFor(permId){
+  const p=DB.permohonan.find(x=>x.id===permId);
+  if(p)openDisposisiModal(p.ref,p.nama);
+  else openDisposisiModal();
+}
+
+// ============================================================
+// ARSIP (Operator, Admin, Staff)
+// ============================================================
+function renderArsip(){
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>Arsip Dokumen</h2><p>${DB.arsip.length} dokumen diarsipkan</p></div>
+        <button class="btn btn-ghost btn-sm" onclick="toast('📥 Mengunduh arsip...')">📥 Export Arsip</button>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Semua Arsip</h3>
+          <input class="filter-input" placeholder="Cari..." oninput="filterTable('arsipBody',this.value)">
+        </div>
+        <table><thead><tr><th>No. Ref</th><th>Nama Pemohon</th><th>Jenis Layanan</th><th>Tgl Arsip</th><th>Operator</th><th>Aksi</th></tr></thead>
+        <tbody id="arsipBody">${DB.arsip.map(a=>`
+          <tr><td><b>${a.ref}</b></td><td>${a.nama}</td><td>${a.jenis}</td>
+          <td>${a.tglArsip}</td><td>${a.operator}</td>
+          <td><button class="btn btn-green btn-sm">📥 Unduh</button></td></tr>`).join('')}
+        </tbody></table>
+      </div>
+    </div>`);
+}
+
+// ============================================================
+// OVERVIEW (Pimpinan)
+// ============================================================
+function renderOverview(){
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>Ikhtisar Permohonan</h2><p>Semua permohonan — Mode monitoring Pimpinan</p></div>
+        <div class="read-only-badge">👔 Mode Pimpinan</div>
+      </div>
+      <div class="info-banner"><div class="ib-icon">👔</div><p>Sebagai Pimpinan, Anda dapat memantau seluruh permohonan dan membuat disposisi. Perubahan data dilakukan melalui Admin atau Operator yang berwenang.</p></div>
+      ${renderPermohonanHTML()}
+    </div>`);
+}
+function renderPermohonanHTML(){
+  return `<div class="table-card">
+    <div class="table-hdr"><h3>Semua Permohonan (${DB.permohonan.length})</h3></div>
+    <table><thead><tr><th>No. Ref</th><th>Nama</th><th>Jenis</th><th>Tanggal</th><th>Unit</th><th>Status</th><th>Aksi</th></tr></thead>
+    <tbody>${DB.permohonan.map(p=>`
+      <tr><td><b>${p.ref}</b></td><td>${p.nama}</td><td>${p.jenis}</td><td>${p.tgl}</td>
+      <td style="font-size:.8rem;">${p.unit}</td><td>${pillStatus(p.status)}</td>
+      <td><div class="td-actions">
+        <button class="btn btn-blue btn-sm btn-icon" onclick="showDetailModal(${p.id})">👁</button>
+        <button class="btn btn-purple btn-sm" onclick="openDisposisiFor(${p.id})">🔔 Disposisi</button>
+      </div></td></tr>`).join('')}
+    </tbody></table>
+  </div>`;
+}
+
+// ============================================================
+// STAFF: INPUT PERMOHONAN
+// ============================================================
+function renderInputPermohonan(){
+  const jenisOpts=DB.jenis.filter(j=>j.status==='Aktif').map(j=>`<option value="${j.nama}">${j.ikon} ${j.nama}</option>`).join('');
+  const unitOpts=DB.unit.map(u=>`<option>${u.nama}</option>`).join('');
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>Input Permohonan Baru</h2><p>Catat permohonan layanan dari masyarakat</p></div>
+      </div>
+      <div class="two-col">
+        <div class="table-card" style="padding:0;">
+          <div class="table-hdr"><h3>📝 Form Permohonan</h3></div>
+          <div style="padding:24px;">
+            <div class="fg"><label>Nama Pemohon</label><input id="iNama" placeholder="Nama lengkap sesuai KTP"></div>
+            <div class="form-row">
+              <div class="fg"><label>NIK</label><input id="iNik" placeholder="16 digit NIK"></div>
+              <div class="fg"><label>Telepon</label><input id="iTelp" placeholder="08xx"></div>
+            </div>
+            <div class="fg"><label>Jenis Layanan</label>
+              <select id="iJenis" onchange="loadSyarat(this.value)">${jenisOpts}</select>
+            </div>
+            <div class="fg"><label>Unit Pengolah</label><select id="iUnit">${unitOpts}</select></div>
+            <div class="fg"><label>Catatan</label><textarea id="iCatatan" placeholder="Catatan tambahan..." rows="3"></textarea></div>
+            <button class="btn btn-green" style="width:100%;" onclick="submitPermohonan()">💾 Simpan & Daftarkan</button>
+          </div>
+        </div>
+        <div>
+          <div class="table-card" style="padding:0;margin-bottom:16px;">
+            <div class="table-hdr"><h3>📄 Persyaratan Dokumen</h3></div>
+            <div id="syaratPanel" style="padding:16px 20px;">
+              <p style="font-size:.85rem;color:var(--tl);">Pilih jenis layanan untuk melihat persyaratan</p>
+            </div>
+          </div>
+          <div class="table-card" style="padding:0;">
+            <div class="table-hdr"><h3>📊 Permohonan Hari Ini</h3></div>
+            <div style="padding:16px 20px;">
+              <div style="font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:900;color:var(--gd);">${DB.permohonan.filter(p=>p.tgl.includes('Mei 2026')).length}</div>
+              <div style="font-size:.78rem;color:var(--tl);text-transform:uppercase;letter-spacing:.07em;">Permohonan bulan ini</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`);
+  // Auto-load syarat for first jenis
+  const firstJenis=DB.jenis.find(j=>j.status==='Aktif');
+  if(firstJenis)loadSyarat(firstJenis.nama);
+}
+function loadSyarat(jenis){
+  const panel=document.getElementById('syaratPanel');if(!panel)return;
+  const syarats=DB.syarat.filter(s=>s.jenis===jenis);
+  // Auto-set unit
+  const j=DB.jenis.find(x=>x.nama===jenis);
+  if(j){const u=document.getElementById('iUnit');if(u){for(let o of u.options)if(o.text===j.unit){u.value=o.text;break;}}}
+  panel.innerHTML=syarats.length?syarats.map(s=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <span style="font-size:1rem;">${s.wajib?'🔴':'🔵'}</span>
+      <div>
+        <div style="font-weight:700;font-size:.85rem;">${s.nama}</div>
+        <div style="font-size:.75rem;color:var(--tl);">${s.format} · Maks. ${s.ukuran}${s.ket?' · '+s.ket:''}</div>
+      </div>
+      <span class="pill ${s.wajib?'pill-red':'pill-gray'}" style="margin-left:auto;">${s.wajib?'Wajib':'Opsional'}</span>
+    </div>`).join('') : '<p style="font-size:.85rem;color:var(--tl);">Tidak ada persyaratan khusus untuk jenis ini.</p>';
+}
+function submitPermohonan(){
+  const nama=document.getElementById('iNama').value.trim();
+  const nik=document.getElementById('iNik').value.trim();
+  const telp=document.getElementById('iTelp').value.trim();
+  const jenis=document.getElementById('iJenis').value;
+  const unit=document.getElementById('iUnit').value;
+  const catatan=document.getElementById('iCatatan').value;
+  if(!nama||!jenis){toast('⚠️ Nama dan jenis layanan wajib!');return;}
+  const ref='KUA-2026-'+DB.nextId.permohonan;
+  DB.permohonan.push({id:DB.nextId.permohonan++,ref,nama,jenis,tgl:'20 Mei 2026',unit,status:'Menunggu',nik,telp,catatan});
+  saveDB();
+  toast(`✅ Permohonan ${ref} berhasil didaftarkan!`);
+  renderInputPermohonan();
+}
+
+// ============================================================
+// STAFF: OUTPUT UPLOAD
+// ============================================================
+function renderOutputUpload(){
+  const selesai=DB.permohonan.filter(p=>p.status==='Selesai');
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>Upload Output Layanan</h2><p>Unggah dokumen output untuk permohonan selesai</p></div>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Permohonan Selesai — Siap Upload Output</h3></div>
+        <table><thead><tr><th>No. Ref</th><th>Nama Pemohon</th><th>Jenis Layanan</th><th>Jenis Output</th><th>Aksi</th></tr></thead>
+        <tbody>${selesai.map(p=>{
+          const out=DB.output.find(o=>o.jenis===p.jenis&&o.status==='Aktif');
+          return `<tr><td><b>${p.ref}</b></td><td>${p.nama}</td><td>${p.jenis}</td>
+            <td>${out?`<span class="pill pill-blue">${out.nama}</span>`:'<span class="pill pill-gray">-</span>'}</td>
+            <td><button class="btn btn-green btn-sm" onclick="toast('📤 Upload output untuk ${p.ref}...')">📤 Upload Output</button></td></tr>`;
+        }).join('')}
+        ${selesai.length===0?'<tr><td colspan="5" style="text-align:center;color:var(--tl);padding:24px;">Belum ada permohonan selesai</td></tr>':''}
+        </tbody></table>
+      </div>
+    </div>`);
+}
+
+// ============================================================
+// INFO JENIS (Operator)
+// ============================================================
+function renderLayananRef(){
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>Info Jenis Layanan</h2><p>Referensi layanan untuk proses permohonan</p></div>
+      </div>
+      <div class="three-col">
+        ${DB.jenis.map(j=>`
+          <div class="portal-card-pub">
+            <div style="font-size:2rem;margin-bottom:12px;">${j.ikon}</div>
+            <div style="font-weight:700;font-size:.95rem;margin-bottom:8px;">${j.nama}</div>
+            <div style="font-size:.82rem;color:var(--tl);line-height:1.5;margin-bottom:12px;">${j.desk}</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <span class="pill pill-blue">${j.unit}</span>
+              <span class="pill pill-gray">⏱ ${j.estimasi} hari</span>
+              ${pillStatus(j.status)}
+            </div>
+            <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px;">
+              <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.07em;color:var(--tl);margin-bottom:8px;">Persyaratan Dokumen</div>
+              ${DB.syarat.filter(s=>s.jenis===j.nama).map(s=>`
+                <div style="font-size:.82rem;padding:4px 0;display:flex;gap:6px;align-items:center;">
+                  <span style="color:${s.wajib?'var(--red)':'var(--tl)'};">●</span>${s.nama}
+                  <span class="pill ${s.wajib?'pill-red':'pill-gray'}" style="margin-left:auto;">${s.wajib?'Wajib':'Ops.'}</span>
+                </div>`).join('')}
+              ${DB.syarat.filter(s=>s.jenis===j.nama).length===0?'<p style="font-size:.8rem;color:var(--tl);">-</p>':''}
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`);
+}
+
+// ============================================================
+// PUBLIK PAGES
+// ============================================================
+function renderBeranda(){
+  const total=DB.permohonan.length;
+  const selesai=DB.permohonan.filter(p=>p.status==='Selesai').length;
+  const aktifLayanan=DB.jenis.filter(j=>j.status==='Aktif').length;
+  const latestPengumuman=DB.pengumuman.filter(p=>p.status==='Diterbitkan').slice(0,3);
+  setContent(`
+    <div class="page active">
+      <div style="background:linear-gradient(135deg,var(--gd),var(--gm));border-radius:16px;padding:32px;color:#fff;margin-bottom:24px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.05);"></div>
+        <div style="position:relative;z-index:1;">
+          <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.15em;color:rgba(255,255,255,.5);margin-bottom:8px;">Portal PTSP</div>
+          <h2 style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;line-height:1.2;margin-bottom:8px;">KUA Kecamatan<br><span style="color:var(--goldf);">Pulau Gorom</span></h2>
+          <p style="font-size:.88rem;color:rgba(255,255,255,.65);margin-bottom:20px;max-width:400px;">Pelayanan Terpadu Satu Pintu — Melayani dengan Tulus, Amanah, dan Profesional</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="btn btn-gold" onclick="nav('ajukan',null)">✍️ Ajukan Permohonan</button>
+            <button class="btn" style="background:rgba(255,255,255,.15);color:#fff;" onclick="nav('lacak',null)">🔍 Lacak Status</button>
+          </div>
+        </div>
+      </div>
+      <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat-card"><div class="sc-icon">📋</div><div class="sc-num">${total}</div><div class="sc-label">Total Permohonan Layanan</div></div>
+        <div class="stat-card"><div class="sc-icon">✅</div><div class="sc-num">${selesai}</div><div class="sc-label">Permohonan Selesai</div></div>
+        <div class="stat-card"><div class="sc-icon">🗂</div><div class="sc-num">${aktifLayanan}</div><div class="sc-label">Jenis Layanan Tersedia</div></div>
+      </div>
+      <div class="two-col">
+        <div>
+          <div class="page-hdr" style="margin-bottom:16px;"><h2 style="font-size:1rem;">📢 Pengumuman Terbaru</h2></div>
+          ${latestPengumuman.map(p=>`
+            <div class="pengumuman-card">
+              <div class="pengumuman-icon">📢</div>
+              <div class="pengumuman-body">
+                <h4>${p.judul}</h4>
+                <p>${p.isi?p.isi.substring(0,100)+'...':'Klik untuk selengkapnya.'}</p>
+                <div class="meta">
+                  <span class="pill pill-blue" style="font-size:.65rem;">${p.kategori}</span>
+                  <span>📅 ${p.tgl}</span>
+                </div>
+              </div>
+            </div>`).join('')}
+          ${latestPengumuman.length===0?'<p style="color:var(--tl);font-size:.85rem;">Belum ada pengumuman.</p>':''}
+        </div>
+        <div>
+          <div class="page-hdr" style="margin-bottom:16px;"><h2 style="font-size:1rem;">📋 Layanan Tersedia</h2></div>
+          ${DB.jenis.filter(j=>j.status==='Aktif').map(j=>`
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--card);border-radius:8px;border:1px solid var(--border);margin-bottom:8px;">
+              <span style="font-size:1.4rem;">${j.ikon}</span>
+              <div>
+                <div style="font-weight:700;font-size:.88rem;">${j.nama}</div>
+                <div style="font-size:.75rem;color:var(--tl);">Estimasi ${j.estimasi} hari kerja</div>
+              </div>
+              <button class="btn btn-green btn-sm" style="margin-left:auto;" onclick="nav('ajukan',null)">Ajukan</button>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`);
+}
+
+function renderInfoLayanan(){
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr"><h2>Informasi Layanan</h2><p>Semua layanan yang tersedia di KUA Pulau Gorom</p></div>
+      <div class="three-col">
+        ${DB.jenis.map(j=>`
+          <div class="portal-card-pub">
+            <div style="font-size:2.4rem;margin-bottom:12px;">${j.ikon}</div>
+            <span class="pill ${j.status==='Aktif'?'pill-green':'pill-gray'}" style="margin-bottom:8px;display:inline-block;">${j.status}</span>
+            <h3 style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--gd);margin-bottom:8px;">${j.nama}</h3>
+            <p style="font-size:.82rem;color:var(--tl);line-height:1.6;margin-bottom:12px;">${j.desk}</p>
+            <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+              <span class="pill pill-blue" style="font-size:.7rem;">🏢 ${j.unit}</span>
+              <span class="pill pill-gray" style="font-size:.7rem;">⏱ ${j.estimasi} hari</span>
+            </div>
+            <div style="background:var(--bg);border-radius:8px;padding:12px;margin-bottom:12px;">
+              <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--tl);margin-bottom:8px;">Persyaratan Dokumen</div>
+              ${DB.syarat.filter(s=>s.jenis===j.nama).map(s=>`
+                <div style="display:flex;align-items:center;gap:8px;font-size:.8rem;padding:4px 0;">
+                  <span style="color:${s.wajib?'var(--red)':'var(--tl)'};">${s.wajib?'●':'○'}</span>
+                  <span>${s.nama}</span>
+                  <span style="margin-left:auto;font-size:.7rem;color:var(--tl);">${s.format}</span>
+                </div>`).join('')}
+              ${DB.syarat.filter(s=>s.jenis===j.nama).length===0?'<p style="font-size:.8rem;color:var(--tl);">Tidak ada persyaratan khusus</p>':''}
+            </div>
+            ${j.status==='Aktif'?`<button class="btn btn-green" style="width:100%;" onclick="nav('ajukan',null)">Ajukan Permohonan →</button>`:`<button class="btn btn-ghost" style="width:100%;" disabled>Layanan Tidak Tersedia</button>`}
+          </div>`).join('')}
+      </div>
+    </div>`);
+}
+
+function renderAjukan(){
+  const jenisOpts=DB.jenis.filter(j=>j.status==='Aktif').map(j=>`<option value="${j.nama}">${j.ikon} ${j.nama}</option>`).join('');
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr"><h2>Ajukan Permohonan</h2><p>Isi formulir permohonan layanan online</p></div>
+      <div class="two-col">
+        <div class="table-card" style="padding:0;">
+          <div class="table-hdr"><h3>✍️ Formulir Permohonan</h3></div>
+          <div style="padding:24px;">
+            <div class="fg"><label>Nama Lengkap *</label><input id="pNama" placeholder="Sesuai KTP"></div>
+            <div class="form-row">
+              <div class="fg"><label>NIK *</label><input id="pNik" placeholder="16 digit" maxlength="16"></div>
+              <div class="fg"><label>No. Telepon</label><input id="pTelp" placeholder="08xx"></div>
+            </div>
+            <div class="fg"><label>Jenis Layanan *</label>
+              <select id="pJenis" onchange="pubLoadSyarat(this.value)">${jenisOpts}</select>
+            </div>
+            <div class="fg" id="pSyaratWrap">
+              <label>Dokumen Persyaratan</label>
+              <div id="pSyaratList" style="background:var(--bg);border-radius:8px;padding:12px;font-size:.85rem;color:var(--tl);">Pilih jenis layanan</div>
+            </div>
+            <div class="fg"><label>Keterangan Tambahan</label><textarea id="pKet" rows="3" placeholder="Informasi tambahan yang perlu disampaikan..."></textarea></div>
+            <button class="btn btn-gold" style="width:100%;padding:14px;" onclick="pubSubmit()">📨 Kirim Permohonan</button>
+          </div>
+        </div>
+        <div>
+          <div class="table-card" style="padding:0;margin-bottom:16px;">
+            <div class="table-hdr"><h3>📌 Panduan Pengajuan</h3></div>
+            <div style="padding:16px 20px;">
+              ${[
+                {icon:'1',label:'Isi Formulir',desc:'Lengkapi data diri dan pilih jenis layanan'},
+                {icon:'2',label:'Siapkan Dokumen',desc:'Siapkan dokumen persyaratan sesuai jenis layanan'},
+                {icon:'3',label:'Kirim Permohonan',desc:'Klik tombol kirim dan simpan No. Referensi'},
+                {icon:'4',label:'Lacak Status',desc:'Gunakan No. Ref untuk memantau status permohonan'},
+              ].map(s=>`
+                <div class="pub-step">
+                  <div class="pub-step-num active">${s.icon}</div>
+                  <div><div style="font-weight:700;font-size:.88rem;">${s.label}</div><div style="font-size:.8rem;color:var(--tl);margin-top:3px;">${s.desc}</div></div>
+                </div>`).join('')}
+            </div>
+          </div>
+          <div class="table-card" style="padding:0;">
+            <div class="table-hdr"><h3>🕐 Jam Operasional</h3></div>
+            <div style="padding:16px 20px;font-size:.85rem;line-height:2;">
+              <div style="display:flex;justify-content:space-between;"><span style="font-weight:700;">Senin - Kamis</span><span>08.00 — 15.00 WIT</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="font-weight:700;">Jumat</span><span>08.00 — 11.30 WIT</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="font-weight:700;">Sabtu - Minggu</span><span style="color:var(--red);">Libur</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`);
+  const firstJenis=DB.jenis.find(j=>j.status==='Aktif');
+  if(firstJenis)pubLoadSyarat(firstJenis.nama);
+}
+function pubLoadSyarat(jenis){
+  const el=document.getElementById('pSyaratList');if(!el)return;
+  const syarats=DB.syarat.filter(s=>s.jenis===jenis);
+  el.innerHTML=syarats.length?syarats.map(s=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">
+      <span style="color:${s.wajib?'var(--red)':'var(--tl)'};">${s.wajib?'●':'○'}</span>
+      <div><div style="font-weight:700;">${s.nama}</div><div style="font-size:.75rem;color:var(--tl);">${s.format} · Maks. ${s.ukuran}</div></div>
+      <span class="pill ${s.wajib?'pill-red':'pill-gray'}" style="margin-left:auto;">${s.wajib?'Wajib':'Opsional'}</span>
+    </div>`).join('') : '<p style="color:var(--tl);">Tidak ada persyaratan khusus untuk layanan ini.</p>';
+}
+function pubSubmit(){
+  const nama=document.getElementById('pNama').value.trim();
+  const nik=document.getElementById('pNik').value.trim();
+  const telp=document.getElementById('pTelp').value.trim();
+  const jenis=document.getElementById('pJenis').value;
+  const ket=document.getElementById('pKet').value;
+  if(!nama||!nik){toast('⚠️ Nama dan NIK wajib diisi!');return;}
+  if(nik.length<16){toast('⚠️ NIK harus 16 digit!');return;}
+  const j=DB.jenis.find(x=>x.nama===jenis);
+  const ref='KUA-2026-'+DB.nextId.permohonan;
+  DB.permohonan.push({id:DB.nextId.permohonan++,ref,nama,jenis,tgl:'20 Mei 2026',unit:j?j.unit:'Unit Administrasi',status:'Menunggu',nik,telp,catatan:ket});
+  saveDB();
+  setModal('✅ Permohonan Berhasil Dikirim!',`
+    <div class="pub-ref-card">
+      <p>No. Referensi Anda</p>
+      <h3 style="font-size:1.4rem;margin-top:6px;">${ref}</h3>
+    </div>
+    <div style="font-size:.88rem;color:var(--tm);line-height:1.7;">
+      <p><b>Nama:</b> ${nama}</p>
+      <p><b>Jenis Layanan:</b> ${jenis}</p>
+      <p><b>Status Awal:</b> Menunggu Verifikasi</p>
+      <p><b>Estimasi:</b> ${j?j.estimasi:'-'} hari kerja</p>
+    </div>
+    <div style="background:rgba(82,183,136,.08);border:1px solid rgba(82,183,136,.2);border-radius:8px;padding:12px;margin-top:16px;font-size:.83rem;color:var(--gm);">
+      📌 <b>Simpan nomor referensi Anda!</b> Gunakan nomor ini untuk melacak status permohonan kapan saja.
+    </div>`,null);
+  document.getElementById('crudModalSave').style.display='none';
+}
+
+function renderLacak(){
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr"><h2>Lacak Status Permohonan</h2><p>Masukkan nomor referensi untuk melihat status</p></div>
+      <div class="two-col">
+        <div>
+          <div class="table-card" style="padding:0;">
+            <div class="table-hdr"><h3>🔍 Cari Permohonan</h3></div>
+            <div style="padding:24px;">
+              <div class="fg"><label>Nomor Referensi</label><input id="lacakRef" placeholder="Contoh: KUA-2026-1001" style="font-size:1rem;font-family:monospace;"></div>
+              <button class="btn btn-green" style="width:100%;" onclick="doLacak()">🔍 Cari Sekarang</button>
+            </div>
+          </div>
+          <div id="lacakResult" style="margin-top:16px;"></div>
+        </div>
+        <div class="table-card" style="padding:0;">
+          <div class="table-hdr"><h3>📋 Semua Status Permohonan Anda</h3></div>
+          <div style="padding:16px 20px;">
+            <p style="font-size:.85rem;color:var(--tl);margin-bottom:16px;">Masukkan referensi untuk mencari data spesifik, atau gunakan fitur Riwayat untuk melihat semua.</p>
+            ${DB.permohonan.slice(-5).reverse().map(p=>`
+              <div style="padding:10px 0;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:center;">
+                <div style="flex:1;">
+                  <div style="font-weight:700;font-size:.88rem;">${p.ref}</div>
+                  <div style="font-size:.78rem;color:var(--tl);">${p.jenis} · ${p.tgl}</div>
+                </div>
+                ${pillStatus(p.status)}
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`);
+}
+function doLacak(){
+  const ref=document.getElementById('lacakRef').value.trim().toUpperCase();
+  const p=DB.permohonan.find(x=>x.ref.toUpperCase()===ref);
+  const el=document.getElementById('lacakResult');
+  if(!p){el.innerHTML=`<div class="info-banner"><div class="ib-icon">❌</div><p>Permohonan dengan referensi <b>${ref}</b> tidak ditemukan. Pastikan nomor referensi sudah benar.</p></div>`;return;}
+  const steps=[
+    {label:'Diterima',done:true},
+    {label:'Verifikasi Dokumen',done:p.status!=='Menunggu'},
+    {label:'Sedang Diproses',done:p.status==='Diproses'||p.status==='Selesai'},
+    {label:'Selesai',done:p.status==='Selesai'},
+  ];
+  el.innerHTML=`
+    <div class="table-card" style="padding:0;">
+      <div class="table-hdr"><h3>${pillStatus(p.status)} — ${p.ref}</h3></div>
+      <div style="padding:20px;">
+        <div style="margin-bottom:20px;">
+          ${steps.map(s=>`
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+              <div style="width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;background:${s.done?'var(--ga)':'var(--border)'};color:${s.done?'#fff':'var(--tl)'};">${s.done?'✓':'○'}</div>
+              <span style="font-size:.88rem;font-weight:${s.done?700:400};color:${s.done?'var(--td)':'var(--tl)'};">${s.label}</span>
+            </div>`).join('')}
+        </div>
+        <div style="background:var(--bg);border-radius:8px;padding:14px;">
+          <div style="font-size:.75rem;color:var(--tl);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">Detail Permohonan</div>
+          <div style="font-size:.88rem;line-height:2;">
+            <div><b>Nama:</b> ${p.nama}</div>
+            <div><b>Jenis:</b> ${p.jenis}</div>
+            <div><b>Unit:</b> ${p.unit}</div>
+            <div><b>Tgl Daftar:</b> ${p.tgl}</div>
+            ${p.catatan?`<div><b>Catatan:</b> ${p.catatan}</div>`:''}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderRiwayat(){
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr"><h2>Riwayat Permohonan</h2><p>Semua permohonan yang pernah diajukan</p></div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Riwayat Lengkap</h3>
+          <input class="filter-input" placeholder="Cari nama / referensi..." oninput="filterTable('riwayatBody',this.value)">
+        </div>
+        <table><thead><tr><th>No. Referensi</th><th>Nama Pemohon</th><th>Jenis Layanan</th><th>Tanggal</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody id="riwayatBody">${DB.permohonan.map(p=>`
+          <tr>
+            <td><b>${p.ref}</b></td><td>${p.nama}</td><td>${p.jenis}</td><td>${p.tgl}</td>
+            <td>${pillStatus(p.status)}</td>
+            <td><button class="btn btn-blue btn-sm btn-icon" onclick="showDetailModal(${p.id})">👁 Detail</button></td>
+          </tr>`).join('')}
+        </tbody></table>
+      </div>
+    </div>`);
+}
+
+function renderPengumumanPub(){
+  const data=DB.pengumuman.filter(p=>p.status==='Diterbitkan');
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr"><h2>Pengumuman & Berita</h2><p>${data.length} pengumuman diterbitkan</p></div>
+      ${data.map(p=>`
+        <div class="pengumuman-card" style="margin-bottom:12px;">
+          <div class="pengumuman-icon">${p.kategori==='Program'?'🌟':p.kategori==='Regulasi'?'📑':'📢'}</div>
+          <div class="pengumuman-body">
+            <h4>${p.judul}</h4>
+            <p>${p.isi||'Klik untuk membaca selengkapnya.'}</p>
+            <div class="meta">
+              <span class="pill pill-blue" style="font-size:.65rem;">${p.kategori}</span>
+              <span>📅 ${p.tgl}</span>
+              <span>✍️ ${p.penulis}</span>
+            </div>
+          </div>
+        </div>`).join('')}
+      ${data.length===0?'<p style="color:var(--tl);">Belum ada pengumuman yang diterbitkan.</p>':''}
+    </div>`);
+}
+
+function renderKontak(){
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr"><h2>Kontak & Jam Layanan</h2><p>Informasi KUA Kecamatan Pulau Gorom</p></div>
+      <div class="two-col">
+        <div class="table-card" style="padding:0;">
+          <div class="table-hdr"><h3>📞 Informasi Kontak</h3></div>
+          <div style="padding:24px;line-height:2.2;">
+            ${[
+              ['🏛','Kantor','KUA Kecamatan Pulau Gorom'],
+              ['📍','Alamat','Jl. Pattimura No. 01, Geser, Pulau Gorom'],
+              ['☎','Telepon','(0912) 621-XXXX'],
+              ['✉','Email','ptsp@kuapulaugorom.go.id'],
+              ['🌐','Website','www.kuapulaugorom.go.id'],
+            ].map(([icon,label,val])=>`
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border);">
+                <span style="font-size:1.1rem;width:24px;text-align:center;">${icon}</span>
+                <div><div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--tl);">${label}</div><div style="font-weight:700;font-size:.9rem;">${val}</div></div>
+              </div>`).join('')}
+          </div>
+        </div>
+        <div>
+          <div class="table-card" style="padding:0;margin-bottom:16px;">
+            <div class="table-hdr"><h3>🕐 Jam Operasional</h3></div>
+            <div style="padding:16px 20px;">
+              ${[
+                ['Senin — Kamis','08.00 — 15.00 WIT','Buka'],
+                ['Jumat','08.00 — 11.30 WIT','Buka'],
+                ['Sabtu','Libur','Tutup'],
+                ['Minggu & Hari Raya','Libur','Tutup'],
+              ].map(([hari,jam,status])=>`
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
+                  <span style="font-weight:700;font-size:.88rem;">${hari}</span>
+                  <span style="font-size:.85rem;color:var(--tl);">${jam}</span>
+                  ${pillStatus(status)}
+                </div>`).join('')}
+            </div>
+          </div>
+          <div class="table-card" style="padding:0;">
+            <div class="table-hdr"><h3>🏢 Unit Layanan</h3></div>
+            <div style="padding:16px 20px;">
+              ${DB.unit.map(u=>`
+                <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+                  <div style="font-weight:700;font-size:.88rem;">${u.nama}</div>
+                  <div style="font-size:.78rem;color:var(--tl);">${u.kepala} · ${u.kontak}</div>
+                </div>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`);
+}
+
+// ============================================================
+// GENERIC CRUD HELPERS
+// ============================================================
+function deleteItem(type,id,refreshPage){
+  showConfirm('🗑','Hapus Data','Data yang dihapus tidak dapat dikembalikan. Lanjutkan?',()=>{
+    DB[type]=DB[type].filter(x=>x.id!==id);
+    saveDB();renderPage(refreshPage||type);toast('🗑 Data berhasil dihapus!');
+  });
+}
+
+function setModal(title,body,saveFn){
+  document.getElementById('crudModalTitle').textContent=title;
+  document.getElementById('crudModalBody').innerHTML=body;
+  const saveBtn=document.getElementById('crudModalSave');
+  saveBtn.style.display=saveFn?'':'none';
+  if(saveFn)saveBtn.onclick=saveFn;
+  document.getElementById('crudModal').classList.add('open');
+  document.getElementById('crudModalBox').classList.remove('modal-lg');
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function showConfirm(icon,title,msg,cb){
+  document.getElementById('confirmIcon').textContent=icon;
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmMsg').textContent=msg;
+  document.getElementById('confirmOkBtn').onclick=()=>{closeConfirm();cb();};
+  document.getElementById('confirmBg').classList.add('open');
+}
+function closeConfirm(){document.getElementById('confirmBg').classList.remove('open');}
+function v(id){const el=document.getElementById(id);return el?el.value:'';}
+function filterTable(tbodyId,q){
+  document.querySelectorAll(`#${tbodyId} tr`).forEach(r=>{
+    r.style.display=r.textContent.toLowerCase().includes(q.toLowerCase())?'':'none';
+  });
+}
+function globalSearchFn(q){
+  if(!q)return;
+  // Quick search in permohonan
+  const res=DB.permohonan.filter(p=>p.nama.toLowerCase().includes(q.toLowerCase())||p.ref.toLowerCase().includes(q.toLowerCase()));
+  if(res.length)toast(`🔍 ${res.length} permohonan ditemukan untuk "${q}"`);
+}
+function toast(msg,dur=3500){
+  document.getElementById('toastMsg').textContent=msg;
+  const t=document.getElementById('toast');
+  t.classList.add('show');
+  clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),dur);
+}
+
+// Close modals on background click
+document.querySelectorAll('.modal-bg').forEach(bg=>{
+  bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('open');});
+});
+
+// Enter key on login
+document.getElementById('lgPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('lgUser').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('lgPass').focus();});
+
+// Pre-select first role tab
+document.querySelectorAll('.role-tab')[0]?.click();
+</script>
+</body>
+</html>
