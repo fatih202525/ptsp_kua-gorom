@@ -623,7 +623,14 @@ const DEFAULT_DB = {
     {id:3,judul:'Pembaruan Persyaratan Dokumen Nikah 2026',kategori:'Regulasi',tgl:'5 Mei 2026',penulis:'Admin',status:'Diterbitkan',isi:'Terdapat pembaruan persyaratan dokumen nikah berdasarkan peraturan terbaru Kemenag RI tahun 2026.'},
     {id:4,judul:'Layanan Konsultasi Wakaf Online Dibuka',kategori:'Program',tgl:'1 Mei 2026',penulis:'Ahmad',status:'Draf',isi:''},
   ],
-  nextId:{jenis:7,unit:5,syarat:8,output:6,akses:7,pengguna:8,permohonan:9,menu:7,layananWeb:7,pengumuman:5,disposisi:3,arsip:3},
+  dokumenPublik:[
+    {id:1,judul:'Formulir Permohonan Nikah N1',kategori:'Formulir',deskripsi:'Surat keterangan untuk nikah dari kelurahan/desa',url:'https://drive.google.com/file/d/contoh1',tipe:'PDF',ukuran:'120 KB',tgl:'1 Mei 2026',unduhan:42},
+    {id:2,judul:'Formulir Permohonan Nikah N2',kategori:'Formulir',deskripsi:'Surat keterangan asal-usul calon mempelai',url:'https://drive.google.com/file/d/contoh2',tipe:'PDF',ukuran:'95 KB',tgl:'1 Mei 2026',unduhan:38},
+    {id:3,judul:'Checklist Dokumen Pencatatan Nikah',kategori:'Panduan',deskripsi:'Daftar lengkap dokumen yang wajib disiapkan sebelum mendaftar',url:'https://drive.google.com/file/d/contoh3',tipe:'PDF',ukuran:'200 KB',tgl:'5 Mei 2026',unduhan:87},
+    {id:4,judul:'SOP Layanan PTSP KUA Pulau Gorom 2026',kategori:'Regulasi',deskripsi:'Standar Operasional Prosedur semua jenis layanan',url:'https://drive.google.com/file/d/contoh4',tipe:'PDF',ukuran:'1.2 MB',tgl:'10 Mei 2026',unduhan:21},
+    {id:5,judul:'Panduan Pengajuan Sertifikat Wakaf',kategori:'Panduan',deskripsi:'Langkah-langkah pengajuan sertifikasi tanah wakaf',url:'https://drive.google.com/file/d/contoh5',tipe:'PDF',ukuran:'350 KB',tgl:'12 Mei 2026',unduhan:15},
+  ],
+  nextId:{jenis:7,unit:5,syarat:8,output:6,akses:7,pengguna:8,permohonan:9,menu:7,layananWeb:7,pengumuman:5,disposisi:3,arsip:3,dokumenPublik:6},
 };
 
 // ============================================================
@@ -687,6 +694,7 @@ const SIDEBAR_CONFIG={
     {id:'menu',icon:'📌',label:'Edit Menu Navigasi'},
     {id:'layanan_web',icon:'✏️',label:'Edit Kartu Layanan'},
     {id:'pengumuman',icon:'📢',label:'Pengumuman & Berita'},
+    {id:'dokumen_publik_mgmt',icon:'📥',label:'Kelola Dokumen Unduhan'},
     {section:'Sistem'},
     {id:'laporan',icon:'📈',label:'Laporan & Statistik'},
   ],
@@ -759,8 +767,9 @@ const SIDEBAR_CONFIG={
     {section:'Permohonan Saya'},
     {id:'lacak',icon:'🔍',label:'Lacak Status'},
     {id:'riwayat',icon:'🕐',label:'Riwayat Permohonan'},
-    {section:'Informasi'},
+    {section:'Informasi & Unduhan'},
     {id:'pengumuman_pub',icon:'📢',label:'Pengumuman & Berita'},
+    {id:'dokumen_publik',icon:'📥',label:'Unduh Dokumen'},
     {id:'kontak',icon:'📞',label:'Kontak & Jam Layanan'},
   ],
 };
@@ -778,6 +787,7 @@ const PAGE_TITLES={
   beranda:'Beranda',info_layanan:'Informasi Layanan',ajukan:'Ajukan Permohonan',
   lacak:'Lacak Status Permohonan',riwayat:'Riwayat Permohonan',
   pengumuman_pub:'Pengumuman & Berita',kontak:'Kontak & Jam Layanan',
+  dokumen_publik:'Unduh Dokumen Publik',dokumen_publik_mgmt:'Kelola Dokumen Publik',
 };
 
 // ============================================================
@@ -914,6 +924,8 @@ function renderPage(id){
     syarat_ref:renderSyaratRef,beranda:renderBeranda,info_layanan:renderInfoLayanan,
     ajukan:renderAjukan,lacak:renderLacak,riwayat:renderRiwayat,
     pengumuman_pub:renderPengumumanPub,kontak:renderKontak,
+    dokumen_publik:renderDokumenPublik,
+    dokumen_publik_mgmt:renderDokumenPublikMgmt,
   }[id];
   if(fn)fn();
 }
@@ -2216,6 +2228,7 @@ function renderBeranda(){
           <div style="display:flex;gap:12px;flex-wrap:wrap;">
             <button class="btn btn-gold" onclick="nav('ajukan',null)">✍️ Ajukan Permohonan</button>
             <button class="btn" style="background:rgba(255,255,255,.15);color:#fff;" onclick="nav('lacak',null)">🔍 Lacak Status</button>
+            <button class="btn" style="background:rgba(212,160,23,.25);color:#fff;" onclick="nav('dokumen_publik',null)">📥 Unduh Dokumen</button>
           </div>
         </div>
       </div>
@@ -2579,8 +2592,250 @@ function renderKontak(){
 }
 
 // ============================================================
-// GENERIC CRUD HELPERS
+// RENDER DOKUMEN PUBLIK (Tab unduhan untuk publik)
 // ============================================================
+function renderDokumenPublik(){
+  if(!DB.dokumenPublik) DB.dokumenPublik=[];
+  const docs=DB.dokumenPublik;
+  const kategoriList=[...new Set(docs.map(d=>d.kategori))];
+
+  const ICON_MAP={'Formulir':'📝','Panduan':'📖','Regulasi':'⚖️','Pengumuman':'📢','Lainnya':'📄'};
+
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>📥 Unduh Dokumen Penting</h2><p>Formulir, panduan, dan regulasi KUA Pulau Gorom — gratis untuk diunduh</p></div>
+      </div>
+
+      <!-- Filter kategori -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+        <button class="btn btn-green btn-sm" id="filterAll" onclick="filterDokPub('semua')" style="border-radius:100px;">Semua (${docs.length})</button>
+        ${kategoriList.map(k=>`
+          <button class="btn btn-ghost btn-sm" id="filter_${k}" onclick="filterDokPub('${k}')" style="border-radius:100px;">${ICON_MAP[k]||'📄'} ${k} (${docs.filter(d=>d.kategori===k).length})</button>
+        `).join('')}
+      </div>
+
+      <!-- Grid dokumen -->
+      <div id="dokGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+        ${docs.length===0?`
+          <div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--tl);">
+            <div style="font-size:3rem;margin-bottom:12px;">📭</div>
+            <div style="font-size:1rem;font-weight:700;">Belum ada dokumen tersedia</div>
+            <div style="font-size:.85rem;margin-top:4px;">Hubungi kantor KUA untuk informasi lebih lanjut.</div>
+          </div>
+        `:docs.map(d=>`
+          <div class="dok-card" data-kategori="${d.kategori}" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:10px;transition:box-shadow .15s;box-shadow:var(--shadow);">
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+              <div style="font-size:2rem;flex-shrink:0;background:linear-gradient(135deg,var(--gm),var(--gl));width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                ${ICON_MAP[d.kategori]||'📄'}
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-weight:700;font-size:.92rem;line-height:1.3;color:var(--td);">${d.judul}</div>
+                <div style="margin-top:4px;">
+                  <span class="pill pill-blue" style="font-size:.65rem;">${d.kategori}</span>
+                  <span style="font-size:.72rem;color:var(--tl);margin-left:6px;">${d.tipe} · ${d.ukuran}</span>
+                </div>
+              </div>
+            </div>
+            <div style="font-size:.82rem;color:var(--tm);line-height:1.5;">${d.deskripsi}</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;">
+              <span style="font-size:.72rem;color:var(--tl);">📅 ${d.tgl} · ⬇ ${d.unduhan} unduhan</span>
+              <a href="${d.url}" target="_blank" rel="noopener noreferrer"
+                onclick="incrementUnduhan(${d.id})"
+                style="background:linear-gradient(135deg,var(--gm),var(--gl));color:#fff;padding:8px 16px;border-radius:8px;font-size:.8rem;font-weight:700;text-decoration:none;white-space:nowrap;transition:opacity .15s;"
+                onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+                ⬇ Unduh
+              </a>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="margin-top:24px;padding:16px 20px;background:rgba(82,183,136,.07);border:1px solid rgba(82,183,136,.2);border-radius:10px;font-size:.82rem;color:var(--tm);">
+        💡 <b>Catatan:</b> Dokumen akan terbuka di tab baru atau langsung terunduh tergantung jenis file.
+        Jika link tidak berfungsi, hubungi kantor KUA Pulau Gorom.
+      </div>
+    </div>`);
+}
+
+function filterDokPub(kategori){
+  document.querySelectorAll('[id^="filter"]').forEach(b=>b.classList.remove('btn-green'));
+  const activeBtn=document.getElementById(kategori==='semua'?'filterAll':'filter_'+kategori);
+  if(activeBtn){activeBtn.classList.add('btn-green');activeBtn.classList.remove('btn-ghost');}
+  document.querySelectorAll('.dok-card').forEach(card=>{
+    card.style.display=(kategori==='semua'||card.dataset.kategori===kategori)?'flex':'none';
+  });
+}
+
+function incrementUnduhan(id){
+  const d=DB.dokumenPublik.find(x=>x.id===id);
+  if(d){d.unduhan=(d.unduhan||0)+1;saveDB();}
+}
+
+// ============================================================
+// RENDER KELOLA DOKUMEN PUBLIK (SuperAdmin only CRUD)
+// ============================================================
+function renderDokumenPublikMgmt(){
+  if(currentUser.role!=='SuperAdmin'){
+    setContent(`<div class="page active"><div class="empty-state"><div class="empty-icon">🔒</div><h3>Akses Ditolak</h3><p>Hanya Super Admin yang dapat mengelola dokumen unduhan publik.</p></div></div>`);
+    return;
+  }
+  if(!DB.dokumenPublik) DB.dokumenPublik=[];
+  const docs=DB.dokumenPublik;
+  const KATEGORI=['Formulir','Panduan','Regulasi','Pengumuman','Lainnya'];
+
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>📥 Kelola Dokumen Unduhan Publik</h2><p>Tambah, edit, atau hapus dokumen yang tersedia untuk diunduh masyarakat</p></div>
+        <button class="btn btn-gold" onclick="openDokPubModal(null)">＋ Tambah Dokumen</button>
+      </div>
+
+      <div class="table-card" style="padding:0;overflow:hidden;">
+        <div class="table-hdr">
+          <h3>📋 Daftar Dokumen (${docs.length})</h3>
+          <span style="font-size:.78rem;color:var(--tl);">Klik ikon untuk edit atau hapus</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>#</th><th>Judul Dokumen</th><th>Kategori</th><th>Tipe</th><th>Ukuran</th><th>Tgl Upload</th><th>Unduhan</th><th>Link</th><th>Aksi</th></tr></thead>
+            <tbody>
+              ${docs.length===0?`<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--tl);">Belum ada dokumen — klik "Tambah Dokumen" untuk mulai</td></tr>`:
+                docs.map((d,i)=>`
+                <tr>
+                  <td style="font-size:.8rem;color:var(--tl);">${i+1}</td>
+                  <td><b style="font-size:.88rem;">${d.judul}</b><div style="font-size:.73rem;color:var(--tl);margin-top:2px;">${d.deskripsi.substring(0,50)}${d.deskripsi.length>50?'...':''}</div></td>
+                  <td><span class="pill pill-blue" style="font-size:.68rem;">${d.kategori}</span></td>
+                  <td style="font-size:.82rem;">${d.tipe}</td>
+                  <td style="font-size:.82rem;">${d.ukuran}</td>
+                  <td style="font-size:.8rem;color:var(--tl);">${d.tgl}</td>
+                  <td style="font-size:.85rem;font-weight:700;color:var(--gm);">${d.unduhan||0}×</td>
+                  <td><a href="${d.url}" target="_blank" style="font-size:.75rem;color:var(--blue);text-decoration:none;" title="${d.url}">🔗 Buka</a></td>
+                  <td>
+                    <div style="display:flex;gap:6px;">
+                      <button class="btn btn-ghost btn-sm" onclick="openDokPubModal(${d.id})">✏️</button>
+                      <button class="btn btn-sm" style="background:var(--redf);color:#fff;" onclick="deleteDokPub(${d.id})">🗑</button>
+                    </div>
+                  </td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;padding:14px 18px;background:rgba(212,160,23,.08);border:1px solid rgba(212,160,23,.25);border-radius:10px;font-size:.82rem;color:var(--tm);">
+        💡 <b>Tips:</b> Gunakan Google Drive, Dropbox, atau OneDrive untuk menyimpan file lalu tempel link share-nya di sini.
+        Pastikan link dapat diakses publik (set sharing ke "Anyone with the link").
+      </div>
+    </div>
+
+    <!-- Modal Tambah/Edit Dokumen Publik -->
+    <div id="dokPubModal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeDokPubModal()">
+      <div class="modal-box" style="max-width:560px;">
+        <div class="modal-hdr">
+          <h3 id="dokPubModalTitle">Tambah Dokumen</h3>
+          <button class="modal-close" onclick="closeDokPubModal()">✕</button>
+        </div>
+        <div style="padding:24px;display:flex;flex-direction:column;gap:14px;">
+          <div class="fg">
+            <label>Judul Dokumen <span style="color:var(--redf)">*</span></label>
+            <input id="dpJudul" placeholder="Contoh: Formulir Permohonan Nikah N1" style="font-size:.9rem;">
+          </div>
+          <div class="fg">
+            <label>Deskripsi Singkat <span style="color:var(--redf)">*</span></label>
+            <input id="dpDesk" placeholder="Jelaskan isi/kegunaan dokumen ini">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="fg">
+              <label>Kategori</label>
+              <select id="dpKat">${KATEGORI.map(k=>`<option>${k}</option>`).join('')}</select>
+            </div>
+            <div class="fg">
+              <label>Tipe File</label>
+              <select id="dpTipe">
+                <option>PDF</option><option>DOCX</option><option>XLSX</option><option>ZIP</option><option>Lainnya</option>
+              </select>
+            </div>
+          </div>
+          <div class="fg">
+            <label>URL / Link Dokumen <span style="color:var(--redf)">*</span></label>
+            <input id="dpUrl" placeholder="https://drive.google.com/file/d/..." style="font-family:monospace;font-size:.82rem;">
+            <div style="font-size:.72rem;color:var(--tl);margin-top:4px;">Pastikan link dapat diakses publik (Google Drive: share → "Anyone with link")</div>
+          </div>
+          <div class="fg">
+            <label>Ukuran File</label>
+            <input id="dpUkuran" placeholder="Contoh: 250 KB, 1.5 MB">
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:6px;">
+            <button class="btn btn-ghost" onclick="closeDokPubModal()">Batal</button>
+            <button class="btn btn-gold" onclick="saveDokPub()">💾 Simpan Dokumen</button>
+          </div>
+        </div>
+      </div>
+    </div>`);
+}
+
+function openDokPubModal(id){
+  if(!DB.dokumenPublik) DB.dokumenPublik=[];
+  const d=id?DB.dokumenPublik.find(x=>x.id===id):null;
+  document.getElementById('dokPubModalTitle').textContent=id?'Edit Dokumen':'Tambah Dokumen';
+  document.getElementById('dpJudul').value=d?d.judul:'';
+  document.getElementById('dpDesk').value=d?d.deskripsi:'';
+  document.getElementById('dpKat').value=d?d.kategori:'Formulir';
+  document.getElementById('dpTipe').value=d?d.tipe:'PDF';
+  document.getElementById('dpUrl').value=d?d.url:'';
+  document.getElementById('dpUkuran').value=d?d.ukuran:'';
+  editTarget=id||null;
+  document.getElementById('dokPubModal').style.display='flex';
+}
+function closeDokPubModal(){document.getElementById('dokPubModal').style.display='none';}
+
+function saveDokPub(){
+  const judul=document.getElementById('dpJudul').value.trim();
+  const desk=document.getElementById('dpDesk').value.trim();
+  const url=document.getElementById('dpUrl').value.trim();
+  if(!judul||!desk||!url){toast('⚠️ Judul, deskripsi, dan URL wajib diisi!');return;}
+  if(!DB.dokumenPublik) DB.dokumenPublik=[];
+  if(!DB.nextId.dokumenPublik) DB.nextId.dokumenPublik=1;
+  const tglNow=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  if(editTarget){
+    const idx=DB.dokumenPublik.findIndex(x=>x.id===editTarget);
+    if(idx>-1){
+      DB.dokumenPublik[idx]={...DB.dokumenPublik[idx],
+        judul,deskripsi:desk,
+        kategori:document.getElementById('dpKat').value,
+        tipe:document.getElementById('dpTipe').value,
+        url,ukuran:document.getElementById('dpUkuran').value.trim()||'-',
+        tgl:tglNow,
+      };
+      toast('✅ Dokumen berhasil diperbarui dan tersinkron ke semua perangkat!');
+    }
+  } else {
+    DB.dokumenPublik.push({
+      id:DB.nextId.dokumenPublik++,
+      judul,deskripsi:desk,
+      kategori:document.getElementById('dpKat').value,
+      tipe:document.getElementById('dpTipe').value,
+      url,ukuran:document.getElementById('dpUkuran').value.trim()||'-',
+      tgl:tglNow,unduhan:0,
+    });
+    toast('✅ Dokumen baru ditambahkan! Publik dapat mengunduh sekarang.');
+  }
+  saveDB();
+  closeDokPubModal();
+  renderDokumenPublikMgmt();
+}
+
+function deleteDokPub(id){
+  const d=DB.dokumenPublik.find(x=>x.id===id);
+  if(!d)return;
+  showConfirm(`Hapus dokumen "<b>${d.judul}</b>"? Dokumen ini tidak akan bisa diunduh oleh publik.`,()=>{
+    DB.dokumenPublik=DB.dokumenPublik.filter(x=>x.id!==id);
+    saveDB();
+    toast('🗑 Dokumen berhasil dihapus dari daftar unduhan publik.');
+    renderDokumenPublikMgmt();
+  });
+}
 function handleFileUpload(permId,syaratId,syaratNama,input){
   const file=input.files[0];if(!file)return;
   const statusEl=document.getElementById(`fileStatus_${permId}_${syaratId}`);
