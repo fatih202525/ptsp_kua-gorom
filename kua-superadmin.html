@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Super Admin — PTSP KUA Pulau Gorom</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gd: #0f2419;        /* green darkest */
+  --gm: #1e4d34;        /* green mid */
+  --gl: #2d6a4f;        /* green light */
+  --ga: #52b788;        /* green accent */
+  --gold: #d4a017;
+  --goldf: #f0c040;
+  --cream: #faf6ee;
+  --white: #fff;
+  --bg: #f4f1eb;
+  --card: #fff;
+  --border: #e4dfd4;
+  --td: #1a2217;
+  --tm: #3a4a3a;
+  --tl: #7a8a7a;
+  --red: #c0392b;
+  --redf: #e74c3c;
+  --blue: #2471a3;
+  --orange: #d35400;
+  --shadow: 0 4px 24px rgba(15,36,25,0.10);
+  --sidebar-w: 260px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--td);display:flex;height:100vh;overflow:hidden;}
+
+/* ====== SIDEBAR ====== */
+#sidebar{
+  width:var(--sidebar-w);flex-shrink:0;
+  background:var(--gd);
+  display:flex;flex-direction:column;
+  overflow-y:auto;overflow-x:hidden;
+  transition:width .25s;
+  z-index:50;
+}
+.sb-logo{
+  padding:22px 20px 18px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;gap:12px;
+}
+.sb-logo-icon{
+  width:44px;height:44px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  filter:drop-shadow(0 2px 6px rgba(212,160,23,.5));
+}
+.sb-logo-icon img{width:44px;height:44px;object-fit:contain;}
+.sb-logo-text h2{font-family:'Playfair Display',serif;font-size:.9rem;color:var(--white);line-height:1.2;}
+.sb-logo-text p{font-size:.65rem;color:rgba(255,255,255,.45);letter-spacing:.08em;text-transform:uppercase;margin-top:2px;}
+.sb-badge{
+  margin:10px 16px;background:rgba(212,160,23,.18);border:1px solid rgba(212,160,23,.4);
+  border-radius:6px;padding:6px 12px;display:flex;align-items:center;gap:8px;
+}
+.sb-badge-dot{width:8px;height:8px;border-radius:50%;background:var(--goldf);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.sb-badge span{font-size:.72rem;color:var(--goldf);font-weight:700;letter-spacing:.06em;}
+
+.sb-section{padding:16px 12px 4px;font-size:.6rem;color:rgba(255,255,255,.3);letter-spacing:.12em;text-transform:uppercase;font-weight:700;}
+.sb-item{
+  display:flex;align-items:center;gap:10px;padding:10px 16px;
+  color:rgba(255,255,255,.6);font-size:.83rem;cursor:pointer;
+  transition:all .15s;border-left:3px solid transparent;border-radius:0 4px 4px 0;margin:1px 0;
+  white-space:nowrap;user-select:none;
+}
+.sb-item:hover{background:rgba(255,255,255,.07);color:var(--white);border-left-color:rgba(255,255,255,.2);}
+.sb-item.active{background:rgba(212,160,23,.15);color:var(--goldf);border-left-color:var(--gold);}
+.sb-item .ic{width:20px;text-align:center;font-size:.95rem;flex-shrink:0;}
+.sb-item .badge-count{margin-left:auto;background:var(--redf);color:#fff;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:100px;}
+.sb-divider{height:1px;background:rgba(255,255,255,.07);margin:10px 16px;}
+.sb-bottom{margin-top:auto;border-top:1px solid rgba(255,255,255,.08);padding:12px;}
+
+/* ====== MAIN ====== */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+/* topbar */
+#topbar{
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:0 28px;height:60px;display:flex;align-items:center;gap:16px;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);flex-shrink:0;
+}
+.tb-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--gd);font-weight:700;flex:1;}
+.tb-search{
+  display:flex;align-items:center;gap:8px;background:var(--bg);
+  border:1.5px solid var(--border);border-radius:8px;padding:7px 14px;
+  font-size:.85rem;color:var(--tl);
+}
+.tb-search input{border:none;background:transparent;outline:none;font-family:'Lato',sans-serif;font-size:.85rem;color:var(--td);width:180px;}
+.tb-avatar{
+  width:36px;height:36px;background:linear-gradient(135deg,var(--gm),var(--gl));
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:var(--white);font-weight:700;font-size:.85rem;cursor:pointer;
+}
+
+/* content area */
+#content{flex:1;overflow-y:auto;padding:28px;}
+
+/* ====== PAGE SECTIONS ====== */
+.page{display:none;}
+.page.active{display:block;}
+
+/* ====== PAGE HEADER ====== */
+.page-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.page-hdr h2{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gd);}
+.page-hdr p{color:var(--tl);font-size:.85rem;margin-top:2px;}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 18px;border-radius:8px;border:none;cursor:pointer;
+  font-family:'Lato',sans-serif;font-size:.85rem;font-weight:700;
+  transition:all .2s;
+}
+.btn-green{background:var(--gl);color:#fff;}
+.btn-green:hover{background:var(--gm);}
+.btn-gold{background:var(--gold);color:var(--gd);}
+.btn-gold:hover{background:var(--goldf);}
+.btn-red{background:var(--red);color:#fff;}
+.btn-red:hover{background:var(--redf);}
+.btn-blue{background:var(--blue);color:#fff;}
+.btn-blue:hover{opacity:.85;}
+.btn-ghost{background:transparent;color:var(--gl);border:1.5px solid var(--border);}
+.btn-ghost:hover{border-color:var(--gl);background:rgba(45,106,79,.06);}
+.btn-sm{padding:6px 12px;font-size:.78rem;}
+.btn-icon{padding:7px;border-radius:7px;min-width:32px;justify-content:center;}
+
+/* ====== STATS CARDS ====== */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;}
+.stat-card{
+  background:var(--card);border-radius:12px;padding:20px 22px;
+  border:1px solid var(--border);box-shadow:var(--shadow);
+  position:relative;overflow:hidden;
+}
+.stat-card::after{
+  content:'';position:absolute;top:-20px;right:-20px;
+  width:80px;height:80px;border-radius:50%;
+  background:rgba(45,106,79,.06);
+}
+.stat-card.gold::after{background:rgba(212,160,23,.08);}
+.stat-card.red::after{background:rgba(192,57,43,.07);}
+.stat-card.blue::after{background:rgba(36,113,163,.07);}
+.sc-icon{font-size:1.5rem;margin-bottom:10px;}
+.sc-num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--gd);}
+.sc-label{color:var(--tl);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;margin-top:2px;}
+.sc-change{font-size:.75rem;margin-top:6px;font-weight:700;}
+.sc-change.up{color:#1a7a50;}
+.sc-change.down{color:var(--red);}
+
+/* ====== TABLE ====== */
+.table-card{background:var(--card);border-radius:12px;border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;margin-bottom:24px;}
+.table-hdr{
+  padding:16px 20px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;
+}
+.table-hdr h3{font-size:.95rem;font-weight:700;color:var(--gd);}
+.table-filters{display:flex;gap:8px;flex-wrap:wrap;}
+.filter-input{
+  padding:6px 12px;border:1.5px solid var(--border);border-radius:7px;
+  font-family:'Lato',sans-serif;font-size:.8rem;background:var(--bg);
+  color:var(--td);outline:none;
+}
+.filter-input:focus{border-color:var(--gl);}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--bg);}
+th{padding:11px 16px;text-align:left;font-size:.72rem;font-weight:700;color:var(--tl);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);}
+td{padding:11px 16px;font-size:.84rem;color:var(--tm);border-bottom:1px solid #f0ede6;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(250,246,238,.7);}
+.td-actions{display:flex;gap:6px;flex-wrap:wrap;}
+
+/* ====== STATUS PILLS ====== */
+.pill{display:inline-block;padding:3px 10px;border-radius:100px;font-size:.72rem;font-weight:700;}
+.pill-green{background:rgba(82,183,136,.15);color:#1a7a50;}
+.pill-yellow{background:rgba(240,192,64,.2);color:#7a5800;}
+.pill-red{background:rgba(192,57,43,.12);color:#8a1a1a;}
+.pill-blue{background:rgba(36,113,163,.12);color:#1a4a8a;}
+.pill-gray{background:rgba(120,120,120,.12);color:#555;}
+
+/* ====== MODAL ====== */
+.modal-bg{
+  display:none;position:fixed;inset:0;background:rgba(10,25,15,.65);
+  z-index:999;align-items:center;justify-content:center;backdrop-filter:blur(4px);
+}
+.modal-bg.open{display:flex;}
+.modal{
+  background:var(--white);border-radius:14px;width:100%;max-width:560px;
+  margin:16px;max-height:90vh;overflow-y:auto;
+  box-shadow:0 40px 100px rgba(0,0,0,.3);
+  animation:mIn .25s cubic-bezier(.34,1.56,.64,1);
+}
+.modal-lg{max-width:720px;}
+@keyframes mIn{from{opacity:0;transform:scale(.9) translateY(16px);}to{opacity:1;transform:none;}}
+.modal-head{
+  background:var(--gd);padding:20px 24px;
+  display:flex;align-items:center;justify-content:space-between;border-radius:14px 14px 0 0;
+  position:sticky;top:0;z-index:1;
+}
+.modal-head h3{font-family:'Playfair Display',serif;color:var(--white);font-size:1rem;}
+.modal-close{
+  background:rgba(255,255,255,.15);border:none;width:30px;height:30px;
+  border-radius:50%;cursor:pointer;color:var(--white);font-size:1rem;
+  display:flex;align-items:center;justify-content:center;transition:background .2s;
+}
+.modal-close:hover{background:rgba(255,255,255,.28);}
+.modal-body{padding:24px;}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+
+/* ====== FORM ELEMENTS ====== */
+.fg{margin-bottom:16px;}
+.fg label{display:block;font-size:.78rem;font-weight:700;color:var(--tm);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px;}
+.fg input,.fg select,.fg textarea{
+  width:100%;padding:10px 14px;
+  border:1.5px solid var(--border);border-radius:8px;
+  font-family:'Lato',sans-serif;font-size:.88rem;color:var(--td);
+  background:var(--bg);outline:none;transition:border-color .2s;
+}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gl);}
+.fg textarea{resize:vertical;min-height:80px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+
+/* ====== TOGGLE ====== */
+.toggle-wrap{display:flex;align-items:center;gap:10px;}
+.toggle{position:relative;width:40px;height:22px;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{
+  position:absolute;inset:0;background:#ccc;border-radius:22px;
+  cursor:pointer;transition:.3s;
+}
+.toggle-slider::before{
+  content:'';position:absolute;width:16px;height:16px;
+  left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;
+}
+.toggle input:checked + .toggle-slider{background:var(--gl);}
+.toggle input:checked + .toggle-slider::before{transform:translateX(18px);}
+
+/* ====== TABS ====== */
+.tab-bar{display:flex;gap:4px;border-bottom:2px solid var(--border);margin-bottom:20px;}
+.tab-item{
+  padding:10px 18px;font-size:.85rem;font-weight:700;cursor:pointer;
+  color:var(--tl);border-bottom:2px solid transparent;margin-bottom:-2px;
+  transition:all .2s;
+}
+.tab-item.active{color:var(--gm);border-bottom-color:var(--gm);}
+.tab-item:hover:not(.active){color:var(--tm);}
+.tab-pane{display:none;}
+.tab-pane.active{display:block;}
+
+/* ====== PERMISSION MATRIX ====== */
+.perm-table{width:100%;border-collapse:collapse;}
+.perm-table th,.perm-table td{padding:10px 14px;font-size:.82rem;border:1px solid var(--border);}
+.perm-table th{background:var(--bg);font-weight:700;text-transform:uppercase;font-size:.7rem;letter-spacing:.06em;color:var(--tl);}
+.perm-check{display:flex;align-items:center;justify-content:center;}
+.perm-check input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--gl);}
+
+/* ====== DRAG MENU ====== */
+.menu-item-row{
+  display:flex;align-items:center;gap:12px;padding:10px 14px;
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  margin-bottom:8px;cursor:grab;transition:box-shadow .2s;
+}
+.menu-item-row:hover{box-shadow:var(--shadow);}
+.menu-drag{color:var(--tl);font-size:1.2rem;cursor:grab;}
+.menu-icon-pick{font-size:1.3rem;min-width:30px;text-align:center;}
+.menu-label{flex:1;font-weight:700;font-size:.88rem;}
+.menu-url{font-size:.78rem;color:var(--tl);}
+
+/* ====== TOAST ====== */
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--gd);color:#fff;padding:14px 20px;border-radius:10px;
+  font-size:.88rem;border-left:4px solid var(--gold);
+  box-shadow:0 8px 32px rgba(0,0,0,.3);z-index:9999;
+  display:none;max-width:320px;animation:tIn .3s ease;
+}
+.toast.show{display:flex;align-items:center;gap:10px;}
+@keyframes tIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+
+/* ====== CHART BARS ====== */
+.mini-chart{display:flex;align-items:flex-end;gap:6px;height:80px;margin-top:12px;}
+.bar{flex:1;border-radius:4px 4px 0 0;background:linear-gradient(to top,var(--gm),var(--ga));min-height:6px;transition:height .5s;}
+.bar:hover{opacity:.8;}
+
+/* ====== ACTIVITY FEED ====== */
+.activity-feed{display:flex;flex-direction:column;gap:0;}
+.af-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #f0ede6;}
+.af-item:last-child{border-bottom:none;}
+.af-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;margin-top:2px;}
+.af-dot.green{background:rgba(82,183,136,.15);}
+.af-dot.gold{background:rgba(212,160,23,.15);}
+.af-dot.red{background:rgba(192,57,43,.1);}
+.af-dot.blue{background:rgba(36,113,163,.1);}
+.af-text{flex:1;}
+.af-text strong{display:block;font-size:.85rem;color:var(--td);}
+.af-text span{font-size:.78rem;color:var(--tl);}
+.af-time{font-size:.72rem;color:var(--tl);white-space:nowrap;margin-top:4px;}
+
+/* ====== SCROLLBAR ====== */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(45,106,79,.25);border-radius:3px;}
+
+/* ====== LOGIN SCREEN ====== */
+#loginScreen{
+  position:fixed;inset:0;background:linear-gradient(135deg,var(--gd) 0%,#234d38 60%,#1e4d34 100%);
+  display:flex;align-items:center;justify-content:center;z-index:9999;
+}
+.login-box{
+  background:var(--white);border-radius:16px;padding:40px 44px;width:100%;max-width:420px;
+  box-shadow:0 40px 100px rgba(0,0,0,.4);margin:20px;
+}
+.login-logo{text-align:center;margin-bottom:28px;}
+.login-logo .emblem{
+  width:80px;height:80px;
+  display:inline-flex;align-items:center;justify-content:center;
+  margin-bottom:12px;
+  filter:drop-shadow(0 8px 20px rgba(212,160,23,.4));
+}
+.login-logo .emblem img{width:80px;height:80px;object-fit:contain;}
+.login-logo h2{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--gd);}
+.login-logo p{font-size:.78rem;color:var(--tl);margin-top:4px;}
+.login-role-badge{
+  background:linear-gradient(90deg,rgba(212,160,23,.15),rgba(212,160,23,.08));
+  border:1px solid rgba(212,160,23,.4);border-radius:8px;
+  padding:10px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px;
+}
+.login-role-badge span{font-size:.82rem;color:var(--gold);font-weight:700;}
+.lg-group{margin-bottom:14px;}
+.lg-group label{display:block;font-size:.75rem;font-weight:700;color:var(--tm);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;}
+.lg-group input{
+  width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;
+  font-family:'Lato',sans-serif;font-size:.9rem;color:var(--td);
+  background:var(--bg);outline:none;transition:border-color .2s;
+}
+.lg-group input:focus{border-color:var(--gl);}
+.btn-login-main{
+  width:100%;padding:13px;background:var(--gm);color:#fff;border:none;
+  border-radius:8px;font-family:'Lato',sans-serif;font-weight:700;font-size:.95rem;
+  cursor:pointer;margin-top:6px;transition:all .2s;
+}
+.btn-login-main:hover{background:var(--gd);}
+.login-hint{text-align:center;margin-top:16px;font-size:.78rem;color:var(--tl);}
+.back-link{display:block;text-align:center;margin-top:12px;font-size:.8rem;color:var(--gl);cursor:pointer;text-decoration:underline;}
+
+/* ====== TWO-COL LAYOUT ====== */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+@media(max-width:900px){.two-col,.three-col{grid-template-columns:1fr;}.form-row,.form-row-3{grid-template-columns:1fr;}}
+
+/* ====== SECTION TAG ====== */
+.stag{display:inline-block;background:rgba(45,106,79,.1);color:var(--gm);font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 10px;border-radius:100px;border:1px solid rgba(45,106,79,.2);margin-bottom:6px;}
+
+/* ====== SYARAT LIST ====== */
+.syarat-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(45,106,79,.1);color:var(--gm);padding:4px 12px;border-radius:100px;font-size:.78rem;font-weight:700;margin:3px;}
+.syarat-chip button{background:none;border:none;cursor:pointer;color:var(--tl);font-size:.8rem;padding:0 2px;}
+.syarat-chip button:hover{color:var(--red);}
+
+/* ====== CONFIRM DIALOG ====== */
+.confirm-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1999;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.confirm-bg.open{display:flex;}
+.confirm-box{background:#fff;border-radius:12px;padding:28px;max-width:360px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.confirm-box .ci{font-size:2.5rem;margin-bottom:12px;}
+.confirm-box h4{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--gd);margin-bottom:8px;}
+.confirm-box p{font-size:.85rem;color:var(--tl);margin-bottom:20px;}
+.confirm-btns{display:flex;gap:10px;justify-content:center;}
+
+/* ====== HIGHLIGHT ====== */
+.highlight{background:rgba(212,160,23,.15);animation:hl 1.5s ease;}
+@keyframes hl{0%{background:rgba(212,160,23,.35);}100%{background:transparent;}}
+</style>
+</head>
+<body>
+
+<!-- ====== LOGIN SCREEN ====== -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="emblem"><img src="logo-kemenag.png" alt="Logo Kemenag RI"></div>
+      <h2>PTSP KUA Pulau Gorom</h2>
+      <p>Panel Administrasi Sistem</p>
+    </div>
+    <div class="login-role-badge">
+      <span>🛡</span>
+      <span>Super Administrator — Akses Penuh</span>
+    </div>
+    <div class="lg-group">
+      <label>Username</label>
+      <input type="text" id="lgUser" placeholder="Masukkan username" autocomplete="off">
+    </div>
+    <div class="lg-group">
+      <label>Password</label>
+      <input type="password" id="lgPass" placeholder="Masukkan password" autocomplete="off">
+    </div>
+    <button class="btn-login-main" onclick="doLogin()">🔐 Masuk ke Dashboard</button>
+    <a class="back-link" href="kua-pulau-gorom.html">← Kembali ke Website Utama</a>
+  </div>
+</div>
+
+<!-- ====== SIDEBAR ====== -->
+<nav id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon"><img src="logo-kemenag.png" alt="Logo Kemenag RI"></div>
+    <div class="sb-logo-text">
+      <h2>KUA Pulau Gorom</h2>
+      <p>PTSP Admin Panel</p>
+    </div>
+  </div>
+  <div class="sb-badge"><div class="sb-badge-dot"></div><span>Super Administrator</span></div>
+
+  <div class="sb-section">Utama</div>
+  <div class="sb-item active" onclick="nav('dashboard',this)"><span class="ic">📊</span> Dashboard</div>
+
+  <div class="sb-section">Manajemen Permohonan</div>
+  <div class="sb-item" onclick="nav('permohonan',this)"><span class="ic">📋</span> Semua Permohonan <span class="badge-count">34</span></div>
+  <div class="sb-item" onclick="nav('disposisi',this)"><span class="ic">🔔</span> Disposisi</div>
+  <div class="sb-item" onclick="nav('arsip',this)"><span class="ic">📁</span> Arsip Dokumen</div>
+
+  <div class="sb-section">CRUD Master Data</div>
+  <div class="sb-item" onclick="nav('jenis',this)"><span class="ic">🗂</span> CRUD Jenis Layanan</div>
+  <div class="sb-item" onclick="nav('unit',this)"><span class="ic">🏢</span> CRUD Unit Pengolah</div>
+  <div class="sb-item" onclick="nav('syarat',this)"><span class="ic">📄</span> CRUD Syarat Dokumen</div>
+  <div class="sb-item" onclick="nav('output',this)"><span class="ic">📤</span> CRUD Output Layanan</div>
+
+  <div class="sb-section">Akses & Pengguna</div>
+  <div class="sb-item" onclick="nav('akses',this)"><span class="ic">🔑</span> CRUD Level Akses</div>
+  <div class="sb-item" onclick="nav('pengguna',this)"><span class="ic">👥</span> Manajemen Pengguna</div>
+  <div class="sb-item" onclick="nav('permission',this)"><span class="ic">🛡</span> Matriks Izin</div>
+
+  <div class="sb-section">Konten Website</div>
+  <div class="sb-item" onclick="nav('menu',this)"><span class="ic">📌</span> Edit Menu Navigasi</div>
+  <div class="sb-item" onclick="nav('layanan_web',this)"><span class="ic">✏️</span> Edit Kartu Layanan</div>
+  <div class="sb-item" onclick="nav('pengumuman',this)"><span class="ic">📢</span> Pengumuman & Berita</div>
+
+  <div class="sb-section">Sistem</div>
+  <div class="sb-item" onclick="nav('laporan',this)"><span class="ic">📈</span> Laporan & Statistik</div>
+  <div class="sb-item" onclick="nav('pengaturan',this)"><span class="ic">⚙️</span> Pengaturan Sistem</div>
+
+  <div class="sb-divider"></div>
+  <div class="sb-bottom">
+    <div class="sb-item" onclick="doLogout()" style="color:rgba(255,100,100,.7);">
+      <span class="ic">🚪</span> Keluar
+    </div>
+  </div>
+</nav>
+
+<!-- ====== MAIN ====== -->
+<div id="main">
+  <div id="topbar">
+    <div class="tb-title" id="tbTitle">Dashboard</div>
+    <div class="tb-search">🔍 <input type="text" placeholder="Cari data..."></div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="font-size:.82rem;color:var(--tl);text-align:right;"><div style="color:var(--td);font-weight:700;">Sa'ban Marasabessy</div><div>Super Admin</div></div>
+      <div class="tb-avatar">SM</div>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <!-- ============================= DASHBOARD ============================= -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-hdr">
+        <div><h2>Dashboard Utama</h2><p>Ringkasan aktivitas PTSP KUA Pulau Gorom</p></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="exportData()">📥 Export</button>
+          <button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Lihat Permohonan</button>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card"><div class="sc-icon">📋</div><div class="sc-num" id="sTotal">0</div><div class="sc-label">Total Permohonan</div><div class="sc-change up">↑ 12% dari bulan lalu</div></div>
+        <div class="stat-card gold"><div class="sc-icon">⏳</div><div class="sc-num" id="sDiproses">0</div><div class="sc-label">Sedang Diproses</div><div class="sc-change up">34 baru hari ini</div></div>
+        <div class="stat-card"><div class="sc-icon">✅</div><div class="sc-num" id="sSelesai">0</div><div class="sc-label">Selesai Bulan Ini</div><div class="sc-change up">↑ 8% dari bulan lalu</div></div>
+        <div class="stat-card red"><div class="sc-icon">⚠️</div><div class="sc-num" id="sTerlambat">0</div><div class="sc-label">Melewati Batas Waktu</div><div class="sc-change down">Perlu eskalasi</div></div>
+        <div class="stat-card blue"><div class="sc-icon">👥</div><div class="sc-num" id="sPengguna">0</div><div class="sc-label">Total Pengguna</div><div class="sc-change up">12 baru bulan ini</div></div>
+        <div class="stat-card"><div class="sc-icon">🗂</div><div class="sc-num">12</div><div class="sc-label">Jenis Layanan Aktif</div><div class="sc-change up">Semua aktif</div></div>
+      </div>
+
+      <div class="two-col">
+        <div class="table-card">
+          <div class="table-hdr"><h3>📊 Grafik Permohonan (6 Bulan)</h3></div>
+          <div style="padding:16px 20px 20px;">
+            <div class="mini-chart" id="miniChart"></div>
+            <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+              <span style="font-size:.7rem;color:var(--tl);">Des</span>
+              <span style="font-size:.7rem;color:var(--tl);flex:1;text-align:center;">Jan</span>
+              <span style="font-size:.7rem;color:var(--tl);flex:1;text-align:center;">Feb</span>
+              <span style="font-size:.7rem;color:var(--tl);flex:1;text-align:center;">Mar</span>
+              <span style="font-size:.7rem;color:var(--tl);flex:1;text-align:center;">Apr</span>
+              <span style="font-size:.7rem;color:var(--tl);">Mei</span>
+            </div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-hdr"><h3>🕐 Aktivitas Terbaru</h3></div>
+          <div style="padding:4px 16px 16px;" class="activity-feed" id="activityFeed"></div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-hdr">
+          <h3>📋 Permohonan Terbaru</h3>
+          <button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">Lihat Semua →</button>
+        </div>
+        <table id="dashTable">
+          <thead><tr><th>No. Ref</th><th>Nama</th><th>Jenis Layanan</th><th>Tanggal</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="dashTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================= PERMOHONAN ============================= -->
+    <div class="page" id="page-permohonan">
+      <div class="page-hdr">
+        <div><h2>Manajemen Permohonan</h2><p>Kelola semua permohonan layanan masuk</p></div>
+        <button class="btn btn-green" onclick="openModal('modalPermohonan','Tambah Permohonan Manual')">➕ Tambah Manual</button>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr">
+          <h3>Semua Permohonan (<span id="pCount">0</span>)</h3>
+          <div class="table-filters">
+            <input class="filter-input" placeholder="Cari nama / referensi..." oninput="filterPermohonan(this.value)">
+            <select class="filter-input" onchange="filterStatus(this.value)">
+              <option value="">Semua Status</option>
+              <option>Menunggu</option><option>Diproses</option><option>Selesai</option><option>Ditolak</option>
+            </select>
+            <select class="filter-input" onchange="filterJenis(this.value)" id="filterJenisEl">
+              <option value="">Semua Jenis</option>
+            </select>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>No. Ref</th><th>Nama Pemohon</th><th>Jenis Layanan</th><th>Tanggal</th><th>Unit</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="permohonanBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================= JENIS LAYANAN ============================= -->
+    <div class="page" id="page-jenis">
+      <div class="page-hdr">
+        <div><h2>CRUD Jenis Layanan</h2><p>Kelola jenis-jenis layanan yang tersedia di sistem</p></div>
+        <button class="btn btn-green" onclick="openJenisModal()">➕ Tambah Jenis</button>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Daftar Jenis Layanan (<span id="jenisCount">0</span>)</h3>
+          <input class="filter-input" placeholder="Cari jenis layanan..." oninput="filterTable('jenisBody',this.value)">
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Ikon</th><th>Nama Jenis</th><th>Deskripsi</th><th>Unit</th><th>Estimasi</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="jenisBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================= UNIT PENGOLAH ============================= -->
+    <div class="page" id="page-unit">
+      <div class="page-hdr">
+        <div><h2>CRUD Unit Pengolah</h2><p>Kelola unit-unit yang memproses layanan</p></div>
+        <button class="btn btn-green" onclick="openUnitModal()">➕ Tambah Unit</button>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Daftar Unit Pengolah (<span id="unitCount">0</span>)</h3>
+          <input class="filter-input" placeholder="Cari unit..." oninput="filterTable('unitBody',this.value)">
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Nama Unit</th><th>Kepala Unit</th><th>No. Kontak</th><th>Email</th><th>Kapasitas/Hari</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="unitBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================= SYARAT DOKUMEN ============================= -->
+    <div class="page" id="page-syarat">
+      <div class="page-hdr">
+        <div><h2>CRUD Syarat Dokumen</h2><p>Kelola dokumen persyaratan per jenis layanan</p></div>
+        <button class="btn btn-green" onclick="openSyaratModal()">➕ Tambah Syarat</button>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Daftar Syarat Dokumen (<span id="syaratCount">0</span>)</h3>
+          <div class="table-filters">
+            <input class="filter-input" placeholder="Cari syarat..." oninput="filterTable('syaratBody',this.value)">
+            <select class="filter-input" onchange="filterSyaratJenis(this.value)" id="filterSyaratJenis">
+              <option value="">Semua Jenis</option>
+            </select>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Nama Dokumen</th><th>Jenis Layanan</th><th>Format</th><th>Maks. Ukuran</th><th>Wajib</th><th>Keterangan</th><th>Aksi</th></tr></thead>
+          <tbody id="syaratBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================= OUTPUT LAYANAN ============================= -->
+    <div class="page" id="page-output">
+      <div class="page-hdr">
+        <div><h2>CRUD Output Layanan</h2><p>Kelola jenis output/dokumen hasil per layanan</p></div>
+        <button class="btn btn-green" onclick="openOutputModal()">➕ Tambah Output</button>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Daftar Output Layanan (<span id="outputCount">0</span>)</h3>
+          <input class="filter-input" placeholder="Cari output..." oninput="filterTable('outputBody',this.value)">
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Nama Output</th><th>Jenis Layanan</th><th>Tipe</th><th>Template</th><th>Berlaku (Hari)</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="outputBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================= LEVEL AKSES ============================= -->
+    <div class="page" id="page-akses">
+      <div class="page-hdr">
+        <div><h2>CRUD Level Akses</h2><p>Kelola peran dan hak akses pengguna sistem</p></div>
+        <button class="btn btn-green" onclick="openAksesModal()">➕ Tambah Level</button>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Daftar Level Akses (<span id="aksesCount">0</span>)</h3></div>
+        <table>
+          <thead><tr><th>#</th><th>Nama Level</th><th>Kode</th><th>Warna</th><th>Deskripsi</th><th>Jumlah User</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="aksesBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================= PENGGUNA ============================= -->
+    <div class="page" id="page-pengguna">
+      <div class="page-hdr">
+        <div><h2>Manajemen Pengguna</h2><p>Kelola akun pengguna sistem</p></div>
+        <button class="btn btn-green" onclick="openPenggunaModal()">➕ Tambah Pengguna</button>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Daftar Pengguna (<span id="penggunaCount">0</span>)</h3>
+          <div class="table-filters">
+            <input class="filter-input" placeholder="Cari pengguna..." oninput="filterTable('penggunaBody',this.value)">
+            <select class="filter-input" onchange="filterPenggunaLevel(this.value)" id="filterPenggunaLevel">
+              <option value="">Semua Level</option>
+            </select>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Nama Lengkap</th><th>Username</th><th>Email</th><th>Level</th><th>Unit</th><th>Terakhir Login</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="penggunaBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================= MATRIKS IZIN ============================= -->
+    <div class="page" id="page-permission">
+      <div class="page-hdr">
+        <div><h2>Matriks Izin</h2><p>Atur izin akses per fitur untuk setiap level pengguna</p></div>
+        <button class="btn btn-gold" onclick="savePermissions()">💾 Simpan Izin</button>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Konfigurasi Izin Fitur</h3></div>
+        <div style="overflow-x:auto;padding:16px;">
+          <table class="perm-table" id="permTable"></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================= MENU NAVIGASI ============================= -->
+    <div class="page" id="page-menu">
+      <div class="page-hdr">
+        <div><h2>Edit Menu Navigasi</h2><p>Susun ulang dan edit menu website utama</p></div>
+        <button class="btn btn-green" onclick="openMenuModal()">➕ Tambah Menu</button>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Daftar Menu (drag untuk susun ulang)</h3>
+          <button class="btn btn-gold btn-sm" onclick="saveMenu()">💾 Simpan Urutan</button>
+        </div>
+        <div style="padding:16px;" id="menuList"></div>
+      </div>
+    </div>
+
+    <!-- ============================= EDIT LAYANAN WEB ============================= -->
+    <div class="page" id="page-layanan_web">
+      <div class="page-hdr">
+        <div><h2>Edit Kartu Layanan Website</h2><p>Edit tampilan layanan di halaman utama website</p></div>
+        <button class="btn btn-green" onclick="openLayananWebModal()">➕ Tambah Kartu</button>
+      </div>
+      <div class="three-col" id="layananWebGrid" style="margin-bottom:20px;"></div>
+    </div>
+
+    <!-- ============================= PENGUMUMAN ============================= -->
+    <div class="page" id="page-pengumuman">
+      <div class="page-hdr">
+        <div><h2>Pengumuman & Berita</h2><p>Kelola konten pengumuman dan berita website</p></div>
+        <button class="btn btn-green" onclick="openPengumumanModal()">➕ Tambah Artikel</button>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Daftar Konten (<span id="pengumumanCount">0</span>)</h3>
+          <input class="filter-input" placeholder="Cari judul..." oninput="filterTable('pengumumanBody',this.value)">
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Judul</th><th>Kategori</th><th>Tanggal</th><th>Penulis</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="pengumumanBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================= LAPORAN ============================= -->
+    <div class="page" id="page-laporan">
+      <div class="page-hdr">
+        <div><h2>Laporan & Statistik</h2><p>Unduh laporan layanan secara berkala</p></div>
+        <button class="btn btn-gold" onclick="cetakLaporan()">🖨 Cetak Laporan</button>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="sc-icon">📊</div><div class="sc-num">127</div><div class="sc-label">Mei 2026</div></div>
+        <div class="stat-card gold"><div class="sc-icon">📊</div><div class="sc-num">98</div><div class="sc-label">April 2026</div></div>
+        <div class="stat-card"><div class="sc-icon">📊</div><div class="sc-num">115</div><div class="sc-label">Maret 2026</div></div>
+        <div class="stat-card blue"><div class="sc-icon">📊</div><div class="sc-num">89</div><div class="sc-label">Februari 2026</div></div>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Rekap per Jenis Layanan</h3>
+          <div class="table-filters">
+            <select class="filter-input"><option>Mei 2026</option><option>April 2026</option><option>Maret 2026</option></select>
+            <button class="btn btn-green btn-sm" onclick="exportData()">📥 Export Excel</button>
+          </div>
+        </div>
+        <table id="laporanTable">
+          <thead><tr><th>Jenis Layanan</th><th>Total Masuk</th><th>Diproses</th><th>Selesai</th><th>Ditolak</th><th>Rata-rata (hari)</th></tr></thead>
+          <tbody id="laporanBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================= DISPOSISI ============================= -->
+    <div class="page" id="page-disposisi">
+      <div class="page-hdr">
+        <div><h2>Disposisi Layanan</h2><p>Teruskan dan pantau disposisi permohonan</p></div>
+        <button class="btn btn-green" onclick="openDisposisiModal()">➕ Buat Disposisi</button>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Riwayat Disposisi</h3></div>
+        <table>
+          <thead><tr><th>No. Ref</th><th>Pemohon</th><th>Dari</th><th>Kepada</th><th>Instruksi</th><th>Tanggal</th><th>Status</th></tr></thead>
+          <tbody id="disposisiBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================= ARSIP ============================= -->
+    <div class="page" id="page-arsip">
+      <div class="page-hdr"><div><h2>Arsip Dokumen</h2><p>Dokumen layanan yang telah diarsipkan</p></div></div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Dokumen Tersimpan</h3>
+          <input class="filter-input" placeholder="Cari arsip...">
+        </div>
+        <table>
+          <thead><tr><th>No. Ref</th><th>Nama</th><th>Jenis</th><th>Tanggal Arsip</th><th>Operator</th><th>Aksi</th></tr></thead>
+          <tbody id="arsipBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================= PENGATURAN ============================= -->
+    <div class="page" id="page-pengaturan">
+      <div class="page-hdr"><div><h2>Pengaturan Sistem</h2><p>Konfigurasi umum PTSP KUA Pulau Gorom</p></div>
+        <button class="btn btn-gold" onclick="savePengaturan()">💾 Simpan Perubahan</button>
+      </div>
+      <div class="two-col">
+        <div class="table-card" style="padding:0;">
+          <div class="table-hdr"><h3>⚙️ Informasi Sistem</h3></div>
+          <div style="padding:20px;display:flex;flex-direction:column;gap:14px;">
+            <div class="fg"><label>Nama Sistem</label><input type="text" value="PTSP KUA Pulau Gorom" id="sysNama"></div>
+            <div class="fg"><label>Nama Kantor</label><input type="text" value="KUA Kecamatan Pulau Gorom" id="sysKantor"></div>
+            <div class="fg"><label>Alamat</label><input type="text" value="Jl. Pattimura No. 01, Geser" id="sysAlamat"></div>
+            <div class="form-row">
+              <div class="fg"><label>Telepon</label><input type="text" value="(0912) 621-XXXX" id="sysTelp"></div>
+              <div class="fg"><label>Email</label><input type="email" value="ptsp@kuapulaugorom.go.id" id="sysEmail"></div>
+            </div>
+            <div class="fg"><label>Slogan / Tagline</label><input type="text" value="Melayani dengan Tulus, Amanah, dan Profesional" id="sysTagline"></div>
+          </div>
+        </div>
+        <div>
+          <div class="table-card" style="padding:0;margin-bottom:20px;">
+            <div class="table-hdr"><h3>🕐 Jam Operasional</h3></div>
+            <div style="padding:20px;display:flex;flex-direction:column;gap:12px;">
+              <div class="form-row"><div class="fg"><label>Jam Buka</label><input type="time" value="08:00"></div><div class="fg"><label>Jam Tutup</label><input type="time" value="15:00"></div></div>
+              <div class="fg"><label>Jam Tutup Jumat</label><input type="time" value="11:30"></div>
+              <div class="fg"><label>Hari Libur Tambahan</label><textarea rows="2" placeholder="Misal: 16 Jun 2026 - Idul Adha"></textarea></div>
+            </div>
+          </div>
+          <div class="table-card" style="padding:0;">
+            <div class="table-hdr"><h3>🔧 Fitur Sistem</h3></div>
+            <div style="padding:20px;display:flex;flex-direction:column;gap:14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div><div style="font-weight:700;font-size:.88rem;">Notifikasi SMS</div><div style="font-size:.78rem;color:var(--tl);">Kirim SMS ke pemohon</div></div>
+                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div><div style="font-weight:700;font-size:.88rem;">Notifikasi Email</div><div style="font-size:.78rem;color:var(--tl);">Kirim email konfirmasi</div></div>
+                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div><div style="font-weight:700;font-size:.88rem;">Mode Maintenance</div><div style="font-size:.78rem;color:var(--tl);">Nonaktifkan website publik</div></div>
+                <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div><div style="font-weight:700;font-size:.88rem;">Registrasi Publik</div><div style="font-size:.78rem;color:var(--tl);">Izinkan daftar mandiri</div></div>
+                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ====== MODALS ====== -->
+<!-- Generic CRUD Modal -->
+<div class="modal-bg" id="crudModal">
+  <div class="modal" id="crudModalBox">
+    <div class="modal-head">
+      <h3 id="crudModalTitle">Form</h3>
+      <button class="modal-close" onclick="closeModal('crudModal')">✕</button>
+    </div>
+    <div class="modal-body" id="crudModalBody"></div>
+    <div class="modal-foot" id="crudModalFoot">
+      <button class="btn btn-ghost" onclick="closeModal('crudModal')">Batal</button>
+      <button class="btn btn-green" id="crudModalSave">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Permohonan Detail Modal -->
+<div class="modal-bg" id="detailModal">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <h3>📋 Detail Permohonan</h3>
+      <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('detailModal')">Tutup</button>
+      <button class="btn btn-blue btn-sm" onclick="closeModal('detailModal');openDisposisiModal()">🔔 Buat Disposisi</button>
+      <button class="btn btn-gold" onclick="ubahStatus()">✏️ Ubah Status</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Dialog -->
+<div class="confirm-bg" id="confirmBg">
+  <div class="confirm-box">
+    <div class="ci" id="confirmIcon">⚠️</div>
+    <h4 id="confirmTitle">Konfirmasi</h4>
+    <p id="confirmMsg">Apakah Anda yakin?</p>
+    <div class="confirm-btns">
+      <button class="btn btn-ghost" onclick="closeConfirm()">Batal</button>
+      <button class="btn btn-red" id="confirmOkBtn">Ya, Lanjutkan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">✅ <span id="toastMsg"></span></div>
+
+<script>
+// ============================================================
+// DATA STORE
+// ============================================================
+const DB = {
+  jenis: [
+    {id:1,ikon:'💍',nama:'Pencatatan Nikah',desk:'Pendaftaran dan pencatatan pernikahan',unit:'Unit Nikah',estimasi:'7',status:'Aktif'},
+    {id:2,ikon:'📜',nama:'Legalisasi Dokumen',desk:'Pengesahan dokumen keagamaan',unit:'Unit Administrasi',estimasi:'3',status:'Aktif'},
+    {id:3,ikon:'🕌',nama:'Wakaf & Ibadah Sosial',desk:'Sertifikasi tanah wakaf',unit:'Unit Wakaf',estimasi:'14',status:'Aktif'},
+    {id:4,ikon:'🤲',nama:'Bimbingan Keagamaan',desk:'Konsultasi dan penyuluhan agama',unit:'Unit Bimbingan',estimasi:'1',status:'Aktif'},
+    {id:5,ikon:'📂',nama:'Arsip & Duplikat Dokumen',desk:'Duplikat buku nikah / akta',unit:'Unit Administrasi',estimasi:'5',status:'Aktif'},
+    {id:6,ikon:'🔄',nama:'Perubahan Status & Rujuk',desk:'Proses rujuk setelah talak',unit:'Unit Nikah',estimasi:'7',status:'Nonaktif'},
+  ],
+  unit: [
+    {id:1,nama:'Unit Nikah',kepala:'Umar Tuasikal, S.Ag',kontak:'0821-1234-5678',email:'nikah@kuapg.go.id',kapasitas:'10',status:'Aktif'},
+    {id:2,nama:'Unit Administrasi',kepala:'Siti Rahmawati, S.Pd',kontak:'0812-9876-5432',email:'admin@kuapg.go.id',kapasitas:'20',status:'Aktif'},
+    {id:3,nama:'Unit Wakaf',kepala:'Ahmad Basrun, M.Ag',kontak:'0813-5555-6666',email:'wakaf@kuapg.go.id',kapasitas:'5',status:'Aktif'},
+    {id:4,nama:'Unit Bimbingan',kepala:'Halimah Marasabessy',kontak:'0811-2233-4455',email:'bimbing@kuapg.go.id',kapasitas:'8',status:'Aktif'},
+  ],
+  syarat: [
+    {id:1,nama:'Fotokopi KTP',jenis:'Pencatatan Nikah',format:'PDF/JPG',ukuran:'2MB',wajib:true,ket:'KTP kedua calon'},
+    {id:2,nama:'Fotokopi KK',jenis:'Pencatatan Nikah',format:'PDF/JPG',ukuran:'2MB',wajib:true,ket:'Kartu Keluarga terbaru'},
+    {id:3,nama:'Surat Pengantar RT/RW',jenis:'Pencatatan Nikah',format:'PDF',ukuran:'1MB',wajib:true,ket:'Asli + fotokopi'},
+    {id:4,nama:'Fotokopi Akta Lahir',jenis:'Pencatatan Nikah',format:'PDF/JPG',ukuran:'2MB',wajib:false,ket:'Jika tersedia'},
+    {id:5,nama:'Dokumen Asli yang Akan Dilegalisir',jenis:'Legalisasi Dokumen',format:'PDF',ukuran:'5MB',wajib:true,ket:'Scan resolusi tinggi'},
+    {id:6,nama:'Fotokopi KTP Pemohon',jenis:'Legalisasi Dokumen',format:'PDF/JPG',ukuran:'2MB',wajib:true,ket:''},
+    {id:7,nama:'Sertifikat Tanah',jenis:'Wakaf & Ibadah Sosial',format:'PDF',ukuran:'5MB',wajib:true,ket:'Sertifikat asli/BPN'},
+  ],
+  output: [
+    {id:1,nama:'Buku Nikah',jenis:'Pencatatan Nikah',tipe:'Fisik',template:'buku_nikah_v3',berlaku:'Seumur Hidup',status:'Aktif'},
+    {id:2,nama:'Sertifikat Pranikah',jenis:'Pencatatan Nikah',tipe:'Digital+Fisik',template:'sertif_pranikah',berlaku:'365',status:'Aktif'},
+    {id:3,nama:'Dokumen Terlegalisir',jenis:'Legalisasi Dokumen',tipe:'Fisik',template:'-',berlaku:'90',status:'Aktif'},
+    {id:4,nama:'Akta Ikrar Wakaf',jenis:'Wakaf & Ibadah Sosial',tipe:'Fisik',template:'akta_wakaf_v2',berlaku:'Seumur Hidup',status:'Aktif'},
+    {id:5,nama:'Sertifikat Bimbingan',jenis:'Bimbingan Keagamaan',tipe:'Digital',template:'sertif_bimbing',berlaku:'365',status:'Aktif'},
+  ],
+  akses: [
+    {id:1,nama:'Super Admin',kode:'SUPER',warna:'#d4a017',desk:'Akses penuh ke seluruh sistem',jumlah:1,status:'Aktif'},
+    {id:2,nama:'Admin',kode:'ADMIN',warna:'#2d6a4f',desk:'Kelola user, master data, dan laporan',jumlah:3,status:'Aktif'},
+    {id:3,nama:'Operator',kode:'OPR',warna:'#2471a3',desk:'Proses permohonan dan arsip',jumlah:5,status:'Aktif'},
+    {id:4,nama:'Pimpinan',kode:'PMP',warna:'#8e44ad',desk:'Monitoring dan disposisi',jumlah:1,status:'Aktif'},
+    {id:5,nama:'Staff',kode:'STF',warna:'#d35400',desk:'Input permohonan dan unggah output',jumlah:8,status:'Aktif'},
+    {id:6,nama:'Publik',kode:'PBL',warna:'#7a8a7a',desk:'Ajukan permohonan online',jumlah:247,status:'Aktif'},
+  ],
+  pengguna: [
+    {id:1,nama:'Sa\'ban Marasabessy',username:'superadmin',email:'saban@kuapg.go.id',level:'Super Admin',unit:'Semua Unit',login:'Hari ini',status:'Aktif'},
+    {id:2,nama:'Fatimah Rumeon',username:'fatimah.admin',email:'fatimah@kuapg.go.id',level:'Admin',unit:'Unit Administrasi',login:'Kemarin',status:'Aktif'},
+    {id:3,nama:'Umar Tuasikal',username:'umar.opr',email:'umar@kuapg.go.id',level:'Operator',unit:'Unit Nikah',login:'2 hari lalu',status:'Aktif'},
+    {id:4,nama:'H. Yahya Pattiasina',username:'yahya.pmp',email:'yahya@kuapg.go.id',level:'Pimpinan',unit:'Kepala KUA',login:'Hari ini',status:'Aktif'},
+    {id:5,nama:'Siti Rahmawati',username:'siti.stf',email:'siti@kuapg.go.id',level:'Staff',unit:'Unit Administrasi',login:'Hari ini',status:'Aktif'},
+    {id:6,nama:'Ahmad Basrun',username:'ahmad.opr',email:'ahmad@kuapg.go.id',level:'Operator',unit:'Unit Wakaf',login:'3 hari lalu',status:'Aktif'},
+    {id:7,nama:'Barakah Leimena',username:'barakah.stf',email:'barakah@kuapg.go.id',level:'Staff',unit:'Unit Nikah',login:'Seminggu lalu',status:'Nonaktif'},
+  ],
+  permohonan: [
+    {id:1,ref:'KUA-2026-1001',nama:'Ahmad Basrun',jenis:'Pencatatan Nikah',tgl:'17 Mei 2026',unit:'Unit Nikah',status:'Diproses'},
+    {id:2,ref:'KUA-2026-1002',nama:'Siti Rahmawati',jenis:'Legalisasi Dokumen',tgl:'16 Mei 2026',unit:'Unit Administrasi',status:'Selesai'},
+    {id:3,ref:'KUA-2026-1003',nama:'Umar Tuasikal',jenis:'Wakaf & Ibadah Sosial',tgl:'15 Mei 2026',unit:'Unit Wakaf',status:'Menunggu'},
+    {id:4,ref:'KUA-2026-1004',nama:'Halimah Marasabessy',jenis:'Arsip & Duplikat Dokumen',tgl:'14 Mei 2026',unit:'Unit Administrasi',status:'Diproses'},
+    {id:5,ref:'KUA-2026-1005',nama:'Barakah Leimena',jenis:'Bimbingan Keagamaan',tgl:'13 Mei 2026',unit:'Unit Bimbingan',status:'Selesai'},
+    {id:6,ref:'KUA-2026-1006',nama:'Yahya Pattiasina',jenis:'Pencatatan Nikah',tgl:'12 Mei 2026',unit:'Unit Nikah',status:'Ditolak'},
+    {id:7,ref:'KUA-2026-1007',nama:'Nur Fadilah',jenis:'Legalisasi Dokumen',tgl:'11 Mei 2026',unit:'Unit Administrasi',status:'Selesai'},
+    {id:8,ref:'KUA-2026-1008',nama:'Ismail Rumeon',jenis:'Pencatatan Nikah',tgl:'10 Mei 2026',unit:'Unit Nikah',status:'Diproses'},
+  ],
+  menu: [
+    {id:1,ikon:'🏠',label:'Beranda',url:'#beranda',aktif:true},
+    {id:2,ikon:'📋',label:'Layanan',url:'#layanan',aktif:true},
+    {id:3,ikon:'📝',label:'Permohonan',url:'#permohonan',aktif:true},
+    {id:4,ikon:'🔍',label:'Lacak Status',url:'#lacak',aktif:true},
+    {id:5,ikon:'📢',label:'Pengumuman',url:'#pengumuman',aktif:true},
+    {id:6,ikon:'📞',label:'Kontak',url:'#kontak',aktif:true},
+  ],
+  layananWeb: [
+    {id:1,ikon:'💍',judul:'Pencatatan Nikah',desk:'Pendaftaran dan pencatatan pernikahan sesuai peraturan Kemenag RI.',aktif:true},
+    {id:2,ikon:'📜',judul:'Legalisasi Dokumen',desk:'Legalisasi dan pengesahan dokumen keagamaan dari KUA.',aktif:true},
+    {id:3,ikon:'🕌',judul:'Wakaf & Ibadah Sosial',desk:'Pengurusan sertifikasi tanah wakaf dan rumah ibadah.',aktif:true},
+    {id:4,ikon:'🤲',judul:'Bimbingan Keagamaan',desk:'Konsultasi, penyuluhan, dan bimbingan haji umrah.',aktif:true},
+    {id:5,ikon:'📂',judul:'Arsip & Duplikat Dokumen',desk:'Permohonan duplikat buku nikah dan dokumen lain.',aktif:true},
+    {id:6,ikon:'🔄',judul:'Perubahan Status & Rujuk',desk:'Proses rujuk setelah talak raj\'i.',aktif:false},
+  ],
+  pengumuman: [
+    {id:1,judul:'Jadwal Pelayanan Hari Raya Idul Adha 2026',kategori:'Pengumuman',tgl:'15 Mei 2026',penulis:'Admin',status:'Diterbitkan'},
+    {id:2,judul:'Bimbingan Pranikah Gratis Angkatan Juni 2026',kategori:'Program',tgl:'10 Mei 2026',penulis:'Fatimah',status:'Diterbitkan'},
+    {id:3,judul:'Pembaruan Persyaratan Dokumen Nikah 2026',kategori:'Regulasi',tgl:'5 Mei 2026',penulis:'Admin',status:'Diterbitkan'},
+    {id:4,judul:'Layanan Konsultasi Wakaf Online Dibuka',kategori:'Program',tgl:'1 Mei 2026',penulis:'Ahmad',status:'Draf'},
+  ],
+  disposisi: [
+    {id:1,ref:'KUA-2026-1001',nama:'Ahmad Basrun',dari:'Pimpinan',kepada:'Operator Nikah',instruksi:'Proses sesuai SOP, prioritas.',tgl:'17 Mei',status:'Diterima'},
+    {id:2,ref:'KUA-2026-1003',nama:'Umar Tuasikal',dari:'Admin',kepada:'Unit Wakaf',instruksi:'Verifikasi lapangan terlebih dahulu.',tgl:'15 Mei',status:'Menunggu'},
+  ],
+  arsip: [
+    {id:1,ref:'KUA-2026-0902',nama:'Barakah Leimena',jenis:'Bimbingan Keagamaan',tglArsip:'13 Mei 2026',operator:'Siti Rahmawati'},
+    {id:2,ref:'KUA-2026-0901',nama:'Nur Fadilah',jenis:'Legalisasi Dokumen',tglArsip:'11 Mei 2026',operator:'Fatimah Rumeon'},
+  ],
+  nextId: { jenis:7,unit:5,syarat:8,output:6,akses:7,pengguna:8,permohonan:9,menu:7,layananWeb:7,pengumuman:5,disposisi:3 },
+};
+
+const FEATURES = ['Dashboard','Lihat Permohonan','Proses Permohonan','CRUD Jenis','CRUD Unit','CRUD Syarat','CRUD Output','CRUD Akses','Kelola Pengguna','Edit Menu','Edit Layanan Web','Kelola Pengumuman','Laporan','Pengaturan Sistem'];
+const ROLES = ['Super Admin','Admin','Operator','Pimpinan','Staff'];
+const PERMISSIONS = {
+  'Super Admin':[1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  'Admin':      [1,1,1,1,1,1,1,0,1,1,1,1,1,0],
+  'Operator':   [1,1,1,0,0,0,0,0,0,0,0,0,0,0],
+  'Pimpinan':   [1,1,0,0,0,0,0,0,0,0,0,0,1,0],
+  'Staff':      [1,1,1,0,0,0,0,0,0,0,0,0,0,0],
+};
+
+let editTarget = null;
+let confirmCb = null;
+let currentPermohonan = null;
+
+// ============================================================
+// LOGIN
+// ============================================================
+function doLogin(){
+  const u=document.getElementById('lgUser').value;
+  const p=document.getElementById('lgPass').value;
+  if(u==='superadmin'&&p==='admin123'){
+    document.getElementById('loginScreen').style.display='none';
+    initDashboard();
+    toast('✅ Selamat datang, Sa\'ban! Akses Super Admin aktif.');
+  } else {
+    toast('❌ Username atau password salah!');
+  }
+}
+function doLogout(){
+  showConfirm('🚪','Keluar dari Sistem','Anda yakin ingin keluar dari dashboard?',()=>{
+    document.getElementById('loginScreen').style.display='flex';
+  });
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function nav(pageId, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  const pg = document.getElementById('page-'+pageId);
+  if(pg) pg.classList.add('active');
+  if(el) el.classList.add('active');
+  else {
+    document.querySelectorAll('.sb-item').forEach(i=>{
+      if(i.getAttribute('onclick')&&i.getAttribute('onclick').includes("'"+pageId+"'")) i.classList.add('active');
+    });
+  }
+  document.getElementById('tbTitle').textContent = {
+    dashboard:'Dashboard Utama',permohonan:'Permohonan',jenis:'CRUD Jenis Layanan',
+    unit:'CRUD Unit Pengolah',syarat:'CRUD Syarat Dokumen',output:'CRUD Output Layanan',
+    akses:'CRUD Level Akses',pengguna:'Manajemen Pengguna',permission:'Matriks Izin',
+    menu:'Edit Menu',layanan_web:'Edit Kartu Layanan',pengumuman:'Pengumuman & Berita',
+    laporan:'Laporan & Statistik',pengaturan:'Pengaturan Sistem',
+    disposisi:'Disposisi',arsip:'Arsip Dokumen',
+  }[pageId]||pageId;
+  renderPage(pageId);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function initDashboard(){
+  renderPage('dashboard');
+  renderJenisFilter();
+}
+
+function renderPage(id){
+  const r={
+    dashboard:renderDashboard, jenis:renderJenis, unit:renderUnit,
+    syarat:renderSyarat, output:renderOutput, akses:renderAkses,
+    pengguna:renderPengguna, permission:renderPermission,
+    menu:renderMenu, layanan_web:renderLayananWeb,
+    pengumuman:renderPengumuman, permohonan:renderPermohonan,
+    laporan:renderLaporan, disposisi:renderDisposisi, arsip:renderArsip,
+  };
+  if(r[id]) r[id]();
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard(){
+  animNum('sTotal',DB.permohonan.length+1112);
+  animNum('sDiproses',DB.permohonan.filter(p=>p.status==='Diproses').length+30);
+  animNum('sSelesai',DB.permohonan.filter(p=>p.status==='Selesai').length+110);
+  animNum('sTerlambat',5);
+  animNum('sPengguna',DB.pengguna.length+243);
+
+  // mini chart
+  const mc=document.getElementById('miniChart');
+  const vals=[65,89,72,98,115,127];
+  const max=Math.max(...vals);
+  mc.innerHTML=vals.map(v=>`<div class="bar" style="height:${Math.round(v/max*100)}%;" title="${v} permohonan"></div>`).join('');
+
+  // activity feed
+  const af=document.getElementById('activityFeed');
+  const acts=[
+    {c:'green',ic:'✅',txt:'<strong>KUA-2026-1002 selesai</strong><span>Siti Rahmawati — Legalisasi Dokumen</span>',t:'5 menit lalu'},
+    {c:'gold',ic:'📋',txt:'<strong>Permohonan baru KUA-2026-1008</strong><span>Ismail Rumeon — Pencatatan Nikah</span>',t:'23 menit lalu'},
+    {c:'blue',ic:'🔔',txt:'<strong>Disposisi dikirim</strong><span>Dari Pimpinan ke Operator Nikah</span>',t:'1 jam lalu'},
+    {c:'red',ic:'⚠️',txt:'<strong>KUA-2026-0995 terlambat</strong><span>Melewati estimasi 7 hari</span>',t:'2 jam lalu'},
+    {c:'gold',ic:'👤',txt:'<strong>Pengguna baru didaftarkan</strong><span>Barakah Leimena — Staff</span>',t:'Kemarin'},
+  ];
+  af.innerHTML=acts.map(a=>`<div class="af-item"><div class="af-dot ${a.c}">${a.ic}</div><div class="af-text">${a.txt}</div><div class="af-time">${a.t}</div></div>`).join('');
+
+  // dash table (last 5)
+  const tbody=document.getElementById('dashTableBody');
+  tbody.innerHTML=DB.permohonan.slice(0,5).map(p=>`
+    <tr><td><b>${p.ref}</b></td><td>${p.nama}</td><td>${p.jenis}</td><td>${p.tgl}</td>
+    <td>${pillStatus(p.status)}</td>
+    <td><div class="td-actions">
+      <button class="btn btn-blue btn-sm btn-icon" onclick="detailPermohonan(${p.id})" title="Detail">👁</button>
+      <button class="btn btn-gold btn-sm btn-icon" onclick="editPermohonanStatus(${p.id})" title="Ubah Status">✏️</button>
+    </div></td></tr>`).join('');
+}
+
+function animNum(id,end){
+  const el=document.getElementById(id);
+  if(!el)return;
+  let s=0;const d=800,step=(end/d)*16;
+  const t=setInterval(()=>{s=Math.min(s+step,end);el.textContent=Math.floor(s);if(s>=end){clearInterval(t);el.textContent=end;}},16);
+}
+
+// ============================================================
+// JENIS LAYANAN
+// ============================================================
+function renderJenis(){
+  document.getElementById('jenisCount').textContent=DB.jenis.length;
+  document.getElementById('jenisBody').innerHTML=DB.jenis.map((j,i)=>`
+    <tr id="jRow${j.id}"><td>${i+1}</td><td style="font-size:1.3rem;">${j.ikon}</td><td><b>${j.nama}</b></td>
+    <td style="max-width:200px;font-size:.82rem;color:var(--tl);">${j.desk}</td>
+    <td>${j.unit}</td><td>${j.estimasi} hari</td><td>${pillStatus(j.status)}</td>
+    <td><div class="td-actions">
+      <button class="btn btn-blue btn-sm btn-icon" onclick="editJenis(${j.id})">✏️</button>
+      <button class="btn btn-red btn-sm btn-icon" onclick="deleteRow('jenis',${j.id})">🗑</button>
+    </div></td></tr>`).join('');
+}
+
+function openJenisModal(id=null){
+  editTarget=id;
+  const j=id?DB.jenis.find(x=>x.id===id):{ikon:'📋',nama:'',desk:'',unit:DB.unit[0]?.nama||'',estimasi:'7',status:'Aktif'};
+  const unitOpts=DB.unit.map(u=>`<option ${u.nama===j.unit?'selected':''}>${u.nama}</option>`).join('');
+  setModal(`${id?'Edit':'Tambah'} Jenis Layanan`,`
+    <div class="form-row">
+      <div class="fg"><label>Ikon Emoji</label><input id="fIkon" value="${j.ikon}" maxlength="4" style="font-size:1.5rem;text-align:center;"></div>
+      <div class="fg"><label>Status</label><select id="fStatus"><option ${j.status==='Aktif'?'selected':''}>Aktif</option><option ${j.status==='Nonaktif'?'selected':''}>Nonaktif</option></select></div>
+    </div>
+    <div class="fg"><label>Nama Jenis Layanan</label><input id="fNama" value="${j.nama}" placeholder="Nama layanan"></div>
+    <div class="fg"><label>Deskripsi</label><textarea id="fDesk">${j.desk}</textarea></div>
+    <div class="form-row">
+      <div class="fg"><label>Unit Pengolah</label><select id="fUnit">${unitOpts}</select></div>
+      <div class="fg"><label>Estimasi (hari)</label><input id="fEst" type="number" value="${j.estimasi}" min="1"></div>
+    </div>
+  `,()=>saveJenis());
+}
+function editJenis(id){openJenisModal(id);}
+function saveJenis(){
+  const d={ikon:v('fIkon'),nama:v('fNama'),desk:v('fDesk'),unit:v('fUnit'),estimasi:v('fEst'),status:v('fStatus')};
+  if(!d.nama){toast('⚠️ Nama jenis wajib diisi!');return;}
+  if(editTarget){Object.assign(DB.jenis.find(x=>x.id===editTarget),{...d,id:editTarget});}
+  else{DB.jenis.push({...d,id:DB.nextId.jenis++});}
+  closeModal('crudModal');renderJenis();renderJenisFilter();toast('✅ Jenis layanan disimpan!');
+}
+
+// ============================================================
+// UNIT PENGOLAH
+// ============================================================
+function renderUnit(){
+  document.getElementById('unitCount').textContent=DB.unit.length;
+  document.getElementById('unitBody').innerHTML=DB.unit.map((u,i)=>`
+    <tr id="uRow${u.id}"><td>${i+1}</td><td><b>${u.nama}</b></td><td>${u.kepala}</td>
+    <td>${u.kontak}</td><td>${u.email}</td><td>${u.kapasitas}/hari</td>
+    <td>${pillStatus(u.status)}</td>
+    <td><div class="td-actions">
+      <button class="btn btn-blue btn-sm btn-icon" onclick="editUnit(${u.id})">✏️</button>
+      <button class="btn btn-red btn-sm btn-icon" onclick="deleteRow('unit',${u.id})">🗑</button>
+    </div></td></tr>`).join('');
+}
+function openUnitModal(id=null){
+  editTarget=id;
+  const u=id?DB.unit.find(x=>x.id===id):{nama:'',kepala:'',kontak:'',email:'',kapasitas:'10',status:'Aktif'};
+  setModal(`${id?'Edit':'Tambah'} Unit Pengolah`,`
+    <div class="fg"><label>Nama Unit</label><input id="fNama" value="${u.nama}" placeholder="Nama unit pengolah"></div>
+    <div class="fg"><label>Kepala Unit</label><input id="fKepala" value="${u.kepala}" placeholder="Nama lengkap + gelar"></div>
+    <div class="form-row">
+      <div class="fg"><label>No. Kontak</label><input id="fKontak" value="${u.kontak}" placeholder="08xx"></div>
+      <div class="fg"><label>Email</label><input id="fEmail" type="email" value="${u.email}" placeholder="email@"></div>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label>Kapasitas / Hari</label><input id="fKap" type="number" value="${u.kapasitas}" min="1"></div>
+      <div class="fg"><label>Status</label><select id="fStatus"><option ${u.status==='Aktif'?'selected':''}>Aktif</option><option ${u.status==='Nonaktif'?'selected':''}>Nonaktif</option></select></div>
+    </div>
+  `,()=>saveUnit());
+}
+function editUnit(id){openUnitModal(id);}
+function saveUnit(){
+  const d={nama:v('fNama'),kepala:v('fKepala'),kontak:v('fKontak'),email:v('fEmail'),kapasitas:v('fKap'),status:v('fStatus')};
+  if(!d.nama){toast('⚠️ Nama unit wajib diisi!');return;}
+  if(editTarget){Object.assign(DB.unit.find(x=>x.id===editTarget),{...d,id:editTarget});}
+  else{DB.unit.push({...d,id:DB.nextId.unit++});}
+  closeModal('crudModal');renderUnit();toast('✅ Unit pengolah disimpan!');
+}
+
+// ============================================================
+// SYARAT DOKUMEN
+// ============================================================
+function renderSyarat(){
+  document.getElementById('syaratCount').textContent=DB.syarat.length;
+  document.getElementById('syaratBody').innerHTML=DB.syarat.map((s,i)=>`
+    <tr><td>${i+1}</td><td><b>${s.nama}</b></td><td><span class="pill pill-blue">${s.jenis}</span></td>
+    <td>${s.format}</td><td>${s.ukuran}</td>
+    <td><span class="pill ${s.wajib?'pill-red':'pill-gray'}">${s.wajib?'Wajib':'Opsional'}</span></td>
+    <td style="font-size:.8rem;color:var(--tl);">${s.ket||'-'}</td>
+    <td><div class="td-actions">
+      <button class="btn btn-blue btn-sm btn-icon" onclick="editSyarat(${s.id})">✏️</button>
+      <button class="btn btn-red btn-sm btn-icon" onclick="deleteRow('syarat',${s.id})">🗑</button>
+    </div></td></tr>`).join('');
+}
+function openSyaratModal(id=null){
+  editTarget=id;
+  const s=id?DB.syarat.find(x=>x.id===id):{nama:'',jenis:DB.jenis[0]?.nama||'',format:'PDF/JPG',ukuran:'2MB',wajib:true,ket:''};
+  const jOpts=DB.jenis.map(j=>`<option ${j.nama===s.jenis?'selected':''}>${j.nama}</option>`).join('');
+  setModal(`${id?'Edit':'Tambah'} Syarat Dokumen`,`
+    <div class="fg"><label>Nama Dokumen</label><input id="fNama" value="${s.nama}" placeholder="Nama dokumen syarat"></div>
+    <div class="fg"><label>Jenis Layanan</label><select id="fJenis">${jOpts}</select></div>
+    <div class="form-row">
+      <div class="fg"><label>Format</label><input id="fFormat" value="${s.format}" placeholder="PDF, JPG, dll"></div>
+      <div class="fg"><label>Maks. Ukuran</label><input id="fUkuran" value="${s.ukuran}" placeholder="2MB"></div>
+    </div>
+    <div class="fg" style="display:flex;align-items:center;gap:12px;padding:10px 0;">
+      <label class="toggle"><input type="checkbox" id="fWajib" ${s.wajib?'checked':''}><span class="toggle-slider"></span></label>
+      <span style="font-weight:700;font-size:.88rem;">Dokumen Wajib</span>
+    </div>
+    <div class="fg"><label>Keterangan Tambahan</label><textarea id="fKet">${s.ket}</textarea></div>
+  `,()=>saveSyarat());
+}
+function editSyarat(id){openSyaratModal(id);}
+function saveSyarat(){
+  const d={nama:v('fNama'),jenis:v('fJenis'),format:v('fFormat'),ukuran:v('fUkuran'),wajib:document.getElementById('fWajib').checked,ket:v('fKet')};
+  if(!d.nama){toast('⚠️ Nama dokumen wajib diisi!');return;}
+  if(editTarget){Object.assign(DB.syarat.find(x=>x.id===editTarget),{...d,id:editTarget});}
+  else{DB.syarat.push({...d,id:DB.nextId.syarat++});}
+  closeModal('crudModal');renderSyarat();toast('✅ Syarat dokumen disimpan!');
+}
+
+// ============================================================
+// OUTPUT LAYANAN
+// ============================================================
+function renderOutput(){
+  document.getElementById('outputCount').textContent=DB.output.length;
+  document.getElementById('outputBody').innerHTML=DB.output.map((o,i)=>`
+    <tr><td>${i+1}</td><td><b>${o.nama}</b></td><td>${o.jenis}</td>
+    <td><span class="pill pill-blue">${o.tipe}</span></td>
+    <td style="font-size:.78rem;color:var(--tl);">${o.template}</td>
+    <td>${o.berlaku}</td><td>${pillStatus(o.status)}</td>
+    <td><div class="td-actions">
+      <button class="btn btn-blue btn-sm btn-icon" onclick="editOutput(${o.id})">✏️</button>
+      <button class="btn btn-red btn-sm btn-icon" onclick="deleteRow('output',${o.id})">🗑</button>
+    </div></td></tr>`).join('');
+}
+function openOutputModal(id=null){
+  editTarget=id;
+  const o=id?DB.output.find(x=>x.id===id):{nama:'',jenis:DB.jenis[0]?.nama||'',tipe:'Digital',template:'',berlaku:'365',status:'Aktif'};
+  const jOpts=DB.jenis.map(j=>`<option ${j.nama===o.jenis?'selected':''}>${j.nama}</option>`).join('');
+  setModal(`${id?'Edit':'Tambah'} Output Layanan`,`
+    <div class="fg"><label>Nama Output</label><input id="fNama" value="${o.nama}" placeholder="Nama dokumen output"></div>
+    <div class="fg"><label>Jenis Layanan</label><select id="fJenis">${jOpts}</select></div>
+    <div class="form-row">
+      <div class="fg"><label>Tipe Output</label>
+        <select id="fTipe"><option ${o.tipe==='Digital'?'selected':''}>Digital</option><option ${o.tipe==='Fisik'?'selected':''}>Fisik</option><option ${o.tipe==='Digital+Fisik'?'selected':''}>Digital+Fisik</option></select></div>
+      <div class="fg"><label>Masa Berlaku (hari)</label><input id="fBerlaku" value="${o.berlaku}" placeholder="Hari / Seumur Hidup"></div>
+    </div>
+    <div class="fg"><label>Nama Template</label><input id="fTemplate" value="${o.template}" placeholder="nama_template_file"></div>
+    <div class="fg"><label>Status</label><select id="fStatus"><option ${o.status==='Aktif'?'selected':''}>Aktif</option><option ${o.status==='Nonaktif'?'selected':''}>Nonaktif</option></select></div>
+  `,()=>saveOutput());
+}
+function editOutput(id){openOutputModal(id);}
+function saveOutput(){
+  const d={nama:v('fNama'),jenis:v('fJenis'),tipe:v('fTipe'),berlaku:v('fBerlaku'),template:v('fTemplate'),status:v('fStatus')};
+  if(!d.nama){toast('⚠️ Nama output wajib diisi!');return;}
+  if(editTarget){Object.assign(DB.output.find(x=>x.id===editTarget),{...d,id:editTarget});}
+  else{DB.output.push({...d,id:DB.nextId.output++});}
+  closeModal('crudModal');renderOutput();toast('✅ Output layanan disimpan!');
+}
+
+// ============================================================
+// LEVEL AKSES
+// ============================================================
+function renderAkses(){
+  document.getElementById('aksesCount').textContent=DB.akses.length;
+  document.getElementById('aksesBody').innerHTML=DB.akses.map((a,i)=>`
+    <tr><td>${i+1}</td><td><b>${a.nama}</b></td>
+    <td><span class="pill pill-gray" style="letter-spacing:.08em;">${a.kode}</span></td>
+    <td><span style="display:inline-block;width:20px;height:20px;border-radius:4px;background:${a.warna};vertical-align:middle;"></span></td>
+    <td style="font-size:.82rem;color:var(--tl);">${a.desk}</td>
+    <td>${a.jumlah} user</td><td>${pillStatus(a.status)}</td>
+    <td><div class="td-actions">
+      <button class="btn btn-blue btn-sm btn-icon" onclick="editAkses(${a.id})">✏️</button>
+      <button class="btn btn-red btn-sm btn-icon" onclick="deleteRow('akses',${a.id})">🗑</button>
+    </div></td></tr>`).join('');
+}
+function openAksesModal(id=null){
+  editTarget=id;
+  const a=id?DB.akses.find(x=>x.id===id):{nama:'',kode:'',warna:'#2d6a4f',desk:'',jumlah:0,status:'Aktif'};
+  setModal(`${id?'Edit':'Tambah'} Level Akses`,`
+    <div class="form-row">
+      <div class="fg"><label>Nama Level</label><input id="fNama" value="${a.nama}" placeholder="Nama level akses"></div>
+      <div class="fg"><label>Kode</label><input id="fKode" value="${a.kode}" placeholder="KODE" style="text-transform:uppercase;" maxlength="6"></div>
+    </div>
+    <div class="fg"><label>Deskripsi</label><textarea id="fDesk">${a.desk}</textarea></div>
+    <div class="form-row">
+      <div class="fg"><label>Warna Label</label><input id="fWarna" type="color" value="${a.warna}" style="height:42px;padding:4px;"></div>
+      <div class="fg"><label>Status</label><select id="fStatus"><option ${a.status==='Aktif'?'selected':''}>Aktif</option><option ${a.status==='Nonaktif'?'selected':''}>Nonaktif</option></select></div>
+    </div>
+  `,()=>saveAkses());
+}
+function editAkses(id){openAksesModal(id);}
+function saveAkses(){
+  const d={nama:v('fNama'),kode:v('fKode').toUpperCase(),desk:v('fDesk'),warna:document.getElementById('fWarna').value,status:v('fStatus'),jumlah:0};
+  if(!d.nama){toast('⚠️ Nama level wajib diisi!');return;}
+  if(editTarget){const x=DB.akses.find(x=>x.id===editTarget);Object.assign(x,{...d,id:editTarget,jumlah:x.jumlah});}
+  else{DB.akses.push({...d,id:DB.nextId.akses++});}
+  closeModal('crudModal');renderAkses();toast('✅ Level akses disimpan!');
+}
+
+// ============================================================
+// PENGGUNA
+// ============================================================
+function renderPengguna(){
+  document.getElementById('penggunaCount').textContent=DB.pengguna.length;
+  const lvlFilter=document.getElementById('filterPenggunaLevel');
+  if(lvlFilter.options.length<=1){
+    DB.akses.forEach(a=>{const o=document.createElement('option');o.textContent=a.nama;lvlFilter.appendChild(o);});
+  }
+  document.getElementById('penggunaBody').innerHTML=DB.pengguna.map((p,i)=>`
+    <tr><td>${i+1}</td><td><b>${p.nama}</b></td><td style="font-family:monospace;font-size:.8rem;">${p.username}</td>
+    <td style="font-size:.82rem;">${p.email}</td><td>${pillLevel(p.level)}</td>
+    <td style="font-size:.82rem;">${p.unit}</td>
+    <td style="font-size:.78rem;color:var(--tl);">${p.login}</td>
+    <td>${pillStatus(p.status)}</td>
+    <td><div class="td-actions">
+      <button class="btn btn-blue btn-sm btn-icon" onclick="editPengguna(${p.id})">✏️</button>
+      <button class="btn btn-red btn-sm btn-icon" onclick="deleteRow('pengguna',${p.id})">🗑</button>
+    </div></td></tr>`).join('');
+}
+function openPenggunaModal(id=null){
+  editTarget=id;
+  const p=id?DB.pengguna.find(x=>x.id===id):{nama:'',username:'',email:'',level:'Operator',unit:DB.unit[0]?.nama||'',status:'Aktif'};
+  const lvlOpts=DB.akses.map(a=>`<option ${a.nama===p.level?'selected':''}>${a.nama}</option>`).join('');
+  const unitOpts=DB.unit.map(u=>`<option ${u.nama===p.unit?'selected':''}>${u.nama}</option>`).join('');
+  setModal(`${id?'Edit':'Tambah'} Pengguna`,`
+    <div class="form-row">
+      <div class="fg"><label>Nama Lengkap</label><input id="fNama" value="${p.nama}" placeholder="Nama lengkap"></div>
+      <div class="fg"><label>Username</label><input id="fUser" value="${p.username}" placeholder="username_login"></div>
+    </div>
+    <div class="fg"><label>Email</label><input id="fEmail" type="email" value="${p.email}" placeholder="email@domain.com"></div>
+    <div class="form-row">
+      <div class="fg"><label>Level Akses</label><select id="fLevel">${lvlOpts}</select></div>
+      <div class="fg"><label>Unit</label><select id="fUnit">${unitOpts}</select></div>
+    </div>
+    ${id?'':`<div class="fg"><label>Password</label><input id="fPass" type="password" placeholder="Password awal"></div>`}
+    <div class="fg"><label>Status</label><select id="fStatus"><option ${p.status==='Aktif'?'selected':''}>Aktif</option><option ${p.status==='Nonaktif'?'selected':''}>Nonaktif</option></select></div>
+  `,()=>savePengguna());
+}
+function editPengguna(id){openPenggunaModal(id);}
+function savePengguna(){
+  const d={nama:v('fNama'),username:v('fUser'),email:v('fEmail'),level:v('fLevel'),unit:v('fUnit'),status:v('fStatus'),login:'Baru dibuat'};
+  if(!d.nama||!d.username){toast('⚠️ Nama dan username wajib diisi!');return;}
+  if(editTarget){Object.assign(DB.pengguna.find(x=>x.id===editTarget),{...d,id:editTarget});}
+  else{DB.pengguna.push({...d,id:DB.nextId.pengguna++});}
+  closeModal('crudModal');renderPengguna();toast('✅ Pengguna disimpan!');
+}
+
+// ============================================================
+// PERMISSION MATRIX
+// ============================================================
+function renderPermission(){
+  const t=document.getElementById('permTable');
+  t.innerHTML=`<thead><tr><th>Fitur</th>${ROLES.map(r=>`<th>${r}</th>`).join('')}</tr></thead>
+  <tbody>${FEATURES.map(f=>`<tr><td>${f}</td>${ROLES.map(r=>`<td><div class="perm-check"><input type="checkbox" ${PERMISSIONS[r]&&PERMISSIONS[r][FEATURES.indexOf(f)]?'checked':''} data-role="${r}" data-feat="${FEATURES.indexOf(f)}"></div></td>`).join('')}</tr>`).join('')}</tbody>`;
+}
+function savePermissions(){
+  document.querySelectorAll('#permTable input[type=checkbox]').forEach(cb=>{
+    const r=cb.dataset.role,f=parseInt(cb.dataset.feat);
+    if(!PERMISSIONS[r])PERMISSIONS[r]=[];
+    PERMISSIONS[r][f]=cb.checked?1:0;
+  });
+  toast('✅ Matriks izin berhasil disimpan!');
+}
+
+// ============================================================
+// MENU NAVIGASI
+// ============================================================
+function renderMenu(){
+  const ml=document.getElementById('menuList');
+  ml.innerHTML=DB.menu.map(m=>`
+    <div class="menu-item-row" id="menuRow${m.id}" draggable="true">
+      <span class="menu-drag">⣿</span>
+      <span class="menu-icon-pick">${m.ikon}</span>
+      <span class="menu-label">${m.label}</span>
+      <span class="menu-url">${m.url}</span>
+      <label class="toggle" style="margin-left:auto;">
+        <input type="checkbox" ${m.aktif?'checked':''} onchange="toggleMenu(${m.id},this.checked)">
+        <span class="toggle-slider"></span>
+      </label>
+      <button class="btn btn-blue btn-sm btn-icon" onclick="editMenuRow(${m.id})">✏️</button>
+      <button class="btn btn-red btn-sm btn-icon" onclick="deleteRow('menu',${m.id})">🗑</button>
+    </div>`).join('');
+}
+function toggleMenu(id,val){DB.menu.find(m=>m.id===id).aktif=val;toast(val?'✅ Menu diaktifkan':'Menu dinonaktifkan');}
+function openMenuModal(id=null){
+  editTarget=id;
+  const m=id?DB.menu.find(x=>x.id===id):{ikon:'📌',label:'',url:'#',aktif:true};
+  setModal(`${id?'Edit':'Tambah'} Menu`,`
+    <div class="form-row">
+      <div class="fg"><label>Ikon Emoji</label><input id="fIkon" value="${m.ikon}" maxlength="4" style="font-size:1.4rem;text-align:center;"></div>
+      <div class="fg"><label>Label Menu</label><input id="fNama" value="${m.label}" placeholder="Nama menu"></div>
+    </div>
+    <div class="fg"><label>URL / Anchor</label><input id="fUrl" value="${m.url}" placeholder="#section atau /halaman"></div>
+    <div style="display:flex;align-items:center;gap:12px;padding:8px 0;">
+      <label class="toggle"><input type="checkbox" id="fAktif" ${m.aktif?'checked':''}><span class="toggle-slider"></span></label>
+      <span style="font-weight:700;font-size:.88rem;">Tampilkan di menu</span>
+    </div>
+  `,()=>saveMenuRow());
+}
+function editMenuRow(id){openMenuModal(id);}
+function saveMenuRow(){
+  const d={ikon:v('fIkon'),label:v('fNama'),url:v('fUrl'),aktif:document.getElementById('fAktif').checked};
+  if(!d.label){toast('⚠️ Label menu wajib!');return;}
+  if(editTarget){Object.assign(DB.menu.find(x=>x.id===editTarget),{...d,id:editTarget});}
+  else{DB.menu.push({...d,id:DB.nextId.menu++});}
+  closeModal('crudModal');renderMenu();toast('✅ Menu disimpan!');
+}
+function saveMenu(){toast('✅ Urutan menu disimpan ke database!');}
+
+// ============================================================
+// EDIT LAYANAN WEB
+// ============================================================
+function renderLayananWeb(){
+  const g=document.getElementById('layananWebGrid');
+  g.innerHTML=DB.layananWeb.map(l=>`
+    <div class="table-card" style="padding:0;opacity:${l.aktif?1:.5};">
+      <div style="padding:18px 18px 12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <span style="font-size:1.8rem;">${l.ikon}</span>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-blue btn-sm btn-icon" onclick="editLayananWeb(${l.id})">✏️</button>
+            <button class="btn btn-red btn-sm btn-icon" onclick="deleteRow('layananWeb',${l.id})">🗑</button>
+          </div>
+        </div>
+        <div style="font-weight:700;font-size:.92rem;margin-bottom:6px;">${l.judul}</div>
+        <div style="font-size:.8rem;color:var(--tl);line-height:1.5;">${l.desk}</div>
+        <div style="margin-top:12px;">
+          <label class="toggle"><input type="checkbox" ${l.aktif?'checked':''} onchange="toggleLayananWeb(${l.id},this.checked)"><span class="toggle-slider"></span></label>
+          <span style="font-size:.75rem;color:var(--tl);margin-left:8px;">${l.aktif?'Ditampilkan':'Disembunyikan'}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function toggleLayananWeb(id,val){DB.layananWeb.find(x=>x.id===id).aktif=val;renderLayananWeb();toast(val?'✅ Kartu diaktifkan':'Kartu disembunyikan');}
+function openLayananWebModal(id=null){
+  editTarget=id;
+  const l=id?DB.layananWeb.find(x=>x.id===id):{ikon:'📋',judul:'',desk:'',aktif:true};
+  setModal(`${id?'Edit':'Tambah'} Kartu Layanan`,`
+    <div class="form-row">
+      <div class="fg"><label>Ikon Emoji</label><input id="fIkon" value="${l.ikon}" maxlength="4" style="font-size:1.5rem;text-align:center;"></div>
+      <div class="fg" style="display:flex;align-items:center;gap:12px;padding-top:20px;">
+        <label class="toggle"><input type="checkbox" id="fAktif" ${l.aktif?'checked':''}><span class="toggle-slider"></span></label>
+        <span style="font-size:.85rem;font-weight:700;">Tampilkan</span>
+      </div>
+    </div>
+    <div class="fg"><label>Judul Layanan</label><input id="fNama" value="${l.judul}" placeholder="Judul kartu layanan"></div>
+    <div class="fg"><label>Deskripsi</label><textarea id="fDesk" rows="3">${l.desk}</textarea></div>
+  `,()=>saveLayananWeb());
+}
+function editLayananWeb(id){openLayananWebModal(id);}
+function saveLayananWeb(){
+  const d={ikon:v('fIkon'),judul:v('fNama'),desk:v('fDesk'),aktif:document.getElementById('fAktif').checked};
+  if(!d.judul){toast('⚠️ Judul kartu wajib diisi!');return;}
+  if(editTarget){Object.assign(DB.layananWeb.find(x=>x.id===editTarget),{...d,id:editTarget});}
+  else{DB.layananWeb.push({...d,id:DB.nextId.layananWeb++});}
+  closeModal('crudModal');renderLayananWeb();toast('✅ Kartu layanan disimpan!');
+}
+
+// ============================================================
+// PENGUMUMAN
+// ============================================================
+function renderPengumuman(){
+  document.getElementById('pengumumanCount').textContent=DB.pengumuman.length;
+  document.getElementById('pengumumanBody').innerHTML=DB.pengumuman.map((p,i)=>`
+    <tr><td>${i+1}</td><td><b>${p.judul}</b></td>
+    <td><span class="pill pill-blue">${p.kategori}</span></td>
+    <td>${p.tgl}</td><td>${p.penulis}</td>
+    <td><span class="pill ${p.status==='Diterbitkan'?'pill-green':'pill-yellow'}">${p.status}</span></td>
+    <td><div class="td-actions">
+      <button class="btn btn-blue btn-sm btn-icon" onclick="editPengumuman(${p.id})">✏️</button>
+      <button class="btn btn-red btn-sm btn-icon" onclick="deleteRow('pengumuman',${p.id})">🗑</button>
+    </div></td></tr>`).join('');
+}
+function openPengumumanModal(id=null){
+  editTarget=id;
+  const p=id?DB.pengumuman.find(x=>x.id===id):{judul:'',kategori:'Pengumuman',tgl:new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}),penulis:'Admin',status:'Draf',isi:''};
+  setModal(`${id?'Edit':'Tambah'} Artikel`,`
+    <div class="fg"><label>Judul Artikel</label><input id="fNama" value="${p.judul}" placeholder="Judul pengumuman / berita"></div>
+    <div class="form-row">
+      <div class="fg"><label>Kategori</label>
+        <select id="fKat"><option ${p.kategori==='Pengumuman'?'selected':''}>Pengumuman</option><option ${p.kategori==='Program'?'selected':''}>Program</option><option ${p.kategori==='Regulasi'?'selected':''}>Regulasi</option><option ${p.kategori==='Berita'?'selected':''}>Berita</option></select>
+      </div>
+      <div class="fg"><label>Status</label>
+        <select id="fStatus"><option ${p.status==='Draf'?'selected':''}>Draf</option><option ${p.status==='Diterbitkan'?'selected':''}>Diterbitkan</option></select>
+      </div>
+    </div>
+    <div class="fg"><label>Tanggal Terbit</label><input id="fTgl" value="${p.tgl}"></div>
+    <div class="fg"><label>Isi / Ringkasan Artikel</label><textarea id="fDesk" rows="5" placeholder="Isi konten artikel...">${p.isi||''}</textarea></div>
+  `,()=>savePengumuman());
+}
+function editPengumuman(id){openPengumumanModal(id);}
+function savePengumuman(){
+  const d={judul:v('fNama'),kategori:v('fKat'),status:v('fStatus'),tgl:v('fTgl'),penulis:'Admin',isi:v('fDesk')};
+  if(!d.judul){toast('⚠️ Judul wajib diisi!');return;}
+  if(editTarget){Object.assign(DB.pengumuman.find(x=>x.id===editTarget),{...d,id:editTarget});}
+  else{DB.pengumuman.push({...d,id:DB.nextId.pengumuman++});}
+  closeModal('crudModal');renderPengumuman();toast('✅ Artikel disimpan!');
+}
+
+// ============================================================
+// PERMOHONAN
+// ============================================================
+function renderPermohonan(filterV='',filterS='',filterJ=''){
+  let data=[...DB.permohonan];
+  if(filterV)data=data.filter(p=>p.nama.toLowerCase().includes(filterV.toLowerCase())||p.ref.toLowerCase().includes(filterV.toLowerCase()));
+  if(filterS)data=data.filter(p=>p.status===filterS);
+  if(filterJ)data=data.filter(p=>p.jenis===filterJ);
+  document.getElementById('pCount').textContent=data.length;
+  document.getElementById('permohonanBody').innerHTML=data.map(p=>`
+    <tr><td><b>${p.ref}</b></td><td>${p.nama}</td><td>${p.jenis}</td><td>${p.tgl}</td>
+    <td>${p.unit}</td><td>${pillStatus(p.status)}</td>
+    <td><div class="td-actions">
+      <button class="btn btn-blue btn-sm btn-icon" onclick="detailPermohonan(${p.id})" title="Detail">👁</button>
+      <button class="btn btn-gold btn-sm btn-icon" onclick="editPermohonanStatus(${p.id})" title="Ubah Status">✏️</button>
+      <button class="btn btn-red btn-sm btn-icon" onclick="deleteRow('permohonan',${p.id})" title="Hapus">🗑</button>
+    </div></td></tr>`).join('');
+  renderJenisFilter();
+}
+function renderJenisFilter(){
+  ['filterJenisEl','filterSyaratJenis'].forEach(elId=>{
+    const el=document.getElementById(elId);if(!el)return;
+    while(el.options.length>1)el.remove(1);
+    DB.jenis.forEach(j=>{const o=document.createElement('option');o.textContent=j.nama;el.appendChild(o);});
+  });
+}
+function filterPermohonan(v){renderPermohonan(v);}
+function filterStatus(v){renderPermohonan('',v);}
+function filterJenis(v){renderPermohonan('','',v);}
+function filterPenggunaLevel(v){
+  let data=[...DB.pengguna];
+  if(v)data=data.filter(p=>p.level===v);
+  document.getElementById('penggunaBody').innerHTML=data.map((p,i)=>`
+    <tr><td>${i+1}</td><td><b>${p.nama}</b></td><td style="font-family:monospace;font-size:.8rem;">${p.username}</td>
+    <td style="font-size:.82rem;">${p.email}</td><td>${pillLevel(p.level)}</td>
+    <td style="font-size:.82rem;">${p.unit}</td>
+    <td style="font-size:.78rem;color:var(--tl);">${p.login}</td>
+    <td>${pillStatus(p.status)}</td>
+    <td><div class="td-actions">
+      <button class="btn btn-blue btn-sm btn-icon" onclick="editPengguna(${p.id})">✏️</button>
+      <button class="btn btn-red btn-sm btn-icon" onclick="deleteRow('pengguna',${p.id})">🗑</button>
+    </div></td></tr>`).join('');
+}
+function filterSyaratJenis(v){
+  let data=[...DB.syarat];
+  if(v)data=data.filter(s=>s.jenis===v);
+  document.getElementById('syaratBody').innerHTML=data.map((s,i)=>`
+    <tr><td>${i+1}</td><td><b>${s.nama}</b></td><td><span class="pill pill-blue">${s.jenis}</span></td>
+    <td>${s.format}</td><td>${s.ukuran}</td>
+    <td><span class="pill ${s.wajib?'pill-red':'pill-gray'}">${s.wajib?'Wajib':'Opsional'}</span></td>
+    <td style="font-size:.8rem;color:var(--tl);">${s.ket||'-'}</td>
+    <td><div class="td-actions">
+      <button class="btn btn-blue btn-sm btn-icon" onclick="editSyarat(${s.id})">✏️</button>
+      <button class="btn btn-red btn-sm btn-icon" onclick="deleteRow('syarat',${s.id})">🗑</button>
+    </div></td></tr>`).join('');
+}
+
+function detailPermohonan(id){
+  currentPermohonan=id;
+  const p=DB.permohonan.find(x=>x.id===id);
+  document.getElementById('detailBody').innerHTML=`
+    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+      <div class="stat-card" style="padding:14px;"><div class="sc-label">No. Referensi</div><div style="font-weight:700;font-size:.9rem;margin-top:4px;">${p.ref}</div></div>
+      <div class="stat-card" style="padding:14px;"><div class="sc-label">Status</div><div style="margin-top:4px;">${pillStatus(p.status)}</div></div>
+      <div class="stat-card" style="padding:14px;"><div class="sc-label">Tanggal</div><div style="font-weight:700;font-size:.88rem;margin-top:4px;">${p.tgl}</div></div>
+    </div>
+    <div class="two-col" style="gap:16px;">
+      <div>
+        <div class="stag">Data Pemohon</div>
+        <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px;">
+          <div><span style="font-size:.75rem;color:var(--tl);text-transform:uppercase;letter-spacing:.06em;">Nama Lengkap</span><div style="font-weight:700;">${p.nama}</div></div>
+          <div><span style="font-size:.75rem;color:var(--tl);text-transform:uppercase;letter-spacing:.06em;">Jenis Layanan</span><div style="font-weight:700;">${p.jenis}</div></div>
+          <div><span style="font-size:.75rem;color:var(--tl);text-transform:uppercase;letter-spacing:.06em;">Unit Pengolah</span><div style="font-weight:700;">${p.unit}</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="stag">Dokumen Persyaratan</div>
+        <div style="margin-top:8px;">
+          ${DB.syarat.filter(s=>s.jenis===p.jenis).map(s=>`
+            <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0ede6;font-size:.84rem;">
+              <span>${s.nama} ${s.wajib?'<span style="color:var(--red);font-size:.7rem;">*</span>':''}</span>
+              <span style="color:var(--gl);font-weight:700;">✅ Diunggah</span>
+            </div>`).join('')||'<div style="color:var(--tl);font-size:.85rem;padding-top:8px;">Tidak ada syarat terdaftar</div>'}
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function editPermohonanStatus(id){
+  const p=DB.permohonan.find(x=>x.id===id);
+  setModal('Ubah Status Permohonan',`
+    <p style="margin-bottom:16px;font-size:.88rem;color:var(--tl);">No. Referensi: <b>${p.ref}</b> — ${p.nama}</p>
+    <div class="fg"><label>Status Baru</label>
+      <select id="fStatus">
+        <option ${p.status==='Menunggu'?'selected':''}>Menunggu</option>
+        <option ${p.status==='Diproses'?'selected':''}>Diproses</option>
+        <option ${p.status==='Selesai'?'selected':''}>Selesai</option>
+        <option ${p.status==='Ditolak'?'selected':''}>Ditolak</option>
+      </select>
+    </div>
+    <div class="fg"><label>Catatan</label><textarea id="fKet" placeholder="Catatan perubahan status..."></textarea></div>
+  `,()=>{
+    p.status=v('fStatus');
+    closeModal('crudModal');renderPermohonan();renderDashboard();
+    toast(`✅ Status ${p.ref} diubah menjadi "${p.status}"`);
+  });
+}
+function ubahStatus(){if(currentPermohonan){closeModal('detailModal');editPermohonanStatus(currentPermohonan);}}
+
+function openDisposisiModal(){
+  setModal('Buat Disposisi',`
+    <div class="fg"><label>No. Referensi Permohonan</label><input id="fRef" placeholder="KUA-2026-XXXX"></div>
+    <div class="form-row">
+      <div class="fg"><label>Dari (Jabatan)</label><input id="fDari" value="Pimpinan"></div>
+      <div class="fg"><label>Kepada (Jabatan)</label><input id="fKepada" placeholder="Operator / Unit..."></div>
+    </div>
+    <div class="fg"><label>Instruksi</label><textarea id="fInstruksi" placeholder="Instruksi disposisi..."></textarea></div>
+  `,()=>{
+    DB.disposisi.push({id:DB.nextId.disposisi++,ref:v('fRef'),nama:'-',dari:v('fDari'),kepada:v('fKepada'),instruksi:v('fInstruksi'),tgl:'Hari ini',status:'Dikirim'});
+    closeModal('crudModal');renderDisposisi();toast('✅ Disposisi berhasil dikirim!');
+  });
+}
+
+// ============================================================
+// LAPORAN
+// ============================================================
+function renderLaporan(){
+  document.getElementById('laporanBody').innerHTML=DB.jenis.map(j=>{
+    const total=Math.floor(Math.random()*30)+5;
+    const selesai=Math.floor(total*.7);
+    const ditolak=Math.floor(total*.05);
+    const diproses=total-selesai-ditolak;
+    return `<tr><td><b>${j.ikon} ${j.nama}</b></td><td>${total}</td><td>${diproses}</td><td>${selesai}</td><td>${ditolak}</td><td>${(Math.random()*5+1).toFixed(1)}</td></tr>`;
+  }).join('');
+}
+
+// ============================================================
+// DISPOSISI
+// ============================================================
+function renderDisposisi(){
+  document.getElementById('disposisiBody').innerHTML=DB.disposisi.map(d=>`
+    <tr><td><b>${d.ref}</b></td><td>${d.nama}</td><td>${d.dari}</td><td>${d.kepada}</td>
+    <td style="font-size:.82rem;">${d.instruksi}</td><td>${d.tgl}</td>
+    <td>${pillStatus(d.status)}</td></tr>`).join('');
+}
+
+// ============================================================
+// ARSIP
+// ============================================================
+function renderArsip(){
+  document.getElementById('arsipBody').innerHTML=DB.arsip.map(a=>`
+    <tr><td><b>${a.ref}</b></td><td>${a.nama}</td><td>${a.jenis}</td>
+    <td>${a.tglArsip}</td><td>${a.operator}</td>
+    <td><button class="btn btn-green btn-sm">📥 Unduh</button></td></tr>`).join('');
+}
+
+// ============================================================
+// PENGATURAN
+// ============================================================
+function savePengaturan(){toast('✅ Pengaturan sistem berhasil disimpan!');}
+
+// ============================================================
+// DELETE
+// ============================================================
+function deleteRow(type,id){
+  showConfirm('🗑','Hapus Data','Data yang dihapus tidak dapat dikembalikan. Lanjutkan?',()=>{
+    DB[type]=DB[type].filter(x=>x.id!==id);
+    renderPage(type==='layananWeb'?'layanan_web':type);
+    toast('🗑 Data berhasil dihapus!');
+  });
+}
+
+// ============================================================
+// GENERIC MODAL
+// ============================================================
+function setModal(title,body,saveFn){
+  document.getElementById('crudModalTitle').textContent=title;
+  document.getElementById('crudModalBody').innerHTML=body;
+  document.getElementById('crudModalSave').onclick=saveFn;
+  document.getElementById('crudModal').classList.add('open');
+  document.getElementById('crudModalBox').classList.remove('modal-lg');
+}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+// ============================================================
+// CONFIRM
+// ============================================================
+function showConfirm(icon,title,msg,cb){
+  document.getElementById('confirmIcon').textContent=icon;
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmMsg').textContent=msg;
+  document.getElementById('confirmOkBtn').onclick=()=>{closeConfirm();cb();};
+  document.getElementById('confirmBg').classList.add('open');
+}
+function closeConfirm(){document.getElementById('confirmBg').classList.remove('open');}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function v(id){const el=document.getElementById(id);return el?el.value:'';}
+function toast(msg){
+  document.getElementById('toastMsg').textContent=msg;
+  const t=document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+function pillStatus(s){
+  const m={'Aktif':'green','Selesai':'green','Diterima':'green','Diterbitkan':'green',
+           'Diproses':'yellow','Menunggu':'gray','Dikirim':'blue','Draf':'yellow',
+           'Nonaktif':'gray','Ditolak':'red','Draf':'yellow'};
+  return `<span class="pill pill-${m[s]||'gray'}">${s}</span>`;
+}
+function pillLevel(l){
+  const m={'Super Admin':'gold','Admin':'green','Operator':'blue','Pimpinan':'blue','Staff':'gray','Publik':'gray'};
+  return `<span class="pill pill-${m[l]||'gray'}">${l}</span>`;
+}
+function filterTable(tbodyId,q){
+  const rows=document.querySelectorAll(`#${tbodyId} tr`);
+  rows.forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(q.toLowerCase())?'':'none';});
+}
+function exportData(){toast('📥 Mengekspor data ke Excel...');}
+function cetakLaporan(){toast('🖨 Menyiapkan laporan untuk dicetak...');}
+
+// Allow modal close by background click
+document.querySelectorAll('.modal-bg').forEach(bg=>{
+  bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('open');});
+});
+
+// Enter to login
+document.getElementById('lgPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+</script>
+</body>
+</html>
