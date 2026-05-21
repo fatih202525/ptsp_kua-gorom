@@ -1,3 +1,4 @@
+
  
 
 <!DOCTYPE html>
@@ -1934,9 +1935,10 @@ function permohonanDetailHTML(p){
               <div style="font-size:.72rem;color:var(--tl);">${s.format} · Maks. ${s.ukuran}</div></div>
 
               ${uploaded
-
-                ? `<span class="pill pill-green" style="font-size:.65rem;">✓ ${uploaded.namaFile}</span>`
-
+                ? `<div style="display:flex;align-items:center;gap:6px;">
+                    <span class="pill pill-green" style="font-size:.65rem;">✓ ${uploaded.namaFile}</span>
+                    ${['SuperAdmin','Admin','Operator','Pimpinan','Staff'].includes(currentUser.role) && uploaded.data ? `<button class="btn btn-blue btn-sm btn-icon" style="padding:3px 6px;" title="Lihat Dokumen" onclick="viewDokumen(${p.id},'${s.nama.replace(/'/g, "\'")}')">👁</button><button class="btn btn-green btn-sm btn-icon" style="padding:3px 6px;" title="Unduh Dokumen" onclick="downloadDokumen(${p.id},'${s.nama.replace(/'/g, "\'")}')">📥</button>` : ''}
+                   </div>`
                 : `<span class="pill pill-gray" style="font-size:.65rem;">Belum diunggah</span>`}
 
             </div>`;
@@ -2441,7 +2443,7 @@ function showUploadDokumenModal(permId){
 
             <span id="fileStatus_${permId}_${s.id}" style="font-size:.73rem;">
 
-              ${uploaded?`<span class="pill pill-green" style="font-size:.65rem;">✓ ${uploaded.namaFile}</span>`:`<span style="color:var(--tl);">Belum diunggah</span>`}
+              ${uploaded?`<div style="display:flex;align-items:center;gap:6px;"><span class="pill pill-green" style="font-size:.65rem;">✓ ${uploaded.namaFile}</span>${uploaded.data?`<button class="btn btn-blue btn-sm btn-icon" style="padding:3px 6px;" onclick="viewDokumen(${permId},'${sNamaSafe}')">👁</button><button class="btn btn-green btn-sm btn-icon" style="padding:3px 6px;" onclick="downloadDokumen(${permId},'${sNamaSafe}')">📥</button>`:''}</div>`:`<span style="color:var(--tl);">Belum diunggah</span>`}
 
             </span>
 
@@ -3335,7 +3337,9 @@ function renderAkses(){
 
               ['Upload Dokumen Permohonan','✅','✅','✅','❌','✅','✅'],
 
-              ['Disposisi','✅','✅','❌','✅','❌','❌'],
+              ['Disposisi (buat)','✅','✅','❌','✅','❌','❌'],
+              ['Hapus Disposisi & Arsip','✅','❌','❌','❌','❌','❌'],
+              ['Lihat/Unduh Dokumen Pemohon','✅','✅','✅','✅','✅','❌'],
 
               ['Laporan & Statistik','✅','✅','❌','✅','❌','❌'],
 
@@ -3865,7 +3869,7 @@ function renderDisposisi(){
 
               ${d.status==='Menunggu'?`<button class="btn btn-green btn-sm" onclick="konfirmasiDisposisi(${d.id})">✅ Konfirmasi</button>`:''}
 
-              ${canCreate?`<button class="btn btn-red btn-sm btn-icon" onclick="deleteItem('disposisi',${d.id},'disposisi')">🗑</button>`:''}
+              ${currentUser.role==='SuperAdmin'?`<button class="btn btn-red btn-sm btn-icon" title="Hapus (Super Admin)" onclick="deleteItem('disposisi',${d.id},'disposisi')">🗑</button>`:''}
 
             </div></td>
 
@@ -3979,7 +3983,10 @@ function renderArsip(){
 
           <td>${a.tglArsip}</td><td>${a.operator}</td>
 
-          <td><button class="btn btn-green btn-sm">📥 Unduh</button></td></tr>`).join('')}
+          <td><div class="td-actions">
+            <button class="btn btn-green btn-sm" onclick="unduhArsip(${a.id})">📥 Unduh</button>
+            ${currentUser.role==='SuperAdmin'?`<button class="btn btn-red btn-sm btn-icon" title="Hapus Arsip" onclick="deleteItem('arsip',${a.id},'arsip')">🗑</button>`:''}
+          </div></td></tr>`).join('')}
 
         </tbody></table>
 
@@ -5624,40 +5631,46 @@ function deleteDokPub(id){
 }
 
 function handleFileUpload(permId,syaratId,syaratNama,input){
-
   const file=input.files[0];if(!file)return;
-
   const statusEl=document.getElementById(`fileStatus_${permId}_${syaratId}`);
-
   // Validate size (5MB max)
-
   if(file.size>5*1024*1024){toast('⚠️ File terlalu besar! Maksimum 5MB.');return;}
-
   const perm=DB.permohonan.find(x=>x.id===permId);
-
   if(!perm)return;
-
   if(!perm.dokumen)perm.dokumen=[];
-
   // Remove old if exists
-
   perm.dokumen=perm.dokumen.filter(d=>d.syarat!==syaratNama);
-
-  perm.dokumen.push({syarat:syaratNama,namaFile:file.name,tglUpload:new Date().toLocaleDateString('id-ID')});
-
-  saveDB();
-
-  if(statusEl){
-
-    statusEl.innerHTML=`<span class="pill pill-green" style="font-size:.65rem;">✓ ${file.name}</span>`;
-
-  }
-
-  toast(`✅ ${file.name} berhasil diunggah untuk "${syaratNama}"`);
-
+  const reader=new FileReader();
+  reader.onload=function(e){
+    perm.dokumen.push({syarat:syaratNama,namaFile:file.name,tglUpload:new Date().toLocaleDateString('id-ID'),data:e.target.result,type:file.type});
+    saveDB();
+    if(statusEl){
+      statusEl.innerHTML=`<span class="pill pill-green" style="font-size:.65rem;">✓ ${file.name}</span>`;
+    }
+    toast(`✅ ${file.name} berhasil diunggah untuk "${syaratNama}"`);
+    // Refresh detail if open
+    if(document.getElementById('detailModal').classList.contains('open')){showDetailModal(permId);}
+  };
+  reader.readAsDataURL(file);
 }
 
  
+
+function viewDokumen(permId,syaratNama){
+  const p=DB.permohonan.find(x=>x.id===permId);if(!p||!p.dokumen)return;
+  const d=p.dokumen.find(x=>x.syarat===syaratNama);if(!d||!d.data){toast('⚠️ File belum tersedia untuk dilihat');return;}
+  const w=window.open();w.document.write(`<iframe src="${d.data}" style="border:none;width:100%;height:100vh;"></iframe>`);
+}
+function downloadDokumen(permId,syaratNama){
+  const p=DB.permohonan.find(x=>x.id===permId);if(!p||!p.dokumen)return;
+  const d=p.dokumen.find(x=>x.syarat===syaratNama);if(!d||!d.data){toast('⚠️ File belum tersedia untuk diunduh');return;}
+  const a=document.createElement('a');a.href=d.data;a.download=d.namaFile;a.click();
+  toast(`📥 Mengunduh ${d.namaFile}`);
+}
+function unduhArsip(arsipId){
+  const a=DB.arsip.find(x=>x.id===arsipId);if(!a){toast('⚠️ Arsip tidak ditemukan');return;}
+  toast(`📥 Mengunduh arsip ${a.ref} — ${a.nama}`);
+}
 
 function deleteItem(type,id,refreshPage){
 
