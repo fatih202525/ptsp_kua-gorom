@@ -1,4 +1,5 @@
 
+
  
 
 <!DOCTYPE html>
@@ -543,22 +544,6 @@ tr:hover td{background:rgba(250,246,238,.7);}
 
 .read-only-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(142,68,173,.1);color:var(--purple);border:1px solid rgba(142,68,173,.2);padding:3px 10px;border-radius:100px;font-size:.72rem;font-weight:700;}
 
-
-.mobile-menu{display:none;font-size:1.4rem;cursor:pointer;padding:8px;margin-right:8px;}
-@media (max-width:900px){
-  .mobile-menu{display:block;}
-  #sidebar{position:fixed;left:-280px;top:0;height:100vh;transition:left .3s;z-index:200;box-shadow:2px 0 12px rgba(0,0,0,.2);}
-  #sidebar.open{left:0;}
-  #main{width:100%;}
-  .tb-search{display:none;}
-  #content{padding:16px;}
-  .stat-grid{grid-template-columns:1fr !important;}
-  .two-col{display:block !important;}
-  .table-card{overflow-x:auto;}
-  table{min-width:650px;}
-  .page-hdr{flex-direction:column;align-items:flex-start;}
-}
-
 </style>
 
 </head>
@@ -680,13 +665,12 @@ tr:hover td{background:rgba(250,246,238,.7);}
 <div id="main">
 
   <div id="topbar">
-    <div class="mobile-menu" onclick="toggleSidebar()">☰</div>
 
     <div class="tb-title" id="tbTitle">Dashboard</div>
 
     <div class="tb-search">🔍 <input type="text" id="globalSearch" placeholder="Cari data..." oninput="globalSearchFn(this.value)"></div>
 
-    <div class="tb-notif" onclick="showNotifications()">🔔<span class="tb-notif-badge" id="notifCount">3</span></div>
+    <div class="tb-notif" onclick="toast('📬 Tidak ada notifikasi baru')">🔔<span class="tb-notif-badge" id="notifCount">3</span></div>
 
     <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
 
@@ -1183,7 +1167,6 @@ const DEFAULT_DB = {
 
   ],
 
-  notifikasi:[],
   arsip:[
 
   ],
@@ -5856,40 +5839,6 @@ document.querySelectorAll('.role-tab')[0]?.click();
 
 })();
 
-
-function showNotifications(){
-  const notifs = (DB.notifikasi||[]).slice().reverse().slice(0,20);
-  const unread = notifs.filter(n=>!n.dibaca).length;
-  setModal('🔔 Notifikasi', `
-    <div style="max-height:400px;overflow-y:auto;">
-      ${notifs.length? notifs.map(n=>`
-        <div style="padding:12px;border-bottom:1px solid var(--border);background:${n.dibaca?'':'rgba(82,183,136,.08)'}">
-          <div style="font-weight:700;font-size:.9rem;">${n.judul}</div>
-          <div style="font-size:.8rem;color:var(--tm);margin:4px 0;">${n.pesan}</div>
-          <div style="font-size:.7rem;color:var(--tl);">${new Date(n.tgl).toLocaleString('id-ID')} · Ref: ${n.ref||'-'}</div>
-        </div>
-      `).join('') : '<p style="color:var(--tl);text-align:center;padding:20px;">Belum ada notifikasi</p>'}
-    </div>
-  `, null);
-  // mark as read
-  DB.notifikasi.forEach(n=>n.dibaca=true);
-  saveDB();
-  updateNotifCount();
-}
-function updateNotifCount(){
-  const count = (DB.notifikasi||[]).filter(n=>!n.dibaca).length;
-  const el=document.getElementById('notifCount');
-  if(el){ el.textContent=count; el.style.display=count?'':'none'; }
-}
-function pushNotification(untuk, ref, judul, pesan){
-  if(!DB.notifikasi) DB.notifikasi=[];
-  DB.notifikasi.push({id:Date.now(), untuk, ref, judul, pesan, tgl:new Date().toISOString(), dibaca:false});
-  saveDB();
-  updateNotifCount();
-  toast(`🔔 ${judul}`);
-}
-
-function toggleSidebar(){document.getElementById("sidebar").classList.toggle("open");}
 </script>
 
 </body>
