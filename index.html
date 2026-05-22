@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="id">
  <head>
@@ -7,9 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>
-   Dashboard v4 &mdash; PTSP KUA Pulau Gorom
-  </title>
+<title>Dashboard v9 — PTSP KUA Pulau Gorom</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&amp;family=Lato:wght@300;400;700&amp;display=swap" rel="stylesheet"/>
   <style>
    :root {
@@ -538,20 +538,47 @@ tr:hover td{background:rgba(250,246,238,.7);}
 
 .read-only-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(142,68,173,.1);color:var(--purple);border:1px solid rgba(142,68,173,.2);padding:3px 10px;border-radius:100px;font-size:.72rem;font-weight:700;}
 
-
-.mobile-menu{display:none;font-size:1.4rem;cursor:pointer;padding:8px;margin-right:8px;}
+.mobile-menu{display:none;font-size:1.4rem;cursor:pointer;padding:8px;margin-right:4px;background:none;border:none;color:var(--gd);}
+@media (max-width:1024px){
+  :root{--sidebar-w:220px;}
+  .stat-grid{grid-template-columns:repeat(2,1fr);}
+  .form-row-3{grid-template-columns:1fr 1fr;}
+}
 @media (max-width:900px){
+  .two-col,.three-col,.form-row,.form-row-3{grid-template-columns:1fr;}
+}
+@media (max-width:768px){
   .mobile-menu{display:block;}
-  #sidebar{position:fixed;left:-280px;top:0;height:100vh;transition:left .3s;z-index:200;box-shadow:2px 0 12px rgba(0,0,0,.2);}
+  #sidebar{position:fixed;left:-290px;top:0;height:100vh;width:275px!important;transition:left .3s cubic-bezier(.4,0,.2,1);z-index:300;box-shadow:4px 0 24px rgba(0,0,0,.25);}
   #sidebar.open{left:0;}
+  #sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;}
+  #sidebar.open~#sb-overlay{display:block;}
   #main{width:100%;}
+  #topbar{padding:0 14px;height:56px;}
   .tb-search{display:none;}
-  #content{padding:16px;}
-  .stat-grid{grid-template-columns:1fr !important;}
-  .two-col{display:block !important;}
-  .table-card{overflow-x:auto;}
-  table{min-width:650px;}
-  .page-hdr{flex-direction:column;align-items:flex-start;}
+  #content{padding:12px;}
+  .stat-grid{grid-template-columns:repeat(2,1fr)!important;gap:10px;}
+  .two-col,.three-col,.form-row,.form-row-3{grid-template-columns:1fr!important;gap:10px;}
+  .table-card{overflow-x:auto;border-radius:10px;}
+  .table-hdr{padding:12px 14px;flex-wrap:wrap;gap:8px;}
+  table{min-width:560px;font-size:.8rem;}
+  .page-hdr{flex-direction:column;align-items:flex-start;gap:10px;}
+  .page-hdr .btn,.page-hdr button{width:100%;}
+  .modal-box{width:96vw!important;max-width:96vw!important;max-height:92vh;overflow-y:auto;}
+  .login-box{width:96vw;padding:22px 18px;}
+  .login-role-tabs,.role-tabs-wrap{flex-wrap:wrap;gap:6px;}
+  .role-tab{font-size:.72rem;padding:6px 10px;}
+  .stat-card{padding:14px;}
+  .sc-value{font-size:1.6rem;}
+  h2{font-size:1.1rem!important;}
+  .td-actions{flex-wrap:wrap;gap:4px;}
+}
+@media (max-width:480px){
+  .stat-grid{grid-template-columns:1fr!important;}
+  table{min-width:460px;font-size:.75rem;}
+  #content{padding:10px;}
+  .stat-card{padding:11px;}
+  .sc-value{font-size:1.3rem;}
 }
   </style>
  </head>
@@ -657,6 +684,8 @@ tr:hover td{background:rgba(250,246,238,.7);}
     </div>
    </div>
   </nav>
+  <!-- ===== SIDEBAR OVERLAY (mobile) ===== -->
+  <div id="sb-overlay" onclick="toggleSidebar()"></div>
   <!-- ===== MAIN ===== -->
   <div id="main">
    <div id="topbar">
@@ -1130,7 +1159,6 @@ const DEFAULT_DB = {
   ],
 
   pengguna:[
-
 
   ],
 
@@ -1938,18 +1966,34 @@ function permohonanDetailHTML(p){
     </div>
     ${p.outputDokumen && p.outputDokumen.length ? `
     <div style="margin-top:20px;border-top:2px solid var(--border);padding-top:18px;">
-      <div class="stag stag-green" style="margin-bottom:12px;">📤 Dokumen Hasil dari KUA</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+        <div class="stag stag-green" style="margin:0;">📤 Dokumen Hasil dari KUA</div>
+        ${canUpload?`<button class="btn btn-gold btn-sm" onclick="openOutputUploadModal(${p.id})">➕ Tambah Dokumen Hasil</button>`:''}
+      </div>
       ${p.outputDokumen.map((doc,i)=>`
-        <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(82,183,136,.08);border-radius:8px;margin-bottom:8px;">
-          <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(82,183,136,.08);border-radius:8px;margin-bottom:8px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:120px;">
             <div style="font-weight:700;">${doc.namaFile}</div>
             <div style="font-size:.72rem;color:var(--tl);">Diupload ${doc.tglUpload} oleh ${doc.uploader||'Petugas'}${doc.catatan?' · '+doc.catatan:''}</div>
           </div>
-          <button class="btn btn-blue btn-sm" onclick="viewHasil(${p.id},${i})">👁 Lihat</button>
-          <button class="btn btn-green btn-sm" onclick="downloadHasil(${p.id},${i})">📥 Unduh</button>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn btn-blue btn-sm" onclick="viewHasil(${p.id},${i})">👁 Lihat</button>
+            <button class="btn btn-green btn-sm" onclick="downloadHasil(${p.id},${i})">📥 Unduh</button>
+            ${canUpload?`<button class="btn btn-red btn-sm btn-icon" onclick="hapusOutputDokumen(${p.id},${i})">🗑</button>`:''}
+          </div>
         </div>
       `).join('')}
-    </div>` : ''}
+    </div>` : `${canUpload?`
+    <div style="margin-top:20px;border-top:2px solid var(--border);padding-top:18px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <div class="stag stag-gold" style="margin:0;">📤 Dokumen Hasil untuk Pemohon</div>
+        <button class="btn btn-gold btn-sm" onclick="openOutputUploadModal(${p.id})">➕ Upload Dokumen Hasil</button>
+      </div>
+      <div style="margin-top:12px;padding:16px;text-align:center;background:rgba(212,160,23,.04);border:1.5px dashed rgba(212,160,23,.3);border-radius:10px;color:var(--tl);font-size:.85rem;">
+        📭 Belum ada dokumen hasil dikirim ke pemohon.
+      </div>
+    </div>`:''}
+    `}
 
     ${(syaratsForJenis.length>0&&canUpload)?`
 
@@ -2109,13 +2153,13 @@ function renderDashboard(){
 
         <div style="display:flex;gap:8px;">
 
-          ${role==='SuperAdmin'?`<button class="btn btn-gold btn-sm" onclick="nav('pengguna',null)">👥 Kelola User</button><button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Permohonan</button><button class="btn btn-ghost btn-sm" onclick="forceSyncCloud()">☁️ Sync</button>`:''}
+          ${role==='SuperAdmin'?`<button class="btn btn-gold btn-sm" onclick="nav('pengguna',null)">👥 Kelola User</button><button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Permohonan</button><button class="btn btn-blue btn-sm" onclick="nav('output_upload',null)">📤 Upload Output</button><button class="btn btn-ghost btn-sm" onclick="forceSyncCloud()">☁️ Sync</button>`:''}
 
-          ${role==='Admin'?`<button class="btn btn-ghost btn-sm" onclick="toast('📥 Mengekspor data...')">📥 Export</button><button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Lihat Permohonan</button>`:''}
+          ${role==='Admin'?`<button class="btn btn-ghost btn-sm" onclick="toast('📥 Mengekspor data...')">📥 Export</button><button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Lihat Permohonan</button><button class="btn btn-blue btn-sm" onclick="nav('output_upload',null)">📤 Upload Output</button>`:''}
 
-          ${role==='Pimpinan'?`<button class="btn btn-purple btn-sm" onclick="nav('disposisi',null)">🔔 Buat Disposisi</button><button class="btn btn-ghost btn-sm" onclick="nav('laporan',null)">📈 Laporan</button>`:''}
+          ${role==='Pimpinan'?`<button class="btn btn-purple btn-sm" onclick="nav('disposisi',null)">🔔 Buat Disposisi</button><button class="btn btn-ghost btn-sm" onclick="nav('laporan',null)">📈 Laporan</button><button class="btn btn-blue btn-sm" onclick="nav('output_upload',null)">📤 Upload Output</button>`:''}
 
-          ${role==='Operator'||role==='Staff'?`<button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Lihat Tugas</button>`:''}
+          ${role==='Operator'||role==='Staff'?`<button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Lihat Tugas</button><button class="btn btn-blue btn-sm" onclick="nav('output_upload',null)">📤 Upload Output</button>`:''}
 
         </div>
 
@@ -4262,69 +4306,136 @@ function submitPermohonan(){
 
 // ============================================================
 
-
 function openOutputUploadModal(permId){
   const p=DB.permohonan.find(x=>x.id===permId);if(!p)return;
+  window._outputFile=null;
   setModal(`📤 Upload Dokumen Hasil — ${p.ref}`,`
     <div style="background:rgba(82,183,136,.08);border:1px solid rgba(82,183,136,.3);border-radius:8px;padding:12px;margin-bottom:16px;">
       <b>${p.nama}</b> · ${p.jenis} · ${pillStatus(p.status)}
     </div>
-    <div class="fg"><label>Pilih File Hasil (PDF/JPG/PNG)</label>
-      <input type="file" id="hasilFile" accept=".pdf,.jpg,.jpeg,.png">
+    ${p.outputDokumen&&p.outputDokumen.length?`
+    <div style="margin-bottom:12px;padding:10px;background:rgba(212,160,23,.07);border:1px solid rgba(212,160,23,.25);border-radius:8px;">
+      <div style="font-size:.78rem;font-weight:700;color:var(--goldf);margin-bottom:6px;">📄 Dokumen yang sudah dikirim (${p.outputDokumen.length})</div>
+      ${p.outputDokumen.map((d,i)=>`<div style="display:flex;align-items:center;gap:8px;font-size:.82rem;margin-top:4px;">
+        <span style="flex:1;">✅ ${d.namaFile}</span>
+        <button class="btn btn-red btn-sm btn-icon" style="padding:3px 7px;" onclick="hapusOutputDokumen(${p.id},${i})">🗑</button>
+      </div>`).join('')}
+    </div>`:''}
+    <div class="fg"><label>Pilih File Hasil (PDF/JPG/PNG/DOCX) <span style="color:var(--red)">*</span></label>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border-radius:8px;border:1.5px solid var(--border);">
+        <input type="file" id="hasilFile" accept=".pdf,.jpg,.jpeg,.png,.docx" style="display:none;" onchange="outputFileSelected(this)">
+        <button class="btn btn-blue btn-sm" onclick="document.getElementById('hasilFile').click()">📎 Pilih File</button>
+        <span id="hasilFileLabel" style="font-size:.8rem;color:var(--tl);">Belum dipilih (maks 10MB)</span>
+      </div>
     </div>
-    <div class="fg"><label>Catatan untuk Pemohon</label>
+    <div class="fg" style="margin-top:12px;"><label>Catatan untuk Pemohon (opsional)</label>
       <textarea id="hasilCatatan" rows="3" placeholder="Contoh: Dokumen sudah ditandatangani, silakan unduh"></textarea>
     </div>
   `,()=>{
-    const file=document.getElementById('hasilFile').files[0];
+    const file=window._outputFile;
     if(!file){toast('⚠️ Pilih file terlebih dahulu!');return;}
-    if(file.size>10*1024*1024){toast('⚠️ Maksimum 10MB');return;}
-    const reader=new FileReader();
-    reader.onload=function(e){
-      if(!p.outputDokumen)p.outputDokumen=[];
-      p.outputDokumen.push({
-        namaFile:file.name,
-        data:e.target.result,
-        type:file.type,
-        tglUpload:new Date().toLocaleDateString('id-ID'),
-        catatan:document.getElementById('hasilCatatan').value,
-        uploader:currentUser.nama
-      });
-      p.status='Selesai';
-      if(!DB.notifikasi)DB.notifikasi=[];
-      DB.notifikasi.push({
-        id:DB.nextId.notifikasi++,
-        ref:p.ref,
-        untuk:p.nama,
-        pesan:`Dokumen hasil ${p.jenis} Anda sudah siap. Silakan unduh.`,
-        tgl:new Date().toLocaleString('id-ID'),
-        dibaca:false,
-        telp:p.telp
-      });
-      saveDB();
-      closeModal('crudModal');
-      renderOutputUpload();
-      updateNotifCount();
-      toast(`✅ Dokumen hasil berhasil dikirim ke pemohon!`);
-      if(p.telp){
-        const waNum=p.telp.replace(/[^0-9]/g,'');
-        const nomor=waNum.startsWith('0')?'62'+waNum.slice(1):(waNum.startsWith('62')?waNum:waNum);
-        const pesan=encodeURIComponent(`Assalamualaikum ${p.nama},
-
-Dokumen hasil permohonan ${p.ref} (${p.jenis}) telah selesai dan siap diunduh di dashboard PTSP KUA Pulau Gorom.
-
-Silakan login dan cek menu Lacak Status.
-
-Terima kasih.`);
-        setTimeout(()=>window.open(`https://wa.me/${nomor}?text=${pesan}`,'_blank'),800);
-      }
-    };
-    reader.readAsDataURL(file);
+    // Capture form values BEFORE closing modal
+    const catatan=document.getElementById('hasilCatatan').value.trim();
+    if(!p.outputDokumen)p.outputDokumen=[];
+    p.outputDokumen.push({
+      namaFile:file.namaFile,
+      data:file.data,
+      type:file.type,
+      tglUpload:new Date().toLocaleDateString('id-ID'),
+      catatan:catatan,
+      uploader:currentUser.nama||currentUser.role
+    });
+    if(!DB.notifikasi)DB.notifikasi=[];
+    DB.notifikasi.push({
+      id:DB.nextId.notifikasi++,ref:p.ref,untuk:p.nama,
+      pesan:`Dokumen hasil ${p.jenis} Anda sudah siap. Silakan unduh.`,
+      tgl:new Date().toLocaleString('id-ID'),dibaca:false,telp:p.telp
+    });
+    window._outputFile=null;
+    saveDB();
+    closeModal('crudModal');
+    updateNotifCount();
+    toast(`✅ Dokumen hasil berhasil dikirim ke pemohon ${p.nama}!`);
+    renderOutputUpload();
+    if(p.telp){
+      const waNum=p.telp.replace(/[^0-9]/g,'');
+      const nomor=waNum.startsWith('0')?'62'+waNum.slice(1):(waNum.startsWith('62')?waNum:waNum);
+      const pesan=encodeURIComponent(`Assalamualaikum ${p.nama},\n\nDokumen hasil permohonan ${p.ref} (${p.jenis}) telah selesai dan siap diunduh di dashboard PTSP KUA Pulau Gorom.\n\nSilakan login dan cek menu Lacak Status.\n\nTerima kasih.`);
+      setTimeout(()=>window.open(`https://wa.me/${nomor}?text=${pesan}`,'_blank'),800);
+    }
   });
+}
+
+function outputFileSelected(input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>10*1024*1024){toast('⚠️ Maksimum 10MB');return;}
+  const el=document.getElementById('hasilFileLabel');
+  if(el)el.textContent='⏳ Memuat...';
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    window._outputFile={namaFile:file.name,data:e.target.result,type:file.type};
+    if(el)el.innerHTML=`<span class="pill pill-green">✓ ${file.name}</span>`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function hapusOutputDokumen(permId,idx){
+  const p=DB.permohonan.find(x=>x.id===permId);if(!p||!p.outputDokumen)return;
+  showConfirm('🗑','Hapus Dokumen Hasil',`Hapus "${p.outputDokumen[idx].namaFile}"? Pemohon tidak dapat mengunduhnya lagi.`,()=>{
+    p.outputDokumen.splice(idx,1);saveDB();toast('🗑 Dihapus!');renderOutputUpload();
+  });
+}
+
+// Lihat dokumen output (inline preview modal)
+function viewHasil(permId,idx){
+  const p=DB.permohonan.find(x=>x.id==permId);
+  const d=p&&p.outputDokumen&&p.outputDokumen[idx];
+  if(!d||!d.data){toast('⚠️ File tidak tersedia untuk dilihat');return;}
+  openOutputPreview(d.data,d.namaFile,`${p.ref} — ${p.jenis}`);
+}
+
+// Unduh dokumen output
+function downloadHasil(permId,idx){
+  const p=DB.permohonan.find(x=>x.id==permId);
+  const d=p&&p.outputDokumen&&p.outputDokumen[idx];
+  if(!d||!d.data){toast('⚠️ File tidak tersedia untuk diunduh');return;}
+  const a=document.createElement('a');a.href=d.data;a.download=d.namaFile;a.click();
+  toast(`📥 Mengunduh ${d.namaFile}...`);
+}
+
+// Preview modal for output documents
+function openOutputPreview(dataUrl,namaFile,subtitle){
+  const old=document.getElementById('_outPreviewModal');if(old)old.remove();
+  const isImg=dataUrl.startsWith('data:image');
+  const modal=document.createElement('div');
+  modal.id='_outPreviewModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:12px;';
+  modal.onclick=(e)=>{if(e.target===modal)modal.remove();};
+  modal.innerHTML=`
+    <div style="background:#fff;border-radius:14px;width:100%;max-width:860px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5);">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #eee;flex-shrink:0;flex-wrap:wrap;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:.92rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${namaFile}</div>
+          <div style="font-size:.72rem;color:#888;margin-top:2px;">${subtitle}</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-shrink:0;">
+          <button id="_outDlBtn" style="background:#2d6a4f;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:.8rem;cursor:pointer;font-weight:700;">📥 Unduh</button>
+          <button onclick="document.getElementById('_outPreviewModal').remove();" style="background:#eee;border:none;border-radius:8px;padding:7px 12px;font-size:.9rem;cursor:pointer;">✕</button>
+        </div>
+      </div>
+      <div style="flex:1;overflow:auto;padding:12px;display:flex;align-items:center;justify-content:center;background:#f4f4f4;">
+        ${isImg
+          ?`<img src="${dataUrl}" style="max-width:100%;max-height:74vh;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.15);" alt="${namaFile}">`
+          :`<iframe src="${dataUrl}" style="width:100%;height:68vh;border:none;border-radius:8px;" title="${namaFile}"></iframe>`}
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  document.getElementById('_outDlBtn').onclick=()=>{const a=document.createElement('a');a.href=dataUrl;a.download=namaFile;a.click();};
 }
 function renderOutputUpload(){
 
-  const selesai=DB.permohonan.filter(p=>p.status==='Selesai');
+  // Include Diproses and Selesai — allow uploading for any in-progress or completed
+  const data=DB.permohonan.filter(p=>p.status==='Diproses'||p.status==='Selesai');
 
   setContent(`
 
@@ -4332,29 +4443,46 @@ function renderOutputUpload(){
 
       <div class="page-hdr">
 
-        <div><h2>Upload Output Layanan</h2><p>Unggah dokumen output untuk permohonan selesai</p></div>
+        <div><h2>Upload Output Layanan</h2><p>Unggah dokumen output untuk pemohon · ${data.length} permohonan tersedia</p></div>
 
       </div>
 
+      ${data.length===0?`<div class="info-banner"><div class="ib-icon">📭</div><p>Belum ada permohonan berstatus "Diproses" atau "Selesai". Ubah status permohonan terlebih dahulu.</p></div>`:''}
+
       <div class="table-card">
 
-        <div class="table-hdr"><h3>Permohonan Selesai — Siap Upload Output</h3></div>
+        <div class="table-hdr"><h3>Daftar Permohonan</h3>
+          <input class="filter-input" placeholder="Cari..." oninput="filterTable('outBody',this.value)">
+        </div>
 
-        <table><thead><tr><th>No. Ref</th><th>Nama Pemohon</th><th>Jenis Layanan</th><th>Jenis Output</th><th>Aksi</th></tr></thead>
+        <table><thead><tr><th>No. Ref</th><th>Nama Pemohon</th><th>Jenis Layanan</th><th>Status</th><th>Output Terkirim</th><th>Aksi</th></tr></thead>
 
-        <tbody>${selesai.map(p=>{
+        <tbody id="outBody">${data.length===0?`<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--tl);">Belum ada data</td></tr>`:data.map(p=>{
 
-          const out=DB.output.find(o=>o.jenis===p.jenis&&o.status==='Aktif');
+          const jumlah=p.outputDokumen?p.outputDokumen.length:0;
 
-          return `<tr><td><b>${p.ref}</b></td><td>${p.nama}</td><td>${p.jenis}</td>
-
-            <td>${out?`<span class="pill pill-blue">${out.nama}</span>`:'<span class="pill pill-gray">-</span>'}</td>
-
-            <td><button class="btn btn-green btn-sm" onclick="openOutputUploadModal(${p.id})">📤 Upload Output</button></td></tr>`;
+          return `<tr>
+            <td><b>${p.ref}</b></td>
+            <td>${p.nama}<div style="font-size:.72rem;color:var(--tl);">${p.telp||''}</div></td>
+            <td>${p.jenis}</td>
+            <td>${pillStatus(p.status)}</td>
+            <td>
+              ${jumlah>0
+                ?`<div style="display:flex;flex-direction:column;gap:4px;">${p.outputDokumen.map((d,i)=>`
+                  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                    <span style="font-size:.75rem;">📄 ${d.namaFile}</span>
+                    <button class="btn btn-blue btn-sm btn-icon" style="padding:3px 6px;font-size:.68rem;" onclick="viewHasil(${p.id},${i})">👁</button>
+                    <button class="btn btn-green btn-sm btn-icon" style="padding:3px 6px;font-size:.68rem;" onclick="downloadHasil(${p.id},${i})">📥</button>
+                    <button class="btn btn-red btn-sm btn-icon" style="padding:3px 6px;font-size:.68rem;" onclick="hapusOutputDokumen(${p.id},${i})">🗑</button>
+                  </div>`).join('')}</div>`
+                :`<span style="font-size:.78rem;color:var(--tl);">Belum ada</span>`}
+            </td>
+            <td>
+              <button class="btn btn-green btn-sm" onclick="openOutputUploadModal(${p.id})">📤 ${jumlah>0?'Tambah':'Upload'}</button>
+            </td>
+          </tr>`;
 
         }).join('')}
-
-        ${selesai.length===0?'<tr><td colspan="5" style="text-align:center;color:var(--tl);padding:24px;">Belum ada permohonan selesai</td></tr>':''}
 
         </tbody></table>
 
@@ -5040,7 +5168,10 @@ function renderRiwayat(){
 
             <td><b>${p.ref}</b></td><td>${p.nama}</td><td>${p.jenis}</td><td>${p.tgl}</td>
 
-            <td>${pillStatus(p.status)}</td>
+            <td>
+              ${pillStatus(p.status)}
+              ${p.outputDokumen&&p.outputDokumen.length?`<span class="pill pill-green" style="font-size:.62rem;margin-left:4px;">📄 ${p.outputDokumen.length} Hasil</span>`:''}
+            </td>
 
             <td><button class="btn btn-blue btn-sm btn-icon" onclick="showDetailModal(${p.id})">👁 Detail</button></td>
 
@@ -5903,7 +6034,6 @@ document.querySelectorAll('.role-tab')[0]?.click();
   }
 
 })();
-
 
 function updateNotifCount(){
   const count = (DB.notifikasi||[]).filter(n=>!n.dibaca && (currentUser.role==='Publik' ? n.untuk===currentUser.nama : true)).length;
