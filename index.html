@@ -1153,6 +1153,10 @@ const DEFAULT_DB = {
 
   ],
 
+  auditLog:[
+
+  ],
+
   menu:[
 
     {id:1,ikon:'🏠',label:'Beranda',url:'#beranda',aktif:true},
@@ -1211,7 +1215,7 @@ const DEFAULT_DB = {
 
   ],
 
-  nextId:{jenis:7,unit:5,syarat:8,output:6,akses:7,pengguna:8,permohonan:9,menu:7,layananWeb:7,pengumuman:5,disposisi:3,arsip:3,dokumenPublik:6,notifikasi:1},
+  nextId:{jenis:7,unit:5,syarat:8,output:6,akses:7,pengguna:8,permohonan:9,menu:7,layananWeb:7,pengumuman:5,disposisi:3,arsip:3,dokumenPublik:6,notifikasi:1,auditLog:1},
 
 };
 
@@ -1328,6 +1332,7 @@ const SIDEBAR_CONFIG={
     {section:'Sistem'},
 
     {id:'laporan',icon:'📈',label:'Laporan & Statistik'},
+    {id:'audit',icon:'📝',label:'Log Aktivitas'},
 
   ],
 
@@ -1370,6 +1375,7 @@ const SIDEBAR_CONFIG={
     {section:'Sistem'},
 
     {id:'laporan',icon:'📈',label:'Laporan & Statistik'},
+    {id:'audit',icon:'📝',label:'Log Aktivitas'},
 
   ],
 
@@ -1414,6 +1420,7 @@ const SIDEBAR_CONFIG={
     {section:'Laporan'},
 
     {id:'laporan',icon:'📈',label:'Laporan & Statistik'},
+    {id:'audit',icon:'📝',label:'Log Aktivitas'},
 
     {id:'pengguna_view',icon:'👥',label:'Daftar Pengguna'},
 
@@ -1617,7 +1624,7 @@ function doLogin(){
 
 }
 
-function doLogout(){
+function doLogout(){ logActivity('LOGOUT','Keluar dari sistem');
 
   showConfirm('🚪','Keluar dari Sistem','Anda yakin ingin keluar dari dashboard?',()=>{
 
@@ -1753,6 +1760,31 @@ function nav(pageId,el){
 
  
 
+function renderAudit(){
+  const logs=(DB.auditLog||[]).slice().reverse();
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>Log Aktivitas Super Admin</h2><p>${logs.length} aktivitas tercatat</p></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="exportAudit()">📥 Export CSV</button>
+          <button class="btn btn-red btn-sm" onclick="if(confirm('Hapus semua log?')){DB.auditLog=[];saveDB();renderAudit();toast('🗑 Log dihapus');}">🗑 Bersihkan</button>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><h3>Audit Trail</h3><input class="filter-input" placeholder="Cari user/aksi..." oninput="filterTable('auditBody',this.value)"></div>
+        <table><thead><tr><th>Waktu</th><th>User</th><th>Role</th><th>Aksi</th><th>Detail</th></tr></thead>
+        <tbody id="auditBody">${logs.map(l=>`<tr><td>${l.waktu}</td><td><b>${l.user}</b></td><td>${l.role}</td><td><span class="pill pill-blue">${l.aksi}</span></td><td>${l.detail}</td></tr>`).join('')}</tbody></table>
+      </div>
+    </div>
+  `);
+}
+function exportAudit(){
+  const rows=[['Waktu','User','Role','Aksi','Detail'],...(DB.auditLog||[]).map(l=>[l.waktu,l.user,l.role,l.aksi,l.detail])];
+  const csv=rows.map(r=>r.map(x=>`"${x}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='audit-log-kua.csv';a.click();
+  logActivity('EXPORT','Export log aktivitas');
+}
 function renderPage(id){
 
   const fn={
@@ -1772,6 +1804,7 @@ function renderPage(id){
     menu:renderMenu,layanan_web:renderLayananWeb,pengumuman:renderPengumuman,
 
     laporan:renderLaporan,disposisi:renderDisposisi,arsip:renderArsip,
+    audit:renderAudit,
 
     overview:renderOverview,input_permohonan:renderInputPermohonan,
 
@@ -3866,7 +3899,7 @@ function renderDisposisi(){
 
               ${d.status==='Menunggu'?`<button class="btn btn-green btn-sm" onclick="konfirmasiDisposisi(${d.id})">✅ Konfirmasi</button>`:''}
 
-              ${currentUser.role==='SuperAdmin'?`<button class="btn btn-red btn-sm btn-icon" title="Hapus (Super Admin)" onclick="deleteItem('disposisi',${d.id},'disposisi')">🗑</button>`:''}
+              ${currentUser.role==='SuperAdmin'?`<button class="btn btn-red btn-sm btn-icon" title="Hapus (Super Admin)" onclick="logActivity('HAPUS','Hapus disposisi ID '+id);deleteItem('disposisi',${d.id},'disposisi')">🗑</button>`:''}
 
             </div></td>
 
@@ -4281,7 +4314,7 @@ function openOutputUploadModal(permId){
     const reader=new FileReader();
     reader.onload=function(e){
       if(!p.outputDokumen)p.outputDokumen=[];
-      p.outputDokumen.push({
+      logActivity('UPLOAD_HASIL',`Upload hasil untuk ${p.ref} - ${file.name}`);p.outputDokumen.push({
         namaFile:file.name,
         data:e.target.result,
         type:file.type,
@@ -5707,7 +5740,7 @@ function handleFileUpload(permId,syaratId,syaratNama,input){
   perm.dokumen=perm.dokumen.filter(d=>d.syarat!==syaratNama);
   const reader=new FileReader();
   reader.onload=function(e){
-    perm.dokumen.push({syarat:syaratNama,namaFile:file.name,tglUpload:new Date().toLocaleDateString('id-ID'),data:e.target.result,type:file.type});
+    logActivity('UPLOAD_DOKUMEN',`Upload dokumen ${syaratNama} untuk permohonan ${perm.ref}`);perm.dokumen.push({syarat:syaratNama,namaFile:file.name,tglUpload:new Date().toLocaleDateString('id-ID'),data:e.target.result,type:file.type});
     saveDB();
     if(statusEl){
       statusEl.innerHTML=`<span class="pill pill-green" style="font-size:.65rem;">✓ ${file.name}</span>`;
@@ -5737,7 +5770,7 @@ function unduhArsip(arsipId){
   toast(`📥 Mengunduh arsip ${a.ref} — ${a.nama}`);
 }
 
-function deleteItem(type,id,refreshPage){
+function deleteItem(type,id,refreshPage){ logActivity('HAPUS',`Hapus ${type} ID ${id}`);
 
   showConfirm('🗑','Hapus Data','Data yang dihapus tidak dapat dikembalikan. Lanjutkan?',()=>{
 
@@ -5904,6 +5937,20 @@ document.querySelectorAll('.role-tab')[0]?.click();
 })();
 
 
+function logActivity(aksi,detail){
+  if(!DB.auditLog)DB.auditLog=[];
+  DB.auditLog.push({
+    id:DB.nextId.auditLog++,
+    waktu:new Date().toLocaleString('id-ID'),
+    user:currentUser?currentUser.nama:'Sistem',
+    role:currentUser?currentUser.role:'-',
+    aksi:aksi,
+    detail:detail,
+    ip:'local'
+  });
+  if(DB.auditLog.length>500)DB.auditLog=DB.auditLog.slice(-500);
+  saveDB();
+}
 function updateNotifCount(){
   const count = (DB.notifikasi||[]).filter(n=>!n.dibaca && (currentUser.role==='Publik' ? n.untuk===currentUser.nama : true)).length;
   const el=document.getElementById('notifCount');
