@@ -1,24 +1,15 @@
 
-
- 
-
 <!DOCTYPE html>
-
 <html lang="id">
-
-<head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Dashboard v4 — PTSP KUA Pulau Gorom</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-
-<style>
-
-:root {
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Dashboard v4 &mdash; PTSP KUA Pulau Gorom
+  </title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&amp;family=Lato:wght@300;400;700&amp;display=swap" rel="stylesheet"/>
+  <style>
+   :root {
 
   --gd:#0f2419;--gm:#1e4d34;--gl:#2d6a4f;--ga:#52b788;
 
@@ -544,253 +535,236 @@ tr:hover td{background:rgba(250,246,238,.7);}
 
 .read-only-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(142,68,173,.1);color:var(--purple);border:1px solid rgba(142,68,173,.2);padding:3px 10px;border-radius:100px;font-size:.72rem;font-weight:700;}
 
-</style>
 
-</head>
-
-<body>
-
- 
-
-<!-- ===== LOGIN ===== -->
-
-<div id="loginScreen">
-
-  <div class="login-box">
-
+.mobile-menu{display:none;font-size:1.4rem;cursor:pointer;padding:8px;margin-right:8px;}
+@media (max-width:900px){
+  .mobile-menu{display:block;}
+  #sidebar{position:fixed;left:-280px;top:0;height:100vh;transition:left .3s;z-index:200;box-shadow:2px 0 12px rgba(0,0,0,.2);}
+  #sidebar.open{left:0;}
+  #main{width:100%;}
+  .tb-search{display:none;}
+  #content{padding:16px;}
+  .stat-grid{grid-template-columns:1fr !important;}
+  .two-col{display:block !important;}
+  .table-card{overflow-x:auto;}
+  table{min-width:650px;}
+  .page-hdr{flex-direction:column;align-items:flex-start;}
+}
+  </style>
+ </head>
+ <body>
+  <!-- ===== LOGIN ===== -->
+  <div id="loginScreen">
+   <div class="login-box">
     <div class="login-logo">
-
-      <div class="emblem"><img src="logo-kemenag.png" alt="Logo Kemenag RI" onerror="this.parentNode.innerHTML='🕌'"></div>
-
-      <h2>PTSP KUA Pulau Gorom</h2>
-
-      <p>Dashboard Terintegrasi v3 — Pilih Level Akses</p>
-
-      <div id="cloudStatus" style="display:inline-flex;align-items:center;gap:6px;background:rgba(82,183,136,.1);border:1px solid rgba(82,183,136,.3);border-radius:100px;padding:4px 12px;font-size:.72rem;color:var(--gm);margin-top:8px;">
-
-        <span style="width:7px;height:7px;border-radius:50%;background:#52b788;display:inline-block;animation:pulse 2s infinite;"></span>
-
-        ☁️ Menghubungkan ke cloud...
-
-      </div>
-
+     <div class="emblem">
+      <img alt="Logo Kemenag RI" onerror="this.parentNode.innerHTML='🕌'" src="logo-kemenag.png"/>
+     </div>
+     <h2>
+      PTSP KUA Pulau Gorom
+     </h2>
+     <p>
+      Dashboard Terintegrasi v3 &mdash; Pilih Level Akses
+     </p>
+     <div id="cloudStatus" style="display:inline-flex;align-items:center;gap:6px;background:rgba(82,183,136,.1);border:1px solid rgba(82,183,136,.3);border-radius:100px;padding:4px 12px;font-size:.72rem;color:var(--gm);margin-top:8px;">
+      <span style="width:7px;height:7px;border-radius:50%;background:#52b788;display:inline-block;animation:pulse 2s infinite;">
+      </span>
+      ☁️ Menghubungkan ke cloud...
+     </div>
     </div>
-
-    <div class="login-role-tabs" id="roleTabs"></div>
-
+    <div class="login-role-tabs" id="roleTabs">
+    </div>
     <div class="lg-group">
-
-      <label>Username</label>
-
-      <input type="text" id="lgUser" placeholder="Masukkan username" autocomplete="off">
-
+     <label>
+      Username
+     </label>
+     <input autocomplete="off" id="lgUser" placeholder="Masukkan username" type="text"/>
     </div>
-
     <div class="lg-group">
-
-      <label>Password</label>
-
-      <input type="password" id="lgPass" placeholder="Masukkan password" autocomplete="off">
-
+     <label>
+      Password
+     </label>
+     <input autocomplete="off" id="lgPass" placeholder="Masukkan password" type="password"/>
     </div>
-
-    <button class="btn-login-main" onclick="doLogin()">🔐 Masuk ke Dashboard</button>
-
-    <div class="login-hint" style="color:var(--tl);font-size:.76rem;margin-top:10px;">Hubungi Super Admin jika lupa username atau password.</div>
-
+    <button class="btn-login-main" onclick="doLogin()">
+     🔐 Masuk ke Dashboard
+    </button>
+    <div class="login-hint" style="color:var(--tl);font-size:.76rem;margin-top:10px;">
+     Hubungi Super Admin jika lupa username atau password.
+    </div>
     <div style="background:rgba(82,183,136,.08);border:1px solid rgba(82,183,136,.2);border-radius:8px;padding:8px 12px;font-size:.73rem;color:var(--gm);margin-top:10px;text-align:center;">
-
-      ☁️ <b>Sinkron Cloud Aktif</b> — Data tersimpan & dapat diakses dari semua perangkat (smartphone, laptop, PC)
-
+     ☁️
+     <b>
+      Sinkron Cloud Aktif
+     </b>
+     &mdash; Data tersimpan &amp; dapat diakses dari semua perangkat (smartphone, laptop, PC)
     </div>
-
-    <a class="back-link" href="index.html">← Kembali ke Portal Utama</a>
-
+    <a class="back-link" href="index.html">
+     &larr; Kembali ke Portal Utama
+    </a>
+   </div>
   </div>
-
-</div>
-
- 
-
-<!-- ===== SIDEBAR ===== -->
-
-<nav id="sidebar">
-
-  <div class="sb-logo">
-
-    <div class="sb-logo-icon"><img src="logo-kemenag.png" alt="" onerror="this.parentNode.innerHTML='🕌'"></div>
-
+  <!-- ===== SIDEBAR ===== -->
+  <nav id="sidebar">
+   <div class="sb-logo">
+    <div class="sb-logo-icon">
+     <img alt="" onerror="this.parentNode.innerHTML='🕌'" src="logo-kemenag.png"/>
+    </div>
     <div class="sb-logo-text">
-
-      <h2>KUA Pulau Gorom</h2>
-
-      <p>PTSP Dashboard</p>
-
+     <h2>
+      KUA Pulau Gorom
+     </h2>
+     <p>
+      PTSP Dashboard
+     </p>
     </div>
-
-  </div>
-
-  <div class="sb-badge"><div class="sb-badge-dot"></div><span id="sbRoleLabel">Loading...</span></div>
-
-  <div class="sb-user-info">
-
-    <div class="su-name" id="sbUserName">—</div>
-
-    <div class="su-unit" id="sbUserUnit">—</div>
-
-  </div>
-
-  <div class="sync-status"><div class="sync-dot"></div><span id="syncLabel">Menghubungkan cloud...</span></div>
-
-  <div id="sidebarMenu"></div>
-
-  <div class="sb-divider"></div>
-
-  <div class="sb-bottom">
-
+   </div>
+   <div class="sb-badge">
+    <div class="sb-badge-dot">
+    </div>
+    <span id="sbRoleLabel">
+     Loading...
+    </span>
+   </div>
+   <div class="sb-user-info">
+    <div class="su-name" id="sbUserName">
+     &mdash;
+    </div>
+    <div class="su-unit" id="sbUserUnit">
+     &mdash;
+    </div>
+   </div>
+   <div class="sync-status">
+    <div class="sync-dot">
+    </div>
+    <span id="syncLabel">
+     Menghubungkan cloud...
+    </span>
+   </div>
+   <div id="sidebarMenu">
+   </div>
+   <div class="sb-divider">
+   </div>
+   <div class="sb-bottom">
     <div class="sb-item" onclick="doLogout()" style="color:rgba(255,100,100,.7);">
-
-      <span class="ic">🚪</span> Keluar
-
+     <span class="ic">
+      🚪
+     </span>
+     Keluar
     </div>
-
-  </div>
-
-</nav>
-
- 
-
-<!-- ===== MAIN ===== -->
-
-<div id="main">
-
-  <div id="topbar">
-
-    <div class="tb-title" id="tbTitle">Dashboard</div>
-
-    <div class="tb-search">🔍 <input type="text" id="globalSearch" placeholder="Cari data..." oninput="globalSearchFn(this.value)"></div>
-
-    <div class="tb-notif" onclick="toast('📬 Tidak ada notifikasi baru')">🔔<span class="tb-notif-badge" id="notifCount">3</span></div>
-
+   </div>
+  </nav>
+  <!-- ===== MAIN ===== -->
+  <div id="main">
+   <div id="topbar">
+    <div class="mobile-menu" onclick="toggleSidebar()">
+     ☰
+    </div>
+    <div class="tb-title" id="tbTitle">
+     Dashboard
+    </div>
+    <div class="tb-search">
+     🔍
+     <input id="globalSearch" oninput="globalSearchFn(this.value)" placeholder="Cari data..." type="text"/>
+    </div>
+    <div class="tb-notif" onclick="showNotifPanel()">
+     🔔
+     <span class="tb-notif-badge" id="notifCount">
+      3
+     </span>
+    </div>
     <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
-
-      <div style="font-size:.82rem;color:var(--tl);text-align:right;">
-
-        <div style="color:var(--td);font-weight:700;" id="topbarName">—</div>
-
-        <div id="topbarRole">—</div>
-
+     <div style="font-size:.82rem;color:var(--tl);text-align:right;">
+      <div id="topbarName" style="color:var(--td);font-weight:700;">
+       &mdash;
       </div>
-
-      <div class="tb-avatar" id="topbarAvatar">?</div>
-
+      <div id="topbarRole">
+       &mdash;
+      </div>
+     </div>
+     <div class="tb-avatar" id="topbarAvatar">
+      ?
+     </div>
     </div>
-
-  </div>
-
-  <div id="tabNav"></div>
-
-  <div id="content">
-
+   </div>
+   <div id="tabNav">
+   </div>
+   <div id="content">
     <!-- Pages rendered by JS -->
-
+   </div>
   </div>
-
-</div>
-
- 
-
-<!-- ===== CRUD MODAL ===== -->
-
-<div class="modal-bg" id="crudModal">
-
-  <div class="modal" id="crudModalBox">
-
+  <!-- ===== CRUD MODAL ===== -->
+  <div class="modal-bg" id="crudModal">
+   <div class="modal" id="crudModalBox">
     <div class="modal-head">
-
-      <h3 id="crudModalTitle">Form</h3>
-
-      <button class="modal-close" onclick="closeModal('crudModal')">✕</button>
-
+     <h3 id="crudModalTitle">
+      Form
+     </h3>
+     <button class="modal-close" onclick="closeModal('crudModal')">
+      ✕
+     </button>
     </div>
-
-    <div class="modal-body" id="crudModalBody"></div>
-
+    <div class="modal-body" id="crudModalBody">
+    </div>
     <div class="modal-foot" id="crudModalFoot">
-
-      <button class="btn btn-ghost" onclick="closeModal('crudModal')">Batal</button>
-
-      <button class="btn btn-green" id="crudModalSave">Simpan</button>
-
+     <button class="btn btn-ghost" onclick="closeModal('crudModal')">
+      Batal
+     </button>
+     <button class="btn btn-green" id="crudModalSave">
+      Simpan
+     </button>
     </div>
-
+   </div>
   </div>
-
-</div>
-
- 
-
-<!-- ===== DETAIL MODAL ===== -->
-
-<div class="modal-bg" id="detailModal">
-
-  <div class="modal modal-lg">
-
+  <!-- ===== DETAIL MODAL ===== -->
+  <div class="modal-bg" id="detailModal">
+   <div class="modal modal-lg">
     <div class="modal-head">
-
-      <h3>📋 Detail Permohonan</h3>
-
-      <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
-
+     <h3>
+      📋 Detail Permohonan
+     </h3>
+     <button class="modal-close" onclick="closeModal('detailModal')">
+      ✕
+     </button>
     </div>
-
-    <div class="modal-body" id="detailBody"></div>
-
+    <div class="modal-body" id="detailBody">
+    </div>
     <div class="modal-foot" id="detailFoot">
-
-      <button class="btn btn-ghost" onclick="closeModal('detailModal')">Tutup</button>
-
+     <button class="btn btn-ghost" onclick="closeModal('detailModal')">
+      Tutup
+     </button>
     </div>
-
+   </div>
   </div>
-
-</div>
-
- 
-
-<!-- ===== CONFIRM ===== -->
-
-<div class="confirm-bg" id="confirmBg">
-
-  <div class="confirm-box">
-
-    <div class="ci" id="confirmIcon">⚠️</div>
-
-    <h4 id="confirmTitle">Konfirmasi</h4>
-
-    <p id="confirmMsg">Apakah Anda yakin?</p>
-
+  <!-- ===== CONFIRM ===== -->
+  <div class="confirm-bg" id="confirmBg">
+   <div class="confirm-box">
+    <div class="ci" id="confirmIcon">
+     ⚠️
+    </div>
+    <h4 id="confirmTitle">
+     Konfirmasi
+    </h4>
+    <p id="confirmMsg">
+     Apakah Anda yakin?
+    </p>
     <div class="confirm-btns">
-
-      <button class="btn btn-ghost" onclick="closeConfirm()">Batal</button>
-
-      <button class="btn btn-red" id="confirmOkBtn">Ya, Lanjutkan</button>
-
+     <button class="btn btn-ghost" onclick="closeConfirm()">
+      Batal
+     </button>
+     <button class="btn btn-red" id="confirmOkBtn">
+      Ya, Lanjutkan
+     </button>
     </div>
-
+   </div>
   </div>
-
-</div>
-
- 
-
-<div class="toast" id="toast">✅ <span id="toastMsg"></span></div>
-
- 
-
-<script>
-
-// ============================================================
+  <div class="toast" id="toast">
+   ✅
+   <span id="toastMsg">
+   </span>
+  </div>
+  <script>
+   // ============================================================
 
 // FIREBASE REALTIME DATABASE — SINKRON LINTAS PERANGKAT
 
@@ -916,7 +890,7 @@ async function initFirebase() {
 
             if (currentUser) {
 
-              renderPage(currentPage);
+              renderPage(currentPage);updateNotifCount();
 
               const el = document.getElementById('syncLabel');
 
@@ -1056,7 +1030,7 @@ if (BC) {
 
         DB = fresh;
 
-        if (currentUser) renderPage(currentPage);
+        if (currentUser) renderPage(currentPage);updateNotifCount();
 
       }
 
@@ -1171,6 +1145,10 @@ const DEFAULT_DB = {
 
   ],
 
+  notifikasi:[
+
+  ],
+
   menu:[
 
     {id:1,ikon:'🏠',label:'Beranda',url:'#beranda',aktif:true},
@@ -1229,7 +1207,7 @@ const DEFAULT_DB = {
 
   ],
 
-  nextId:{jenis:7,unit:5,syarat:8,output:6,akses:7,pengguna:8,permohonan:9,menu:7,layananWeb:7,pengumuman:5,disposisi:3,arsip:3,dokumenPublik:6},
+  nextId:{jenis:7,unit:5,syarat:8,output:6,akses:7,pengguna:8,permohonan:9,menu:7,layananWeb:7,pengumuman:5,disposisi:3,arsip:3,dokumenPublik:6,notifikasi:1},
 
 };
 
@@ -1953,6 +1931,20 @@ function permohonanDetailHTML(p){
       </div>
 
     </div>
+    ${p.outputDokumen && p.outputDokumen.length ? `
+    <div style="margin-top:20px;border-top:2px solid var(--border);padding-top:18px;">
+      <div class="stag stag-green" style="margin-bottom:12px;">📤 Dokumen Hasil dari KUA</div>
+      ${p.outputDokumen.map((doc,i)=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(82,183,136,.08);border-radius:8px;margin-bottom:8px;">
+          <div style="flex:1;">
+            <div style="font-weight:700;">${doc.namaFile}</div>
+            <div style="font-size:.72rem;color:var(--tl);">Diupload ${doc.tglUpload} oleh ${doc.uploader||'Petugas'}${doc.catatan?' · '+doc.catatan:''}</div>
+          </div>
+          <button class="btn btn-blue btn-sm" onclick="viewHasil(${p.id},${i})">👁 Lihat</button>
+          <button class="btn btn-green btn-sm" onclick="downloadHasil(${p.id},${i})">📥 Unduh</button>
+        </div>
+      `).join('')}
+    </div>` : ''}
 
     ${(syaratsForJenis.length>0&&canUpload)?`
 
@@ -2570,7 +2562,7 @@ function openStatusModal(id){
 
     p.status=v('fStatus');p.catatan=v('fCatatan');
 
-    saveDB();closeModal('crudModal');renderPage(currentPage);
+    saveDB();closeModal('crudModal');renderPage(currentPage);updateNotifCount();
 
     toast(`✅ Status ${p.ref} → "${p.status}"`);
 
@@ -4265,6 +4257,66 @@ function submitPermohonan(){
 
 // ============================================================
 
+
+function openOutputUploadModal(permId){
+  const p=DB.permohonan.find(x=>x.id===permId);if(!p)return;
+  setModal(`📤 Upload Dokumen Hasil — ${p.ref}`,`
+    <div style="background:rgba(82,183,136,.08);border:1px solid rgba(82,183,136,.3);border-radius:8px;padding:12px;margin-bottom:16px;">
+      <b>${p.nama}</b> · ${p.jenis} · ${pillStatus(p.status)}
+    </div>
+    <div class="fg"><label>Pilih File Hasil (PDF/JPG/PNG)</label>
+      <input type="file" id="hasilFile" accept=".pdf,.jpg,.jpeg,.png">
+    </div>
+    <div class="fg"><label>Catatan untuk Pemohon</label>
+      <textarea id="hasilCatatan" rows="3" placeholder="Contoh: Dokumen sudah ditandatangani, silakan unduh"></textarea>
+    </div>
+  `,()=>{
+    const file=document.getElementById('hasilFile').files[0];
+    if(!file){toast('⚠️ Pilih file terlebih dahulu!');return;}
+    if(file.size>10*1024*1024){toast('⚠️ Maksimum 10MB');return;}
+    const reader=new FileReader();
+    reader.onload=function(e){
+      if(!p.outputDokumen)p.outputDokumen=[];
+      p.outputDokumen.push({
+        namaFile:file.name,
+        data:e.target.result,
+        type:file.type,
+        tglUpload:new Date().toLocaleDateString('id-ID'),
+        catatan:document.getElementById('hasilCatatan').value,
+        uploader:currentUser.nama
+      });
+      p.status='Selesai';
+      if(!DB.notifikasi)DB.notifikasi=[];
+      DB.notifikasi.push({
+        id:DB.nextId.notifikasi++,
+        ref:p.ref,
+        untuk:p.nama,
+        pesan:`Dokumen hasil ${p.jenis} Anda sudah siap. Silakan unduh.`,
+        tgl:new Date().toLocaleString('id-ID'),
+        dibaca:false,
+        telp:p.telp
+      });
+      saveDB();
+      closeModal('crudModal');
+      renderOutputUpload();
+      updateNotifCount();
+      toast(`✅ Dokumen hasil berhasil dikirim ke pemohon!`);
+      if(p.telp){
+        const waNum=p.telp.replace(/[^0-9]/g,'');
+        const nomor=waNum.startsWith('0')?'62'+waNum.slice(1):(waNum.startsWith('62')?waNum:waNum);
+        const pesan=encodeURIComponent(`Assalamualaikum ${p.nama},
+
+Dokumen hasil permohonan ${p.ref} (${p.jenis}) telah selesai dan siap diunduh di dashboard PTSP KUA Pulau Gorom.
+
+Silakan login dan cek menu Lacak Status.
+
+Terima kasih.`);
+        setTimeout(()=>window.open(`https://wa.me/${nomor}?text=${pesan}`,'_blank'),800);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
 function renderOutputUpload(){
 
   const selesai=DB.permohonan.filter(p=>p.status==='Selesai');
@@ -4293,7 +4345,7 @@ function renderOutputUpload(){
 
             <td>${out?`<span class="pill pill-blue">${out.nama}</span>`:'<span class="pill pill-gray">-</span>'}</td>
 
-            <td><button class="btn btn-green btn-sm" onclick="toast('📤 Upload output untuk ${p.ref}...')">📤 Upload Output</button></td></tr>`;
+            <td><button class="btn btn-green btn-sm" onclick="openOutputUploadModal(${p.id})">📤 Upload Output</button></td></tr>`;
 
         }).join('')}
 
@@ -4718,21 +4770,17 @@ function pubLoadSyarat(jenis){
 }
 
 function pubMarkFileSelected(syaratId,nama,input){
-
   const file=input.files[0];if(!file)return;
-
   if(file.size>5*1024*1024){toast('⚠️ File terlalu besar! Maksimum 5MB.');return;}
-
   const el=document.getElementById(`pubFileLabel_${syaratId}`);
-
-  if(el)el.innerHTML=`<span class="pill pill-green" style="font-size:.65rem;">✓ ${file.name}</span>`;
-
-  // Store in a temp map
-
   if(!window._pubFiles)window._pubFiles={};
-
-  window._pubFiles[syaratId]={nama,namaFile:file.name};
-
+  const reader=new FileReader();
+  reader.onload=function(e){
+    window._pubFiles[syaratId]={syarat:nama,namaFile:file.name,tglUpload:new Date().toLocaleDateString('id-ID'),data:e.target.result,type:file.type};
+    if(el)el.innerHTML=`<span class="pill pill-green" style="font-size:.65rem;">✓ ${file.name}</span>`;
+    toast(`✅ ${nama} siap diupload`);
+  };
+  reader.readAsDataURL(file);
 }
 
 function pubSubmit(){
@@ -4910,6 +4958,18 @@ function doLacak(){
       <div style="padding:20px;">
 
         <div style="margin-bottom:20px;">
+          ${p.outputDokumen && p.outputDokumen.length ? `
+            <div style="background:rgba(82,183,136,.1);border:1px solid rgba(82,183,136,.3);border-radius:10px;padding:14px;margin-bottom:16px;">
+              <div style="font-weight:700;color:var(--gm);margin-bottom:8px;">🎉 Dokumen Hasil Tersedia</div>
+              ${p.outputDokumen.map((d,i)=>`
+                <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+                  <span style="flex:1;font-size:.85rem;">📄 ${d.namaFile}</span>
+                  <button class="btn btn-blue btn-sm" onclick="viewHasil(${p.id},${i})">Lihat</button>
+                  <button class="btn btn-green btn-sm" onclick="downloadHasil(${p.id},${i})">Unduh</button>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
 
           ${steps.map(s=>`
 
@@ -5839,8 +5899,26 @@ document.querySelectorAll('.role-tab')[0]?.click();
 
 })();
 
-</script>
 
-</body>
+function updateNotifCount(){
+  const count = (DB.notifikasi||[]).filter(n=>!n.dibaca && (currentUser.role==='Publik' ? n.untuk===currentUser.nama : true)).length;
+  const el=document.getElementById('notifCount');
+  if(el){el.textContent=count>0?count:'';el.style.display=count>0?'flex':'none';}
+}
+function showNotifPanel(){
+  const list=(DB.notifikasi||[]).slice().reverse().slice(0,10);
+  const html=list.length?list.map(n=>`
+    <div style="padding:10px;border-bottom:1px solid var(--border);${n.dibaca?'opacity:.6':''}">
+      <div style="font-weight:700;font-size:.85rem;">${n.pesan}</div>
+      <div style="font-size:.72rem;color:var(--tl);margin-top:4px;">${n.tgl} · ${n.ref||''}</div>
+    </div>
+  `).join(''):'<p style="padding:20px;text-align:center;color:var(--tl);">Tidak ada notifikasi</p>';
+  setModal('🔔 Notifikasi',`<div style="max-height:400px;overflow-y:auto;">${html}</div>`,null);
+  (DB.notifikasi||[]).forEach(n=>{if(currentUser.role==='Publik' && n.untuk===currentUser.nama)n.dibaca=true;});
+  saveDB();updateNotifCount();
+}
 
+function toggleSidebar(){document.getElementById("sidebar").classList.toggle("open");}
+  </script>
+ </body>
 </html>
