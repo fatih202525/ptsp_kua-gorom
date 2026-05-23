@@ -1977,20 +1977,29 @@ function permohonanDetailHTML(p){
 
       ${p.outputDokumen && p.outputDokumen.length ? p.outputDokumen.map((doc,i)=>`
         <div style="background:rgba(82,183,136,.06);border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid rgba(82,183,136,.15);">
-          <div style="font-weight:700;font-size:.95rem;color:var(--gd);margin-bottom:4px;word-break:break-all;">${doc.namaFile}</div>
-          <div style="font-size:.75rem;color:var(--tl);margin-bottom:14px;">Diupload ${doc.tglUpload} oleh ${doc.uploader||'Petugas'}</div>
-          
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn btn-blue btn-sm" style="padding:8px 16px;border-radius:8px;font-weight:700;" onclick="viewHasil(${p.id},${i})">
-              <span style="font-size:1rem;">👁</span> Lihat
-            </button>
-            <button class="btn btn-green btn-sm" style="padding:8px 16px;border-radius:8px;font-weight:700;" onclick="downloadHasil(${p.id},${i})">
-              <span style="font-size:1rem;">📤</span> Unduh
-            </button>
-            ${canUpload ? `
-            <button class="btn btn-red btn-sm btn-icon" style="width:38px;height:38px;border-radius:8px;" onclick="hapusOutputDokumen(${p.id},${i})">
-              <span style="font-size:1rem;">🗑</span>
-            </button>` : ''}
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:.95rem;color:var(--gd);margin-bottom:4px;word-break:break-all;">${doc.namaFile}</div>
+              <div style="font-size:.75rem;color:var(--tl);margin-bottom:14px;">Diupload ${doc.tglUpload} oleh ${doc.uploader||'Petugas'}</div>
+              
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn btn-blue btn-sm" style="padding:8px 16px;border-radius:8px;font-weight:700;" onclick="viewHasil(${p.id},${i})">
+                  <span style="font-size:1rem;">👁</span> Lihat
+                </button>
+                <button class="btn btn-green btn-sm" style="padding:8px 16px;border-radius:8px;font-weight:700;" onclick="downloadHasil(${p.id},${i})">
+                  <span style="font-size:1rem;">📤</span> Unduh
+                </button>
+                ${canUpload ? `
+                <button class="btn btn-red btn-sm btn-icon" style="width:38px;height:38px;border-radius:8px;" onclick="hapusOutputDokumen(${p.id},${i})">
+                  <span style="font-size:1rem;">🗑</span>
+                </button>` : ''}
+              </div>
+            </div>
+            ${doc.qr ? `
+            <div style="text-align:center;flex-shrink:0;">
+              <img src="${doc.qr}" style="width:80px;height:80px;border-radius:8px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.1);" alt="QR Verifikasi">
+              <div style="font-size:.65rem;color:var(--gd);font-weight:700;margin-top:4px;">VERIFIKASI</div>
+            </div>` : ''}
           </div>
         </div>
       `).join('') : `
@@ -3934,7 +3943,28 @@ function konfirmasiDisposisi(id){
 
   const d=DB.disposisi.find(x=>x.id===id);if(!d)return;
 
-  d.status='Diterima';saveDB();renderDisposisi();toast('✅ Disposisi dikonfirmasi!');
+  d.status='Diterima';
+  
+  // Integrasi: update permohonan
+  const p=DB.permohonan.find(x=>x.ref===d.ref);
+  if(p){
+    p.status='Diproses';
+    if(!p.riwayat) p.riwayat=[];
+    p.riwayat.push({tgl:new Date().toLocaleDateString('id-ID',{day:'numeric',month:'short'}),aksi:`Disposisi diterima oleh ${d.kepada}`,oleh:currentUser.nama});
+  }
+  
+  // Notifikasi balik ke Pimpinan
+  if(!DB.notifikasi) DB.notifikasi=[];
+  DB.notifikasi.push({
+    id:DB.nextId.notifikasi++,
+    ref:d.ref,
+    untuk:d.dari,
+    pesan:`✅ Disposisi untuk ${d.nama} telah diterima oleh ${d.kepada}`,
+    tgl:new Date().toLocaleString('id-ID'),
+    dibaca:false
+  });
+  
+  saveDB();renderDisposisi();toast('✅ Disposisi dikonfirmasi dan terintegrasi!');
 
 }
 
@@ -3970,13 +4000,34 @@ function openDisposisiModal(pRef='',pNama=''){
 
     <div class="fg"><label>Instruksi</label><textarea id="fInstruksi" placeholder="Tuliskan instruksi disposisi..." rows="4"></textarea></div>`,()=>{
 
-    const tglD=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+    const tglD=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
 
-    const d={id:DB.nextId.disposisi++,ref:v('fRef'),nama:v('fNama'),dari:v('fDari'),kepada:v('fKepada'),instruksi:v('fInstruksi'),tgl:tglD,status:'Dikirim'};
+    const d={id:DB.nextId.disposisi++,ref:v('fRef'),nama:v('fNama'),dari:v('fDari'),kepada:v('fKepada'),instruksi:v('fInstruksi'),tgl:tglD,status:'Menunggu'};
 
     if(!d.ref||!d.instruksi){toast('⚠️ Ref dan instruksi wajib!');return;}
 
-    DB.disposisi.push(d);saveDB();closeModal('crudModal');renderDisposisi();toast('✅ Disposisi berhasil dikirim!');
+    DB.disposisi.push(d);
+    
+    // === INTEGRASI KE PERMOHONAN ===
+    const p=DB.permohonan.find(x=>x.ref===d.ref);
+    if(p){
+      p.status='Disposisi';
+      if(!p.riwayat) p.riwayat=[];
+      p.riwayat.push({tgl:tglD,aksi:`Disposisi dari ${d.dari} ke ${d.kepada}: ${d.instruksi}`,oleh:currentUser.nama});
+    }
+    
+    // === BUAT NOTIFIKASI UNTUK UNIT TUJUAN ===
+    if(!DB.notifikasi) DB.notifikasi=[];
+    DB.notifikasi.push({
+      id:DB.nextId.notifikasi++,
+      ref:d.ref,
+      untuk:d.kepada,
+      pesan:`🔔 Disposisi baru dari ${d.dari} untuk ${d.nama}: ${d.instruksi}`,
+      tgl:new Date().toLocaleString('id-ID'),
+      dibaca:false
+    });
+    
+    saveDB();closeModal('crudModal');renderDisposisi();toast('✅ Disposisi berhasil disimpan dan terintegrasi!');
 
   });
 
@@ -4354,13 +4405,19 @@ function openOutputUploadModal(permId){
       
       if(!DB.permohonan[permIndex].outputDokumen) DB.permohonan[permIndex].outputDokumen = [];
       
+      // Generate QR Verifikasi Digital
+      const qrData = encodeURIComponent(`VERIFIKASI KUA PULAU GOROM\nRef: ${p.ref}\nNama: ${p.nama}\nJenis: ${p.jenis}\nTgl: ${new Date().toLocaleDateString('id-ID')}\nStatus: SAH`);
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
+      
       DB.permohonan[permIndex].outputDokumen.push({
         namaFile: file.namaFile,
         data: file.data,
         type: file.type,
         tglUpload: new Date().toLocaleDateString('id-ID'),
         catatan: catatan,
-        uploader: currentUser.nama || currentUser.role
+        uploader: currentUser.nama || currentUser.role,
+        qr: qrUrl,
+        verifikasi: `Ref: ${p.ref}`
       });
       
       // Auto-update status to Selesai
@@ -4392,7 +4449,7 @@ function openOutputUploadModal(permId){
       if(p.telp){
         const waNum = p.telp.replace(/[^0-9]/g,'');
         const nomor = waNum.startsWith('0') ? '62' + waNum.slice(1) : (waNum.startsWith('62') ? waNum : waNum);
-        const pesanWA = encodeURIComponent(`Assalamualaikum ${p.nama},\n\nDokumen hasil permohonan ${p.ref} (${p.jenis}) telah selesai dan siap diunduh di dashboard PTSP KUA Pulau Gorom.\n\nSilakan cek di menu Lacak Status.\n\nTerima kasih.`);
+        const pesanWA = encodeURIComponent(`Assalamualaikum ${p.nama},\n\n✅ Dokumen hasil permohonan ${p.ref} (${p.jenis}) telah SELESAI.\n\n📄 File: ${file.namaFile}\n🔐 Dilengkapi QR Verifikasi Digital\n\nSilakan unduh langsung di menu Lacak Status PTSP KUA Pulau Gorom.\n\nTerima kasih.`);
         setTimeout(() => window.open(`https://wa.me/${nomor}?text=${pesanWA}`, '_blank'), 800);
       }
     });
@@ -4434,6 +4491,19 @@ function downloadHasil(permId,idx){
   if(!d||!d.data){toast('⚠️ File tidak tersedia untuk diunduh');return;}
   const a=document.createElement('a');a.href=d.data;a.download=d.namaFile;a.click();
   toast(`📥 Mengunduh ${d.namaFile}...`);
+}
+
+// Preview inline di halaman Lacak
+function togglePreviewInline(permId,idx){
+  const el=document.getElementById(`preview-${permId}-${idx}`);
+  if(!el) return;
+  if(el.style.display==='none'){
+    el.style.display='block';
+    // scroll into view
+    setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+  }else{
+    el.style.display='none';
+  }
 }
 
 // Preview modal for output documents
@@ -5126,17 +5196,30 @@ function doLacak(){
               
               ${p.outputDokumen.map((d,i)=>`
                 <div style="background:#fff;border-radius:14px;padding:16px;margin-top:10px;border:1px solid rgba(82,183,136,.2);box-shadow:0 2px 8px rgba(0,0,0,.04);">
-                  <div style="font-weight:700;font-size:.95rem;color:var(--gd);margin-bottom:4px;word-break:break-all;">${d.namaFile}</div>
-                  <div style="font-size:.75rem;color:var(--tl);margin-bottom:14px;">Diupload ${d.tglUpload || ''} oleh ${d.uploader||'Petugas'}</div>
-                  ${d.catatan?`<div style="font-size:.8rem;color:var(--tm);margin-bottom:14px;padding:10px;background:var(--bg);border-radius:8px;border-left:3px solid var(--ga);">"${d.catatan}"</div>`:''}
-                  
-                  <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <button class="btn btn-blue btn-sm" style="padding:8px 18px;border-radius:8px;font-weight:700;" onclick="viewHasil(${p.id},${i})">
-                      <span style="font-size:1rem;">👁</span> Lihat
-                    </button>
-                    <button class="btn btn-green btn-sm" style="padding:8px 18px;border-radius:8px;font-weight:700;" onclick="downloadHasil(${p.id},${i})">
-                      <span style="font-size:1rem;">📤</span> Unduh
-                    </button>
+                  <div style="display:flex;gap:16px;align-items:flex-start;">
+                    <div style="flex:1;">
+                      <div style="font-weight:700;font-size:.95rem;color:var(--gd);margin-bottom:4px;word-break:break-all;">${d.namaFile}</div>
+                      <div style="font-size:.75rem;color:var(--tl);margin-bottom:14px;">Diupload ${d.tglUpload || ''} oleh ${d.uploader||'Petugas'}</div>
+                      ${d.catatan?`<div style="font-size:.8rem;color:var(--tm);margin-bottom:14px;padding:10px;background:var(--bg);border-radius:8px;border-left:3px solid var(--ga);">"${d.catatan}"</div>`:''}
+                      
+                      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <button class="btn btn-blue btn-sm" style="padding:8px 18px;border-radius:8px;font-weight:700;" onclick="togglePreviewInline(${p.id},${i})">
+                          <span style="font-size:1rem;">👁</span> Preview
+                        </button>
+                        <button class="btn btn-green btn-sm" style="padding:8px 18px;border-radius:8px;font-weight:700;" onclick="downloadHasil(${p.id},${i})">
+                          <span style="font-size:1rem;">📤</span> Unduh
+                        </button>
+                      </div>
+                      <div id="preview-${p.id}-${i}" style="display:none;margin-top:12px;">
+                        <iframe src="${d.data}" style="width:100%;height:400px;border:1px solid #ddd;border-radius:8px;" title="Preview ${d.namaFile}"></iframe>
+                      </div>
+                    </div>
+                    ${d.qr ? `
+                    <div style="text-align:center;flex-shrink:0;">
+                      <img src="${d.qr}" style="width:90px;height:90px;border-radius:8px;border:2px solid var(--ga);background:#fff;padding:4px;" alt="QR Verifikasi">
+                      <div style="font-size:.65rem;color:var(--gd);font-weight:700;margin-top:4px;">QR VERIFIKASI</div>
+                      <div style="font-size:.6rem;color:var(--tl);margin-top:2px;">${d.verifikasi}</div>
+                    </div>` : ''}
                   </div>
                 </div>
               `).join('')}
