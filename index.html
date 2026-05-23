@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
  <head>
@@ -1157,25 +1158,25 @@ const DEFAULT_DB = {
   ],
 
   pengguna:[
-
+    {id:1,nama:'Admin KUA',username:'admin',pass:'admin123',email:'admin@kuapg.go.id',level:'Super Admin',unit:'Unit Administrasi',login:'23 Mei 2026',status:'Aktif'},
+    {id:2,nama:'Umar Tuasikal',username:'umar',pass:'umar123',email:'umar@kuapg.go.id',level:'Pimpinan',unit:'Unit Nikah',login:'23 Mei 2026',status:'Aktif'},
+    {id:3,nama:'Siti Rahmawati',username:'siti',pass:'siti123',email:'siti@kuapg.go.id',level:'Operator',unit:'Unit Administrasi',login:'23 Mei 2026',status:'Aktif'}
   ],
-
   permohonan:[
-
+    {id:1,ref:'KUA-2026-1001',nama:'Ahmad Faisal',jenis:'Pencatatan Nikah',tgl:'20 Mei 2026',unit:'Unit Nikah',status:'Selesai',nik:'8101010101010001',telp:'082198001122',catatan:'Pendaftaran awal',sumber:'Kantor',dokumen:[],outputDokumen:[{namaFile:'Buku_Nikah_Ahmad.pdf',tglUpload:'22 Mei 2026',uploader:'Admin'}]},
+    {id:2,ref:'KUA-2026-1002',nama:'Siti Aminah',jenis:'Legalisasi Dokumen',tgl:'21 Mei 2026',unit:'Unit Administrasi',status:'Diproses',nik:'8101010101010002',telp:'082198003344',catatan:'Legalisir ijazah',sumber:'Online',dokumen:[]},
+    {id:3,ref:'KUA-2026-1003',nama:'Zubair Ali',jenis:'Pencatatan Nikah',tgl:'22 Mei 2026',unit:'Unit Nikah',status:'Menunggu',nik:'8101010101010003',telp:'082198005566',catatan:'Syarat lengkap',sumber:'Online',dokumen:[]}
   ],
-
   disposisi:[
-
- 
-
+    {id:1,ref:'KUA-2026-1002',nama:'Siti Aminah',dari:'Pimpinan KUA',kepada:'Unit Administrasi',instruksi:'Segera proses legalisir ijazah ini.',tgl:'22 Mei',status:'Menunggu'},
+    {id:2,ref:'KUA-2026-1001',nama:'Ahmad Faisal',dari:'Pimpinan KUA',kepada:'Unit Nikah',instruksi:'Lanjutkan ke pencatatan.',tgl:'21 Mei',status:'Diterima'}
   ],
-
   arsip:[
-
+    {id:1,permId:1,ref:'KUA-2026-1001',nama:'Ahmad Faisal',jenis:'Pencatatan Nikah',tglArsip:'22 Mei 2026',operator:'Siti Rahmawati'}
   ],
-
   notifikasi:[
-
+    {id:1,judul:'Permohonan Baru',isi:'Ahmad Faisal mendaftar Pencatatan Nikah',tgl:'20 Mei 2026',dibaca:false},
+    {id:2,judul:'Disposisi Baru',isi:'Pimpinan mengirim disposisi untuk Siti Aminah',tgl:'22 Mei 2026',dibaca:false}
   ],
 
   menu:[
@@ -1962,36 +1963,42 @@ function permohonanDetailHTML(p){
       </div>
 
     </div>
-    ${p.outputDokumen && p.outputDokumen.length ? `
-    <div style="margin-top:20px;border-top:2px solid var(--border);padding-top:18px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
-        <div class="stag stag-green" style="margin:0;">📤 Dokumen Hasil dari KUA</div>
-        ${canUpload?`<button class="btn btn-gold btn-sm" onclick="openOutputUploadModal(${p.id})">➕ Tambah Dokumen Hasil</button>`:''}
+    <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:20px;">
+      <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(240,240,240,.8);border:1px solid #ddd;border-radius:100px;font-size:.78rem;font-weight:700;color:#444;margin-bottom:16px;text-transform:uppercase;letter-spacing:.03em;">
+        <span style="font-size:1rem;">📤</span> DOKUMEN HASIL DARI KUA
       </div>
-      ${p.outputDokumen.map((doc,i)=>`
-        <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(82,183,136,.08);border-radius:8px;margin-bottom:8px;flex-wrap:wrap;">
-          <div style="flex:1;min-width:120px;">
-            <div style="font-weight:700;">${doc.namaFile}</div>
-            <div style="font-size:.72rem;color:var(--tl);">Diupload ${doc.tglUpload} oleh ${doc.uploader||'Petugas'}${doc.catatan?' · '+doc.catatan:''}</div>
-          </div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;">
-            <button class="btn btn-blue btn-sm" onclick="viewHasil(${p.id},${i})">👁 Lihat</button>
-            <button class="btn btn-green btn-sm" onclick="downloadHasil(${p.id},${i})">📥 Unduh</button>
-            ${canUpload?`<button class="btn btn-red btn-sm btn-icon" onclick="hapusOutputDokumen(${p.id},${i})">🗑</button>`:''}
+
+      ${canUpload ? `
+      <div style="margin-bottom:16px;">
+        <button class="btn btn-gold btn-sm" style="padding:10px 18px;font-size:.85rem;border-radius:10px;" onclick="openOutputUploadModal(${p.id})">
+          <span style="font-size:1.1rem;">➕</span> Tambah Dokumen Hasil
+        </button>
+      </div>` : ''}
+
+      ${p.outputDokumen && p.outputDokumen.length ? p.outputDokumen.map((doc,i)=>`
+        <div style="background:rgba(82,183,136,.06);border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid rgba(82,183,136,.15);">
+          <div style="font-weight:700;font-size:.95rem;color:var(--gd);margin-bottom:4px;word-break:break-all;">${doc.namaFile}</div>
+          <div style="font-size:.75rem;color:var(--tl);margin-bottom:14px;">Diupload ${doc.tglUpload} oleh ${doc.uploader||'Petugas'}</div>
+          
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-blue btn-sm" style="padding:8px 16px;border-radius:8px;font-weight:700;" onclick="viewHasil(${p.id},${i})">
+              <span style="font-size:1rem;">👁</span> Lihat
+            </button>
+            <button class="btn btn-green btn-sm" style="padding:8px 16px;border-radius:8px;font-weight:700;" onclick="downloadHasil(${p.id},${i})">
+              <span style="font-size:1rem;">📤</span> Unduh
+            </button>
+            ${canUpload ? `
+            <button class="btn btn-red btn-sm btn-icon" style="width:38px;height:38px;border-radius:8px;" onclick="hapusOutputDokumen(${p.id},${i})">
+              <span style="font-size:1rem;">🗑</span>
+            </button>` : ''}
           </div>
         </div>
-      `).join('')}
-    </div>` : `${canUpload?`
-    <div style="margin-top:20px;border-top:2px solid var(--border);padding-top:18px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-        <div class="stag stag-gold" style="margin:0;">📤 Dokumen Hasil untuk Pemohon</div>
-        <button class="btn btn-gold btn-sm" onclick="openOutputUploadModal(${p.id})">➕ Upload Dokumen Hasil</button>
-      </div>
-      <div style="margin-top:12px;padding:16px;text-align:center;background:rgba(212,160,23,.04);border:1.5px dashed rgba(212,160,23,.3);border-radius:10px;color:var(--tl);font-size:.85rem;">
-        📭 Belum ada dokumen hasil dikirim ke pemohon.
-      </div>
-    </div>`:''}
-    `}
+      `).join('') : `
+        <div style="padding:24px;text-align:center;background:rgba(0,0,0,.02);border:1.5px dashed #ddd;border-radius:14px;color:var(--tl);font-size:.85rem;">
+          📭 Belum ada dokumen hasil dikirim ke pemohon.
+        </div>
+      `}
+    </div>
 
     ${(syaratsForJenis.length>0&&canUpload)?`
 
@@ -2151,7 +2158,7 @@ function renderDashboard(){
 
         <div style="display:flex;gap:8px;">
 
-          ${role==='SuperAdmin'?`<button class="btn btn-gold btn-sm" onclick="nav('pengguna',null)">👥 Kelola User</button><button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Permohonan</button><button class="btn btn-blue btn-sm" onclick="nav('output_upload',null)">📤 Upload Output</button><button class="btn btn-ghost btn-sm" onclick="forceSyncCloud()">☁️ Sync</button>`:''}
+          ${role==='SuperAdmin'?`<button class="btn btn-gold btn-sm" onclick="nav('pengguna',null)">👥 Kelola User</button><button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Permohonan</button><button class="btn btn-blue btn-sm" onclick="nav('output_upload',null)">📤 Upload Output</button><button class="btn btn-purple btn-sm" onclick="nav('disposisi',null)">🔔 Disposisi</button><button class="btn btn-ghost btn-sm" onclick="forceSyncCloud()">☁️ Sync</button>`:''}
 
           ${role==='Admin'?`<button class="btn btn-ghost btn-sm" onclick="toast('📥 Mengekspor data...')">📥 Export</button><button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Lihat Permohonan</button><button class="btn btn-blue btn-sm" onclick="nav('output_upload',null)">📤 Upload Output</button>`:''}
 
@@ -4247,19 +4254,22 @@ function loadSyarat(jenis){
 }
 
 function staffMarkFile(syaratId,nama,input){
-
   const file=input.files[0];if(!file)return;
-
   if(file.size>5*1024*1024){toast('⚠️ File terlalu besar! Maksimum 5MB.');return;}
-
-  if(!window._staffFiles)window._staffFiles={};
-
-  window._staffFiles[syaratId]={nama,namaFile:file.name};
-
-  const el=document.getElementById(`staffFileLabel_${syaratId}`);
-
-  if(el)el.innerHTML=`<span class="pill pill-green" style="font-size:.65rem;">✓ ${file.name}</span>`;
-
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    if(!window._staffFiles)window._staffFiles={};
+    window._staffFiles[syaratId]={
+      syarat:nama,
+      namaFile:file.name,
+      data:e.target.result,
+      type:file.type,
+      size:file.size
+    };
+    const el=document.getElementById(`staffFileLabel_${syaratId}`);
+    if(el)el.innerHTML=`<span class="pill pill-green" style="font-size:.65rem;">✓ ${file.name}</span>`;
+  };
+  reader.readAsDataURL(file);
 }
 
 function submitPermohonan(){
@@ -4332,36 +4342,61 @@ function openOutputUploadModal(permId){
   `,()=>{
     const file=window._outputFile;
     if(!file){toast('⚠️ Pilih file terlebih dahulu!');return;}
+    
     // Capture form values BEFORE closing modal
-    const catatan=document.getElementById('hasilCatatan').value.trim();
-    if(!p.outputDokumen)p.outputDokumen=[];
-    p.outputDokumen.push({
-      namaFile:file.namaFile,
-      data:file.data,
-      type:file.type,
-      tglUpload:new Date().toLocaleDateString('id-ID'),
-      catatan:catatan,
-      uploader:currentUser.nama||currentUser.role
+    const catatanEl = document.getElementById('hasilCatatan');
+    const catatan = catatanEl ? catatanEl.value.trim() : '';
+    
+    showConfirm('🚀','Kirim Dokumen Hasil',`Kirim dokumen "${file.namaFile}" kepada pemohon <b>${p.nama}</b>? Status permohonan akan diperbarui menjadi Selesai.`,()=>{
+      // Update the permohonan in the DB
+      const permIndex = DB.permohonan.findIndex(x => x.id === p.id);
+      if(permIndex === -1) return;
+      
+      if(!DB.permohonan[permIndex].outputDokumen) DB.permohonan[permIndex].outputDokumen = [];
+      
+      DB.permohonan[permIndex].outputDokumen.push({
+        namaFile: file.namaFile,
+        data: file.data,
+        type: file.type,
+        tglUpload: new Date().toLocaleDateString('id-ID'),
+        catatan: catatan,
+        uploader: currentUser.nama || currentUser.role
+      });
+      
+      // Auto-update status to Selesai
+      DB.permohonan[permIndex].status = 'Selesai';
+      p.status = 'Selesai';
+
+      // Add notification for applicant
+      if(!DB.notifikasi) DB.notifikasi = [];
+      DB.notifikasi.push({
+        id: DB.nextId.notifikasi++,
+        ref: p.ref,
+        untuk: p.nama,
+        pesan: `🎉 Dokumen hasil ${p.jenis} Anda (${file.namaFile}) sudah siap. Silakan unduh di menu Lacak Status.`,
+        tgl: new Date().toLocaleString('id-ID'),
+        dibaca: false,
+        telp: p.telp
+      });
+      
+      window._outputFile = null;
+      saveDB();
+      closeModal('crudModal');
+      updateNotifCount();
+      toast(`✅ Dokumen hasil berhasil dikirim ke pemohon ${p.nama}!`);
+      
+      // Refresh current page
+      renderPage(currentPage);
+      
+      // WhatsApp notification
+      if(p.telp){
+        const waNum = p.telp.replace(/[^0-9]/g,'');
+        const nomor = waNum.startsWith('0') ? '62' + waNum.slice(1) : (waNum.startsWith('62') ? waNum : waNum);
+        const pesanWA = encodeURIComponent(`Assalamualaikum ${p.nama},\n\nDokumen hasil permohonan ${p.ref} (${p.jenis}) telah selesai dan siap diunduh di dashboard PTSP KUA Pulau Gorom.\n\nSilakan cek di menu Lacak Status.\n\nTerima kasih.`);
+        setTimeout(() => window.open(`https://wa.me/${nomor}?text=${pesanWA}`, '_blank'), 800);
+      }
     });
-    if(!DB.notifikasi)DB.notifikasi=[];
-    DB.notifikasi.push({
-      id:DB.nextId.notifikasi++,ref:p.ref,untuk:p.nama,
-      pesan:`Dokumen hasil ${p.jenis} Anda sudah siap. Silakan unduh.`,
-      tgl:new Date().toLocaleString('id-ID'),dibaca:false,telp:p.telp
-    });
-    window._outputFile=null;
-    saveDB();
-    closeModal('crudModal');
-    updateNotifCount();
-    toast(`✅ Dokumen hasil berhasil dikirim ke pemohon ${p.nama}!`);
-    renderOutputUpload();
-    if(p.telp){
-      const waNum=p.telp.replace(/[^0-9]/g,'');
-      const nomor=waNum.startsWith('0')?'62'+waNum.slice(1):(waNum.startsWith('62')?waNum:waNum);
-      const pesan=encodeURIComponent(`Assalamualaikum ${p.nama},\n\nDokumen hasil permohonan ${p.ref} (${p.jenis}) telah selesai dan siap diunduh di dashboard PTSP KUA Pulau Gorom.\n\nSilakan login dan cek menu Lacak Status.\n\nTerima kasih.`);
-      setTimeout(()=>window.open(`https://wa.me/${nomor}?text=${pesan}`,'_blank'),800);
-    }
-  });
+  },'🚀 Kirim Hasil');
 }
 
 function outputFileSelected(input){
@@ -5059,11 +5094,9 @@ function renderLacak(){
 }
 
 function doLacak(){
-
   const ref=document.getElementById('lacakRef').value.trim().toUpperCase();
-
   const p=DB.permohonan.find(x=>x.ref.toUpperCase()===ref);
-
+  console.log('Tracking Permohonan:', p);
   const el=document.getElementById('lacakResult');
 
   if(!p){el.innerHTML=`<div class="info-banner"><div class="ib-icon">❌</div><p>Permohonan dengan referensi <b>${ref}</b> tidak ditemukan. Pastikan nomor referensi sudah benar.</p></div>`;return;}
@@ -5081,26 +5114,34 @@ function doLacak(){
   ];
 
   el.innerHTML=`
-
     <div class="table-card" style="padding:0;">
-
       <div class="table-hdr"><h3>${pillStatus(p.status)} — ${p.ref}</h3></div>
-
       <div style="padding:20px;">
-
-        <div style="margin-bottom:20px;">
-          ${p.outputDokumen && p.outputDokumen.length ? `
-            <div style="background:rgba(82,183,136,.1);border:1px solid rgba(82,183,136,.3);border-radius:10px;padding:14px;margin-bottom:16px;">
-              <div style="font-weight:700;color:var(--gm);margin-bottom:8px;">🎉 Dokumen Hasil Tersedia</div>
+        <div style="margin-bottom:24px;">
+          ${(p.outputDokumen && p.outputDokumen.length > 0) ? `
+            <div id="hasilSelesaiBox" style="background:rgba(82,183,136,.1);border:1px solid var(--ga);border-radius:16px;padding:20px;margin-bottom:24px;box-shadow:0 8px 24px rgba(82,183,136,.12);">
+              <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(255,255,255,.8);border:1px solid var(--ga);border-radius:100px;font-size:.78rem;font-weight:900;color:var(--gd);margin-bottom:18px;text-transform:uppercase;letter-spacing:.03em;">
+                <span style="font-size:1.1rem;">📤</span> DOKUMEN HASIL DARI KUA
+              </div>
+              
               ${p.outputDokumen.map((d,i)=>`
-                <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
-                  <span style="flex:1;font-size:.85rem;">📄 ${d.namaFile}</span>
-                  <button class="btn btn-blue btn-sm" onclick="viewHasil(${p.id},${i})">Lihat</button>
-                  <button class="btn btn-green btn-sm" onclick="downloadHasil(${p.id},${i})">Unduh</button>
+                <div style="background:#fff;border-radius:14px;padding:16px;margin-top:10px;border:1px solid rgba(82,183,136,.2);box-shadow:0 2px 8px rgba(0,0,0,.04);">
+                  <div style="font-weight:700;font-size:.95rem;color:var(--gd);margin-bottom:4px;word-break:break-all;">${d.namaFile}</div>
+                  <div style="font-size:.75rem;color:var(--tl);margin-bottom:14px;">Diupload ${d.tglUpload || ''} oleh ${d.uploader||'Petugas'}</div>
+                  ${d.catatan?`<div style="font-size:.8rem;color:var(--tm);margin-bottom:14px;padding:10px;background:var(--bg);border-radius:8px;border-left:3px solid var(--ga);">"${d.catatan}"</div>`:''}
+                  
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn btn-blue btn-sm" style="padding:8px 18px;border-radius:8px;font-weight:700;" onclick="viewHasil(${p.id},${i})">
+                      <span style="font-size:1rem;">👁</span> Lihat
+                    </button>
+                    <button class="btn btn-green btn-sm" style="padding:8px 18px;border-radius:8px;font-weight:700;" onclick="downloadHasil(${p.id},${i})">
+                      <span style="font-size:1rem;">📤</span> Unduh
+                    </button>
+                  </div>
                 </div>
               `).join('')}
             </div>
-          ` : ''}
+          ` : (p.status === 'Selesai' ? `<div class="info-banner" style="margin-bottom:24px;"><div class="ib-icon">✅</div><p>Permohonan Selesai. Menunggu admin mengunggah dokumen hasil.</p></div>` : '')}
 
           ${steps.map(s=>`
 
@@ -5881,22 +5922,15 @@ function deleteItem(type,id,refreshPage){
 
  
 
-function setModal(title,body,saveFn){
-
+function setModal(title,body,saveFn,btnLabel='Simpan'){
   document.getElementById('crudModalTitle').textContent=title;
-
   document.getElementById('crudModalBody').innerHTML=body;
-
   const saveBtn=document.getElementById('crudModalSave');
-
   saveBtn.style.display=saveFn?'':'none';
-
+  saveBtn.textContent=btnLabel;
   if(saveFn)saveBtn.onclick=saveFn;
-
   document.getElementById('crudModal').classList.add('open');
-
   document.getElementById('crudModalBox').classList.remove('modal-lg');
-
 }
 
 function closeModal(id){document.getElementById(id).classList.remove('open');}
@@ -5930,15 +5964,17 @@ function filterTable(tbodyId,q){
 }
 
 function globalSearchFn(q){
-
-  if(!q)return;
-
-  // Quick search in permohonan
-
-  const res=DB.permohonan.filter(p=>p.nama.toLowerCase().includes(q.toLowerCase())||p.ref.toLowerCase().includes(q.toLowerCase()));
-
-  if(res.length)toast(`🔍 ${res.length} permohonan ditemukan untuk "${q}"`);
-
+  if(!q || q.length < 2) return;
+  const res = DB.permohonan.filter(p => 
+    p.nama.toLowerCase().includes(q.toLowerCase()) || 
+    p.ref.toLowerCase().includes(q.toLowerCase())
+  );
+  if(res.length === 1) {
+    toast(`🔍 Menemukan permohonan ${res[0].ref}`);
+    showDetailModal(res[0].id);
+  } else if(res.length > 1) {
+    toast(`🔍 ${res.length} permohonan ditemukan. Silakan cek menu Permohonan.`);
+  }
 }
 
 function toast(msg,dur=3500){
