@@ -996,7 +996,7 @@ function saveDB() {
 
     _ignoreNext = true;
 
-    _fbRef.set(DB).catch(() => { _ignoreNext = false; });
+    _fbRef.set(DB).catch((e) => { _ignoreNext = false; toast('❌ Gagal sync Firebase: '+(e.message||'ukuran data terlalu besar')); console.error('Firebase set error',e); });
 
   }
 
@@ -4470,7 +4470,7 @@ function openOutputUploadModal(permId){
 
 function outputFileSelected(input){
   const file=input.files[0];if(!file)return;
-  if(file.size>10*1024*1024){toast('⚠️ Maksimum 10MB');return;}
+  if(file.size>5*1024*1024){toast('⚠️ Maksimum 5MB agar realtime lancar. Kompres PDF dulu.');return;}
   const el=document.getElementById('hasilFileLabel');
   if(el)el.textContent='⏳ Memuat...';
   const reader=new FileReader();
@@ -5179,10 +5179,21 @@ function renderLacak(){
 
     </div>`);
 
+
+  // Auto-restore last tracked ref for realtime updates
+  setTimeout(()=>{
+    const last=localStorage.getItem('lastLacak');
+    if(last && document.getElementById('lacakRef')){
+      document.getElementById('lacakRef').value=last;
+      if(window._lastLacakRef!==last){doLacak();}
+    }
+  },100);
 }
 
 function doLacak(){
   const ref=document.getElementById('lacakRef').value.trim().toUpperCase();
+  window._lastLacakRef=ref;
+  try{localStorage.setItem('lastLacak',ref);}catch(e){}
   const p=DB.permohonan.find(x=>x.ref.toUpperCase()===ref);
   console.log('Tracking Permohonan:', p);
   const el=document.getElementById('lacakResult');
