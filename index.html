@@ -915,7 +915,8 @@ async function initFirebase() {
 
           if (data && data.permohonan) {
 
-            DB = data;
+            DB = {...JSON.parse(JSON.stringify(DEFAULT_DB)), ...data};
+            ['permohonan','disposisi','arsip','notifikasi','syarat','jenis','unit','pengguna'].forEach(k=>{if(!Array.isArray(DB[k])) DB[k]=DEFAULT_DB[k];});
 
             try { localStorage.setItem(STORE_KEY, JSON.stringify(DB)); } catch(e) {}
 
@@ -1015,7 +1016,12 @@ function saveDB() {
 
 function loadDB() {
 
-  try { const s = localStorage.getItem(STORE_KEY); if (s) return JSON.parse(s); } catch(e) {}
+  try { const s = localStorage.getItem(STORE_KEY); if (s) {
+    const parsed = JSON.parse(s);
+    const merged = {...JSON.parse(JSON.stringify(DEFAULT_DB)), ...parsed};
+    ['permohonan','disposisi','arsip','notifikasi','syarat','jenis','unit','pengguna','output','akses','menu'].forEach(k=>{if(!Array.isArray(merged[k])) merged[k]=DEFAULT_DB[k];});
+    return merged;
+  }} catch(e) {}
 
   return JSON.parse(JSON.stringify(DEFAULT_DB));
 
@@ -4424,6 +4430,12 @@ function openOutputUploadModal(permId){
       DB.permohonan[permIndex].status = 'Selesai';
       p.status = 'Selesai';
 
+      // Tambah ke arsip otomatis
+      if(!DB.arsip) DB.arsip=[];
+      if(!DB.arsip.find(a=>a.ref===p.ref)){
+        DB.arsip.push({id:DB.nextId.arsip++,permId:p.id,ref:p.ref,nama:p.nama,jenis:p.jenis,tglArsip:new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}),operator:currentUser.nama||currentUser.role});
+      }
+
       // Add notification for applicant
       if(!DB.notifikasi) DB.notifikasi = [];
       DB.notifikasi.push({
@@ -5007,15 +5019,19 @@ function pubLoadSyarat(jenis){
 
 function pubMarkFileSelected(syaratId,nama,input){
   const file=input.files[0];if(!file)return;
-  if(file.size>5*1024*1024){toast('⚠️ File terlalu besar! Maksimum 5MB.');return;}
+  if(file.size>5*1024*1024){toast('⚠️ File terlalu besar! Maksimum 5MB.');input.value='';return;}
   const el=document.getElementById(`pubFileLabel_${syaratId}`);
   if(!window._pubFiles)window._pubFiles={};
+  window._pubFiles[syaratId]={syarat:nama,namaFile:file.name,tglUpload:new Date().toLocaleDateString('id-ID'),data:null,type:file.type,loading:true};
+  if(el)el.innerHTML=`<span class="pill pill-gold" style="font-size:.65rem;">⏳ Mengunggah...</span>`;
   const reader=new FileReader();
   reader.onload=function(e){
-    window._pubFiles[syaratId]={syarat:nama,namaFile:file.name,tglUpload:new Date().toLocaleDateString('id-ID'),data:e.target.result,type:file.type};
+    window._pubFiles[syaratId].data=e.target.result;
+    window._pubFiles[syaratId].loading=false;
     if(el)el.innerHTML=`<span class="pill pill-green" style="font-size:.65rem;">✓ ${file.name}</span>`;
-    toast(`✅ ${nama} siap diupload`);
+    toast(`✅ ${nama} siap dikirim`);
   };
+  reader.onerror=function(){delete window._pubFiles[syaratId];if(el)el.innerHTML=`<span style="color:var(--red);">Gagal</span>`;toast('❌ Gagal membaca file');};
   reader.readAsDataURL(file);
 }
 
@@ -5039,13 +5055,15 @@ function pubSubmit(){
 
   const syaratsWajib=DB.syarat.filter(s=>s.jenis===jenis&&s.wajib);
 
-  const missingWajib=syaratsWajib.filter(s=>!(window._pubFiles&&window._pubFiles[s.id]));
+  const missingWajib=syaratsWajib.filter(s=>!(window._pubFiles&&window._pubFiles[s.id]&&window._pubFiles[s.id].data));
 
   if(missingWajib.length>0){
 
     toast(`⚠️ Dokumen wajib belum diunggah: ${missingWajib.map(s=>s.nama).join(', ')}`);return;
 
   }
+  const uploading=syaratsWajib.filter(s=>window._pubFiles[s.id]&&window._pubFiles[s.id].loading);
+  if(uploading.length>0){toast('⏳ Tunggu file selesai diunggah...');return;}
 
   const j=DB.jenis.find(x=>x.nama===jenis);
 
@@ -5053,7 +5071,7 @@ function pubSubmit(){
 
   // Collect uploaded docs
 
-  const dokumen=Object.values(window._pubFiles||{});
+  const dokumen=Object.values(window._pubFiles||{}).filter(f=>f.data);
 
   window._pubFiles={};
 
