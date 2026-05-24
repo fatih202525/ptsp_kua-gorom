@@ -1303,6 +1303,7 @@ const SIDEBAR_CONFIG={
 
     {section:'Utama'},
 
+    {id:'beranda',icon:'🏠',label:'Beranda'},
     {id:'dashboard',icon:'📊',label:'Dashboard'},
 
     {section:'Permohonan'},
@@ -1344,12 +1345,15 @@ const SIDEBAR_CONFIG={
 
     {id:'laporan',icon:'📈',label:'Laporan & Statistik'},
     {id:'laporan_wa',icon:'💬',label:'Laporan WA'},
+    {id:'sync',icon:'🔄',label:'Sinkronisasi Cloud'},
 
   ],
 
   Admin:[
 
     {section:'Utama'},
+
+    {id:'beranda',icon:'🏠',label:'Beranda'},
 
     {id:'dashboard',icon:'📊',label:'Dashboard'},
 
@@ -1387,6 +1391,8 @@ const SIDEBAR_CONFIG={
 
     {id:'laporan',icon:'📈',label:'Laporan & Statistik'},
     {id:'laporan_wa',icon:'💬',label:'Laporan WA'},
+    {id:'sync',icon:'🔄',label:'Sinkronisasi Cloud'},
+    {id:'sync',icon:'🔄',label:'Sinkronisasi Cloud'},
 
   ],
 
@@ -1433,6 +1439,7 @@ const SIDEBAR_CONFIG={
 
     {id:'laporan',icon:'📈',label:'Laporan & Statistik'},
     {id:'laporan_wa',icon:'💬',label:'Laporan WA'},
+    {id:'sync',icon:'🔄',label:'Sinkronisasi Cloud'},
 
     {id:'pengguna_view',icon:'👥',label:'Daftar Pengguna'},
 
@@ -1504,7 +1511,7 @@ const SIDEBAR_CONFIG={
 
 const PAGE_TITLES={
 
-  dashboard:'Dashboard',overview:'Ikhtisar Permohonan',proses:'Permohonan Diproses',
+  beranda:'Beranda',dashboard:'Dashboard',overview:'Ikhtisar Permohonan',proses:'Permohonan Diproses',
 
   permohonan:'Semua Permohonan',permohonan_unit:'Permohonan Unit Saya',
 
@@ -1516,7 +1523,7 @@ const PAGE_TITLES={
 
   menu:'Edit Menu Navigasi',layanan_web:'Edit Kartu Layanan',pengumuman:'Pengumuman & Berita',
 
-  laporan:'Laporan & Statistik',laporan_wa:'Laporan WA',disposisi:'Disposisi',arsip:'Arsip Dokumen',
+  laporan:'Laporan & Statistik',laporan_wa:'Laporan WA',sync:'Sinkronisasi Cloud',disposisi:'Disposisi',arsip:'Arsip Dokumen',
 
   input_permohonan:'Input Permohonan Baru',output_upload:'Upload Output Layanan',
 
@@ -1790,7 +1797,7 @@ function renderPage(id){
 
     menu:renderMenu,layanan_web:renderLayananWeb,pengumuman:renderPengumuman,
 
-    laporan:renderLaporan,laporan_wa:renderLaporanWA,disposisi:renderDisposisi,arsip:renderArsip,
+    laporan:renderLaporan,laporan_wa:renderLaporanWA,sync:renderSync,disposisi:renderDisposisi,arsip:renderArsip,
 
     overview:renderOverview,input_permohonan:renderInputPermohonan,
 
@@ -2370,7 +2377,7 @@ function renderPermohonan(unitFilter='',statusFilter='',searchFilter='',mode='li
 
   const role=currentUser.role;
 
-  const canEdit=role==='Admin'||role==='Operator'||role==='Staff';
+  const canEdit=role==='Admin'||role==='Operator'||role==='Staff'||role==='SuperAdmin';
 
   const canDelete=role==='Admin'||role==='SuperAdmin';
 
@@ -4008,7 +4015,7 @@ function renderLaporan(){
 
 function renderDisposisi(){
 
-  const canCreate=currentUser.role==='Admin'||currentUser.role==='Pimpinan';
+  const canCreate=currentUser.role==='Admin'||currentUser.role==='Pimpinan'||currentUser.role==='SuperAdmin';
 
   setContent(`
 
@@ -6286,6 +6293,51 @@ function saveWATemplates(tpls){
 }
 
 // ===== LAPORAN WA DASHBOARD =====
+
+function renderSync(){
+  const status=navigator.onLine?'Online':'Offline';
+  const lastSync=localStorage.getItem('lastSync')||'Belum pernah';
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>🔄 Sinkronisasi Cloud</h2><p>Status sinkronisasi data realtime</p></div>
+        <button class="btn btn-green" onclick="doSync()">🔄 Sync Sekarang</button>
+      </div>
+      
+      <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+        <div class="stat-card ${status==='Online'?'green':'red'}">
+          <div class="sc-icon">${status==='Online'?'🌐':'📴'}</div>
+          <div class="sc-num">${status}</div>
+          <div class="sc-label">Koneksi</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="sc-icon">💾</div>
+          <div class="sc-num">${DB.permohonan.length}</div>
+          <div class="sc-label">Data Lokal</div>
+        </div>
+        <div class="stat-card gold">
+          <div class="sc-icon">⏰</div>
+          <div class="sc-num" style="font-size:1rem;">${lastSync}</div>
+          <div class="sc-label">Sync Terakhir</div>
+        </div>
+      </div>
+      
+      <div class="card" style="margin-top:20px;">
+        <div class="card-hdr"><h3>Log Sinkronisasi</h3></div>
+        <div style="padding:16px;">
+          <p style="color:var(--tl);">SuperAdmin memiliki akses penuh ke semua unit. Data tersimpan di localStorage dan siap untuk integrasi Firebase/Supabase.</p>
+          <button class="btn btn-ghost" onclick="localStorage.setItem('lastSync',new Date().toLocaleString('id-ID'));toast('✅ Sync berhasil');renderSync();">Simulasi Sync</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+function doSync(){
+  localStorage.setItem('lastSync',new Date().toLocaleString('id-ID'));
+  toast('🔄 Sinkronisasi berhasil');
+  renderSync();
+}
+
 function renderLaporanWA(){
   const logs=(DB.notifikasi||[]).filter(n=>n.pesan && n.pesan.toLowerCase().includes('wa'));
   const terkirim=logs.filter(l=>l.pesan.includes('terkirim')||l.pesan.includes('sent')).length;
