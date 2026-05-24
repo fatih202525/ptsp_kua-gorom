@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
  <head>
@@ -2288,7 +2289,9 @@ function renderPermohonan(unitFilter='',statusFilter='',searchFilter=''){
 
         <div style="display:flex;gap:8px;">
 
-          ${role==='Admin'||role==='Staff'?`<button class="btn btn-green" onclick="openPermohonanModal()">➕ Tambah Manual</button>`:''}
+          ${canEdit?`<button class="btn btn-green" onclick="openPermohonanModal()">➕ Tambah Manual</button>`:''}
+
+          ${canEdit?`<button class="btn btn-green" style="background:var(--teal);" onclick="broadcastWA('${unitFilter}','${statusFilter}')">📢 Broadcast WA</button>`:''}
 
           ${role==='Admin'?`<button class="btn btn-ghost btn-sm" onclick="toast('📥 Mengekspor...')">📥 Export</button>`:''}
 
@@ -2608,13 +2611,31 @@ function openStatusModal(id){
 
     <div class="fg"><label>Catatan</label><textarea id="fCatatan" placeholder="Catatan perubahan...">${p.catatan||''}</textarea></div>
 
-  `,()=>{
+    <div class="fg" style="margin-top:8px;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="fKirimWA" ${p.telp?'checked':''}> 
+        <span>Kirim notifikasi WhatsApp ke pemohon (${p.telp||'nomor belum ada'})</span>
+      </label>
+    </div>
+
+  `,async ()=>{
 
     p.status=v('fStatus');p.catatan=v('fCatatan');
 
     saveDB();closeModal('crudModal');renderPage(currentPage);updateNotifCount();
 
     toast(`✅ Status ${p.ref} → "${p.status}"`);
+
+    // Kirim WA otomatis jika dicentang
+    const kirimWA=document.getElementById('fKirimWA')?.checked;
+    if(kirimWA && p.telp){
+      const pesan=`Assalamu'alaikum ${p.nama}, permohonan Anda ${p.ref} (${p.jenis}) saat ini berstatus: ${p.status}. ${p.catatan? 'Catatan: '+p.catatan : ''} Cek detail di PTSP KUA Pulau Gorom.`;
+      const res=await kirimWA_API(p.telp, pesan);
+      if(!DB.notifikasi) DB.notifikasi=[];
+      DB.notifikasi.push({id:DB.nextId.notifikasi++,ref:p.ref,untuk:p.nama,pesan:`Status diubah ke ${p.status} (WA ${res.status})`,tgl:new Date().toLocaleDateString('id-ID',{day:'numeric',month:'short'}),dibaca:false});
+      saveDB();updateNotifCount();
+      toast(res.status==='sent'?'📤 WA terkirim via API':'📤 WA dibuka manual');
+    }
 
   });
 
@@ -4438,12 +4459,10 @@ function openOutputUploadModal(permId){
       // Refresh current page
       renderPage(currentPage);
       
-      // WhatsApp notification
+      // WhatsApp notification via API
       if(p.telp){
-        const waNum = p.telp.replace(/[^0-9]/g,'');
-        const nomor = waNum.startsWith('0') ? '62' + waNum.slice(1) : (waNum.startsWith('62') ? waNum : waNum);
-        const pesanWA = encodeURIComponent(`Assalamualaikum ${p.nama},\n\n✅ Dokumen hasil permohonan ${p.ref} (${p.jenis}) telah SELESAI.\n\n📄 File: ${file.namaFile}\n🔐 Dilengkapi QR Verifikasi Digital\n\nSilakan unduh langsung di menu Lacak Status PTSP KUA Pulau Gorom.\n\nTerima kasih.`);
-        setTimeout(() => window.open(`https://wa.me/${nomor}?text=${pesanWA}`, '_blank'), 800);
+        const pesan = `Assalamualaikum ${p.nama},\n\n✅ Dokumen hasil permohonan ${p.ref} (${p.jenis}) telah SELESAI.\n\n📄 File: ${file.namaFile}\n🔐 Dilengkapi QR Verifikasi Digital\n\nSilakan unduh langsung di menu Lacak Status PTSP KUA Pulau Gorom.\n\nTerima kasih.`;
+        kirimWA_API(p.telp, pesan);
       }
     });
   },'🚀 Kirim Hasil');
@@ -6012,6 +6031,188 @@ function deleteItem(type,id,refreshPage){
   });
 
 }
+
+// ===== WHATSAPP API INTEGRATION - Tanpa buka tab =====
+function getWAConfig(){
+  return JSON.parse(localStorage.getItem('waApiConfig')||'{"provider":"fonnte","url":"https://api.fonnte.com/send","token":""}');
+}
+function saveWAConfig(cfg){
+  localStorage.setItem('waApiConfig', JSON.stringify(cfg));
+  toast('✅ Konfigurasi WA API disimpan');
+}
+async function kirimWA_API(nomor, pesan){
+  const cfg=getWAConfig();
+  // format nomor 62xxx
+  const waNum=nomor.replace(/[^0-9]/g,'');
+  const target=waNum.startsWith('0')?'62'+waNum.slice(1):waNum.startsWith('62')?waNum: '62'+waNum;
+  
+  if(!cfg.token){
+    // fallback ke wa.me jika belum setting
+    window.open(`https://wa.me/${target}?text=${encodeURIComponent(pesan)}`,'_blank');
+    return {status:'fallback'};
+  }
+  
+  try{
+    let res;
+    if(cfg.provider==='fonnte'){
+      res=await fetch(cfg.url,{
+        method:'POST',
+        headers:{'Authorization':cfg.token},
+        body:new URLSearchParams({target, message:pesan, countryCode:'62'})
+      });
+    } else if(cfg.provider==='wablas'){
+      res=await fetch(cfg.url,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':cfg.token},
+        body:JSON.stringify({phone:target, message:pesan})
+      });
+    } else if(cfg.provider==='whatsapp-cloud'){
+      // Meta WhatsApp Cloud API
+      res=await fetch(cfg.url,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.token},
+        body:JSON.stringify({
+          messaging_product:'whatsapp',
+          to:target,
+          type:'text',
+          text:{body:pesan}
+        })
+      });
+    } else { // custom
+      res=await fetch(cfg.url,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':cfg.token},
+        body:JSON.stringify({target, message:pesan})
+      });
+    }
+    const data=await res.json().catch(()=>({}));
+    return {status:res.ok?'sent':'error', data};
+  }catch(e){
+    console.error('WA API error',e);
+    // fallback
+    window.open(`https://wa.me/${target}?text=${encodeURIComponent(pesan)}`,'_blank');
+    return {status:'error', error:e.message};
+  }
+}
+
+function openWASettings(){
+  const cfg=getWAConfig();
+  const body=`
+    <div style="display:grid;gap:12px;">
+      <div class="fg"><label>Provider</label>
+        <select id="waProvider" class="filter-input">
+          <option value="fonnte" ${cfg.provider==='fonnte'?'selected':''}>Fonnte (paling mudah)</option>
+          <option value="wablas" ${cfg.provider==='wablas'?'selected':''}>Wablas</option>
+          <option value="whatsapp-cloud" ${cfg.provider==='whatsapp-cloud'?'selected':''}>WhatsApp Cloud API (Meta)</option>
+          <option value="custom" ${cfg.provider==='custom'?'selected':''}>Custom Webhook</option>
+        </select>
+      </div>
+      <div class="fg"><label>API URL</label><input id="waUrl" class="filter-input" value="${cfg.url||'https://api.fonnte.com/send'}"></div>
+      <div class="fg"><label>Token / API Key</label><input id="waToken" class="filter-input" type="password" placeholder="Masukkan token" value="${cfg.token||''}"></div>
+      <p style="font-size:.75rem;color:var(--tl);">Untuk Fonnte: daftar di fonnte.com, copy token. Untuk Wablas: token dari dashboard. Kosongkan token = fallback buka wa.me manual.</p>
+      <button class="btn btn-blue btn-sm" onclick="testWAAPI()">🧪 Test Kirim ke Nomor Saya</button>
+    </div>
+  `;
+  setModal('⚙️ Setting WhatsApp API',body,()=>{
+    saveWAConfig({
+      provider:document.getElementById('waProvider').value,
+      url:document.getElementById('waUrl').value.trim(),
+      token:document.getElementById('waToken').value.trim()
+    });
+    closeModal('crudModal');
+  },'Simpan');
+}
+async function testWAAPI(){
+  const nomor=prompt('Masukkan nomor WA untuk test (08xxx):');
+  if(!nomor) return;
+  toast('📤 Mengirim test...');
+  const res=await kirimWA_API(nomor,'Test koneksi WA API dari PTSP KUA Pulau Gorom ✅');
+  toast(res.status==='sent'?'✅ Test berhasil terkirim!':'⚠️ '+res.status);
+}
+
+// ===== BROADCAST WHATSAPP - Tambahan untuk maksimalkan notifikasi =====
+function broadcastWA(unitFilter='',statusFilter=''){
+  let data=[...DB.permohonan];
+  if(unitFilter) data=data.filter(p=>p.unit===unitFilter);
+  if(statusFilter) data=data.filter(p=>p.status===statusFilter);
+  const withPhone=data.filter(p=>p.telp && p.telp.trim()!=='');
+  
+  if(!withPhone.length){
+    toast('⚠️ Tidak ada nomor WA pemohon pada filter ini');
+    return;
+  }
+  
+  const cfg=getWAConfig();
+  const apiStatus=cfg.token?`✅ API Aktif (${cfg.provider})`:`⚠️ Belum setting API - akan fallback buka tab`;
+  
+  const body=`
+    <div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <p style="margin-bottom:0;font-weight:600;">Pilih template pesan:</p>
+        <button class="btn btn-ghost btn-sm" onclick="openWASettings()">⚙️ Setting API</button>
+      </div>
+      <select id="waTemplate" class="filter-input" style="width:100%;margin-bottom:8px;" onchange="document.getElementById('waMsg').value=this.value">
+        <option value="Assalamu'alaikum, permohonan Anda {ref} ({jenis}) status: {status}. Cek info lengkap di PTSP KUA Pulau Gorom.">Info Status Permohonan</option>
+        <option value="Assalamu'alaikum {nama}, dokumen hasil untuk {ref} telah selesai. Silakan cek di menu Lacak Status atau ambil di kantor.">Dokumen Selesai</option>
+        <option value="Yth {nama}, mohon segera lengkapi berkas untuk permohonan {ref}. Hubungi WA: 0821-9807-5722">Minta Lengkapi Berkas</option>
+        <option value="Assalamu'alaikum {nama}, terima kasih telah mengajukan {jenis} ({ref}). Permohonan sedang diproses tim kami.">Konfirmasi Diterima</option>
+      </select>
+      <textarea id="waMsg" class="filter-input" style="width:100%;height:90px;">Assalamu'alaikum, permohonan Anda {ref} ({jenis}) status: {status}. Cek info lengkap di PTSP KUA Pulau Gorom.</textarea>
+      <p style="font-size:.72rem;color:var(--tl);margin-top:4px;">Gunakan variabel: {nama}, {ref}, {jenis}, {status}</p>
+    </div>
+    <div style="max-height:260px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;background:#fafafa;">
+      ${withPhone.map(p=>`
+        <label style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-bottom:1px solid var(--border);cursor:pointer;">
+          <input type="checkbox" class="wa-check" data-id="${p.id}" checked>
+          <div style="flex:1;">
+            <div style="font-weight:600;font-size:.85rem;">${p.nama}</div>
+            <div style="font-size:.72rem;color:var(--tl);">${p.ref} • ${p.jenis} • ${p.status}</div>
+          </div>
+          <span style="font-size:.75rem;background:#e8f5e9;padding:3px 8px;border-radius:12px;color:#2d6a4f;">${p.telp}</span>
+        </label>
+      `).join('')}
+    </div>
+    <p style="font-size:.75rem;color:var(--tl);margin-top:8px;">${apiStatus} • ${withPhone.length} pemohon siap dikirim. ${cfg.token?'Tidak perlu buka tab.':'Akan buka tab satu per satu.'}</p>
+  `;
+  
+  setModal('📢 Broadcast WhatsApp Pemohon',body,async ()=>{
+    const msgTpl=document.getElementById('waMsg').value.trim();
+    if(!msgTpl){toast('⚠️ Pesan tidak boleh kosong');return;}
+    const ids=[...document.querySelectorAll('.wa-check:checked')].map(cb=>parseInt(cb.dataset.id));
+    if(!ids.length){toast('⚠️ Pilih minimal 1 pemohon');return;}
+    
+    closeModal('crudModal');
+    toast(`🚀 Mengirim broadcast ke ${ids.length} pemohon via API...`);
+    
+    let sukses=0, gagal=0;
+    for(const id of ids){
+      const p=DB.permohonan.find(x=>x.id===id);
+      if(p && p.telp){
+        let pesan=msgTpl.replace(/{nama}/g,p.nama).replace(/{ref}/g,p.ref).replace(/{jenis}/g,p.jenis).replace(/{status}/g,p.status);
+        const res=await kirimWA_API(p.telp, pesan);
+        if(res.status==='sent' || res.status==='fallback') sukses++; else gagal++;
+        
+        // catat notifikasi internal
+        if(!DB.notifikasi) DB.notifikasi=[];
+        DB.notifikasi.push({
+          id:DB.nextId.notifikasi++,
+          ref:p.ref,
+          untuk:p.nama,
+          pesan:`WA ${res.status==='sent'?'terkirim':'gagal'}: ${pesan.substring(0,70)}...`,
+          tgl:new Date().toLocaleDateString('id-ID',{day:'numeric',month:'short'}),
+          dibaca:false
+        });
+        await new Promise(r=>setTimeout(r,800)); // jeda antar kirim
+      }
+    }
+    saveDB(); updateNotifCount();
+    toast(`✅ Broadcast selesai! ${sukses} terkirim, ${gagal} gagal`);
+  },'Kirim via API');
+  
+  document.getElementById('crudModalBox').classList.add('modal-lg');
+}
+
+ 
 
  
 
