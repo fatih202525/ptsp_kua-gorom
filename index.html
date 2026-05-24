@@ -1343,6 +1343,7 @@ const SIDEBAR_CONFIG={
     {section:'Sistem'},
 
     {id:'laporan',icon:'📈',label:'Laporan & Statistik'},
+    {id:'laporan_wa',icon:'💬',label:'Laporan WA'},
 
   ],
 
@@ -1385,6 +1386,7 @@ const SIDEBAR_CONFIG={
     {section:'Sistem'},
 
     {id:'laporan',icon:'📈',label:'Laporan & Statistik'},
+    {id:'laporan_wa',icon:'💬',label:'Laporan WA'},
 
   ],
 
@@ -1430,6 +1432,7 @@ const SIDEBAR_CONFIG={
     {section:'Laporan'},
 
     {id:'laporan',icon:'📈',label:'Laporan & Statistik'},
+    {id:'laporan_wa',icon:'💬',label:'Laporan WA'},
 
     {id:'pengguna_view',icon:'👥',label:'Daftar Pengguna'},
 
@@ -1513,7 +1516,7 @@ const PAGE_TITLES={
 
   menu:'Edit Menu Navigasi',layanan_web:'Edit Kartu Layanan',pengumuman:'Pengumuman & Berita',
 
-  laporan:'Laporan & Statistik',disposisi:'Disposisi',arsip:'Arsip Dokumen',
+  laporan:'Laporan & Statistik',laporan_wa:'Laporan WA',disposisi:'Disposisi',arsip:'Arsip Dokumen',
 
   input_permohonan:'Input Permohonan Baru',output_upload:'Upload Output Layanan',
 
@@ -1787,7 +1790,7 @@ function renderPage(id){
 
     menu:renderMenu,layanan_web:renderLayananWeb,pengumuman:renderPengumuman,
 
-    laporan:renderLaporan,disposisi:renderDisposisi,arsip:renderArsip,
+    laporan:renderLaporan,laporan_wa:renderLaporanWA,disposisi:renderDisposisi,arsip:renderArsip,
 
     overview:renderOverview,input_permohonan:renderInputPermohonan,
 
@@ -2153,7 +2156,12 @@ function renderDashboard(){
 
         <div><h2>Dashboard ${role==='Pimpinan'?'Eksekutif':role}</h2><p>Selamat datang, ${currentUser.nama} — ${new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</p></div>
 
-        <div style="display:flex;gap:8px;">
+        
+      <div style="display:flex;gap:6px;margin-bottom:16px;border-bottom:2px solid var(--border);">
+        <button class="tab-nav-item" onclick="renderPermohonan('${unitFilter}','${statusFilter}','','list')" style="padding:10px 16px;background:none;border:none;border-bottom:3px solid ${mode==='list'?'var(--gl)':'transparent'};cursor:pointer;font-weight:600;color:${mode==='list'?'var(--gd)':'var(--tl)'};">📋 Daftar Permohonan</button>
+        <button class="tab-nav-item" onclick="renderPermohonan('${unitFilter}','${statusFilter}','','broadcast')" style="padding:10px 16px;background:none;border:none;border-bottom:3px solid ${mode==='broadcast'?'var(--gl)':'transparent'};cursor:pointer;font-weight:600;color:${mode==='broadcast'?'var(--gd)':'var(--tl)'};">📢 Broadcast WA</button>
+      </div>
+<div style="display:flex;gap:8px;">
 
           ${role==='SuperAdmin'?`<button class="btn btn-gold btn-sm" onclick="nav('pengguna',null)">👥 Kelola User</button><button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Permohonan</button><button class="btn btn-blue btn-sm" onclick="nav('output_upload',null)">📤 Upload Output</button><button class="btn btn-purple btn-sm" onclick="nav('disposisi',null)">🔔 Disposisi</button><button class="btn btn-ghost btn-sm" onclick="forceSyncCloud()">☁️ Sync</button>`:''}
 
@@ -2259,7 +2267,106 @@ function renderDashboard(){
 
 // ============================================================
 
-function renderPermohonan(unitFilter='',statusFilter='',searchFilter=''){
+function renderPermohonan(unitFilter='',statusFilter='',searchFilter='',mode='list'){
+  if(mode==='broadcast'){
+    // Render tab Broadcast langsung di dalam Manajemen Permohonan
+    const data=[...DB.permohonan];
+    const withPhone=data.filter(p=>p.telp);
+    const tpls=getWATemplates();
+    const cfg=getWAConfig();
+    
+    setContent(`
+      <div class="page active">
+        <div class="page-hdr">
+          <div><h2>Manajemen Permohonan</h2><p>Broadcast WhatsApp Terintegrasi</p></div>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:16px;border-bottom:2px solid var(--border);">
+          <button onclick="renderPermohonan('${unitFilter}','${statusFilter}','','list')" style="padding:10px 16px;background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;font-weight:600;color:var(--tl);">📋 Daftar Permohonan</button>
+          <button style="padding:10px 16px;background:none;border:none;border-bottom:3px solid var(--gl);cursor:pointer;font-weight:600;color:var(--gd);">📢 Broadcast WA</button>
+        </div>
+        
+        <div class="card">
+          <div class="card-hdr"><h3>📢 Kirim Broadcast WA</h3><span class="badge ${cfg.token?'green':'red'}">${cfg.token?'API AKTIF':'BELUM SETTING'}</span></div>
+          <div style="padding:16px;display:grid;gap:12px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div>
+                <label style="font-size:.8rem;font-weight:600;">Filter Unit</label>
+                <select id="bcUnit" class="filter-input" style="width:100%;">
+                  <option value="">Semua Unit</option>
+                  ${DB.unit.map(u=>`<option>${u.nama}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label style="font-size:.8rem;font-weight:600;">Filter Status</label>
+                <select id="bcStatus" class="filter-input" style="width:100%;">
+                  <option value="">Semua Status</option>
+                  <option>Menunggu</option><option>Diproses</option><option>Selesai</option>
+                </select>
+              </div>
+            </div>
+            
+            <div>
+              <label style="font-size:.8rem;font-weight:600;">Template Pesan</label>
+              <select id="bcTemplate" class="filter-input" style="width:100%;" onchange="document.getElementById('bcMsg').value=this.value">
+                ${tpls.map(t=>`<option value="${t.text.replace(/"/g,'&quot;')}">${t.name}</option>`).join('')}
+              </select>
+            </div>
+            
+            <div>
+              <label style="font-size:.8rem;font-weight:600;">Isi Pesan (gunakan {nama},{ref},{jenis},{status})</label>
+              <textarea id="bcMsg" class="filter-input" rows="4" style="width:100%;">${tpls[0]?.text||''}</textarea>
+            </div>
+            
+            <div style="background:var(--bg);padding:12px;border-radius:8px;">
+              <p style="font-size:.85rem;"><strong>${withPhone.length}</strong> pemohon memiliki nomor WA. <a href="#" onclick="renderPermohonan('','','','list');return false;" style="color:var(--gl);">Lihat daftar</a></p>
+            </div>
+            
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+              <button class="btn btn-ghost" onclick="openWASettings()">⚙️ Setting API</button>
+              <button class="btn btn-green" onclick="executeBroadcast()">🚀 Kirim Sekarang</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card" style="margin-top:16px;">
+          <div class="card-hdr"><h3>📊 Preview Penerima</h3></div>
+          <div style="max-height:300px;overflow:auto;padding:12px;">
+            <table class="table">
+              <thead><tr><th>Ref</th><th>Nama</th><th>WA</th><th>Status</th></tr></thead>
+              <tbody>
+                ${withPhone.slice(0,50).map(p=>`<tr><td>${p.ref}</td><td>${p.nama}</td><td>${p.telp}</td><td>${p.status}</td></tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `);
+    
+    window.executeBroadcast = async function(){
+      const unit=document.getElementById('bcUnit').value;
+      const status=document.getElementById('bcStatus').value;
+      const msg=document.getElementById('bcMsg').value;
+      let targets=[...DB.permohonan].filter(p=>p.telp);
+      if(unit) targets=targets.filter(p=>p.unit===unit);
+      if(status) targets=targets.filter(p=>p.status===status);
+      
+      if(!confirm(`Kirim ke ${targets.length} nomor?`)) return;
+      toast('📤 Mengirim via API...');
+      let sukses=0;
+      for(const p of targets){
+        const pesan=msg.replace(/{nama}/g,p.nama).replace(/{ref}/g,p.ref).replace(/{jenis}/g,p.jenis).replace(/{status}/g,p.status);
+        const res=await kirimWA_API(p.telp,pesan);
+        if(res.status==='sent'||res.status==='fallback') sukses++;
+        DB.notifikasi.push({id:DB.nextId.notifikasi++,ref:p.ref,untuk:p.nama,pesan:`Broadcast: ${pesan.substring(0,60)}...`,tgl:new Date().toLocaleDateString('id-ID',{day:'numeric',month:'short'}),dibaca:false});
+        await new Promise(r=>setTimeout(r,600));
+      }
+      saveDB();
+      toast(`✅ Broadcast selesai! ${sukses}/${targets.length} terkirim`);
+      renderLaporanWA();
+    };
+    return;
+  }
+
 
   const role=currentUser.role;
 
@@ -2613,8 +2720,8 @@ function openStatusModal(id){
 
     <div class="fg" style="margin-top:8px;">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-        <input type="checkbox" id="fKirimWA" ${p.telp?'checked':''}> 
-        <span>Kirim notifikasi WhatsApp ke pemohon (${p.telp||'nomor belum ada'})</span>
+        <input type="checkbox" id="fKirimWA" checked disabled> 
+        <span>Kirim notifikasi WhatsApp otomatis (terintegrasi) ke ${p.telp||'nomor belum ada'}</span>
       </label>
     </div>
 
@@ -2627,12 +2734,16 @@ function openStatusModal(id){
     toast(`✅ Status ${p.ref} → "${p.status}"`);
 
     // Kirim WA otomatis jika dicentang
-    const kirimWA=document.getElementById('fKirimWA')?.checked;
-    if(kirimWA && p.telp){
-      const pesan=`Assalamu'alaikum ${p.nama}, permohonan Anda ${p.ref} (${p.jenis}) saat ini berstatus: ${p.status}. ${p.catatan? 'Catatan: '+p.catatan : ''} Cek detail di PTSP KUA Pulau Gorom.`;
+    // INTEGRASI OTOMATIS - kirim WA setiap status berubah
+    const cfg=getWAConfig();
+    if(p.telp && cfg.token){
+      const tpls=getWATemplates();
+      const tpl=tpls.find(t=>t.name.includes('Status'))||tpls[0];
+      let pesan=tpl.text.replace(/{nama}/g,p.nama).replace(/{ref}/g,p.ref).replace(/{jenis}/g,p.jenis).replace(/{status}/g,p.status);
+      if(p.catatan) pesan+=`\nCatatan: ${p.catatan}`;
       const res=await kirimWA_API(p.telp, pesan);
       if(!DB.notifikasi) DB.notifikasi=[];
-      DB.notifikasi.push({id:DB.nextId.notifikasi++,ref:p.ref,untuk:p.nama,pesan:`Status diubah ke ${p.status} (WA ${res.status})`,tgl:new Date().toLocaleDateString('id-ID',{day:'numeric',month:'short'}),dibaca:false});
+      DB.notifikasi.push({id:DB.nextId.notifikasi++,ref:p.ref,untuk:p.nama,pesan:`WA Otomatis: Status ${p.status} → ${res.status==='sent'?'terkirim':'gagal'}`,tgl:new Date().toLocaleDateString('id-ID',{day:'numeric',month:'short'}),dibaca:false});
       saveDB();updateNotifCount();
       toast(res.status==='sent'?'📤 WA terkirim via API':'📤 WA dibuka manual');
     }
@@ -6097,28 +6208,57 @@ async function kirimWA_API(nomor, pesan){
 
 function openWASettings(){
   const cfg=getWAConfig();
+  const tpls=getWATemplates();
+  const tplRows=tpls.map((t,i)=>`
+    <div style="display:grid;grid-template-columns:1fr 2fr auto;gap:8px;margin-bottom:8px;align-items:start;">
+      <input id="tplName${i}" class="filter-input" value="${t.name}" placeholder="Nama template">
+      <textarea id="tplText${i}" class="filter-input" rows="2" placeholder="Isi pesan, gunakan {nama},{ref},{jenis},{status}">${t.text}</textarea>
+      <button class="btn btn-ghost btn-sm" onclick="this.parentElement.remove()" style="color:var(--red);">🗑</button>
+    </div>
+  `).join('');
+  
   const body=`
-    <div style="display:grid;gap:12px;">
-      <div class="fg"><label>Provider</label>
-        <select id="waProvider" class="filter-input">
-          <option value="fonnte" ${cfg.provider==='fonnte'?'selected':''}>Fonnte (paling mudah)</option>
-          <option value="wablas" ${cfg.provider==='wablas'?'selected':''}>Wablas</option>
-          <option value="whatsapp-cloud" ${cfg.provider==='whatsapp-cloud'?'selected':''}>WhatsApp Cloud API (Meta)</option>
-          <option value="custom" ${cfg.provider==='custom'?'selected':''}>Custom Webhook</option>
-        </select>
+    <div style="display:grid;gap:16px;">
+      <div>
+        <h4 style="margin-bottom:8px;">🔌 Konfigurasi API WhatsApp</h4>
+        <div style="display:grid;gap:8px;">
+          <select id="waProvider" class="filter-input">
+            <option value="fonnte" ${cfg.provider==='fonnte'?'selected':''}>Fonnte</option>
+            <option value="wablas" ${cfg.provider==='wablas'?'selected':''}>Wablas</option>
+            <option value="whatsapp-cloud" ${cfg.provider==='whatsapp-cloud'?'selected':''}>WhatsApp Cloud API</option>
+          </select>
+          <input id="waUrl" class="filter-input" placeholder="URL API" value="${cfg.url||''}">
+          <input id="waToken" class="filter-input" placeholder="Token / Authorization" value="${cfg.token||''}">
+          <p style="font-size:.75rem;color:var(--tl);">💡 Jika token kosong, sistem akan fallback buka wa.me (tidak terintegrasi). Isi token untuk integrasi penuh.</p>
+        </div>
       </div>
-      <div class="fg"><label>API URL</label><input id="waUrl" class="filter-input" value="${cfg.url||'https://api.fonnte.com/send'}"></div>
-      <div class="fg"><label>Token / API Key</label><input id="waToken" class="filter-input" type="password" placeholder="Masukkan token" value="${cfg.token||''}"></div>
-      <p style="font-size:.75rem;color:var(--tl);">Untuk Fonnte: daftar di fonnte.com, copy token. Untuk Wablas: token dari dashboard. Kosongkan token = fallback buka wa.me manual.</p>
-      <button class="btn btn-blue btn-sm" onclick="testWAAPI()">🧪 Test Kirim ke Nomor Saya</button>
+      
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <h4>📝 Template Pesan (bisa diedit)</h4>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('tplList').insertAdjacentHTML('beforeend', '<div style=\'display:grid;grid-template-columns:1fr 2fr auto;gap:8px;margin-bottom:8px;align-items:start;\'><input class=\'filter-input\' placeholder=\'Nama template\'><textarea class=\'filter-input\' rows=\'2\' placeholder=\'Isi pesan\'></textarea><button class=\'btn btn-ghost btn-sm\' onclick=\'this.parentElement.remove()\' style=\'color:var(--red);\'>🗑</button></div>')">➕ Tambah</button>
+        </div>
+        <div id="tplList">${tplRows}</div>
+        <p style="font-size:.72rem;color:var(--tl);margin-top:6px;">Gunakan variabel: {nama}, {ref}, {jenis}, {status}</p>
+      </div>
+      
+      <button class="btn btn-green btn-sm" onclick="testWAAPI()">🧪 Test Kirim ke Nomor Saya</button>
     </div>
   `;
-  setModal('⚙️ Setting WhatsApp API',body,()=>{
+  setModal('⚙️ Setting WhatsApp API & Template',body,()=>{
     saveWAConfig({
       provider:document.getElementById('waProvider').value,
       url:document.getElementById('waUrl').value.trim(),
       token:document.getElementById('waToken').value.trim()
     });
+    // save templates
+    const list=[];
+    document.querySelectorAll('#tplList > div').forEach(div=>{
+      const name=div.querySelector('input').value.trim();
+      const text=div.querySelector('textarea').value.trim();
+      if(name && text) list.push({name,text});
+    });
+    if(list.length) saveWATemplates(list);
     closeModal('crudModal');
   },'Simpan');
 }
@@ -6128,6 +6268,68 @@ async function testWAAPI(){
   toast('📤 Mengirim test...');
   const res=await kirimWA_API(nomor,'Test koneksi WA API dari PTSP KUA Pulau Gorom ✅');
   toast(res.status==='sent'?'✅ Test berhasil terkirim!':'⚠️ '+res.status);
+}
+
+
+// ===== TEMPLATE WA EDITABLE =====
+function getWATemplates(){
+  const def=[
+    {name:'Info Status Permohonan',text:"Assalamu'alaikum, permohonan Anda {ref} ({jenis}) status: {status}. Cek info lengkap di PTSP KUA Pulau Gorom."},
+    {name:'Dokumen Selesai',text:"Assalamu'alaikum {nama}, dokumen hasil untuk {ref} telah selesai. Silakan cek di menu Lacak Status atau ambil di kantor."},
+    {name:'Minta Lengkapi Berkas',text:"Yth {nama}, mohon segera lengkapi berkas untuk permohonan {ref}. Hubungi WA: 0821-9807-5722"}
+  ];
+  return JSON.parse(localStorage.getItem('waTemplates')||JSON.stringify(def));
+}
+function saveWATemplates(tpls){
+  localStorage.setItem('waTemplates', JSON.stringify(tpls));
+  toast('✅ Template WA disimpan');
+}
+
+// ===== LAPORAN WA DASHBOARD =====
+function renderLaporanWA(){
+  const logs=(DB.notifikasi||[]).filter(n=>n.pesan && n.pesan.toLowerCase().includes('wa'));
+  const terkirim=logs.filter(l=>l.pesan.includes('terkirim')||l.pesan.includes('sent')).length;
+  const gagal=logs.filter(l=>l.pesan.includes('gagal')||l.pesan.includes('error')).length;
+  const total=logs.length;
+  
+  const rows=logs.slice().reverse().slice(0,100).map(l=>`
+    <tr>
+      <td>${l.tgl}</td>
+      <td><span class="badge">${l.ref||'-'}</span></td>
+      <td>${l.untuk||'-'}</td>
+      <td>${l.pesan}</td>
+      <td>${l.pesan.includes('terkirim')||l.pesan.includes('sent')?'<span class="pill green">Terkirim</span>':l.pesan.includes('gagal')?'<span class="pill red">Gagal</span>':'<span class="pill yellow">Proses</span>'}</td>
+    </tr>
+  `).join('');
+  
+  setContent(`
+    <div class="page active">
+      <div class="page-hdr">
+        <div><h2>💬 Laporan WhatsApp</h2><p>Monitoring pengiriman WA terintegrasi</p></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-green" onclick="broadcastWA()">📢 Broadcast Baru</button>
+          <button class="btn btn-ghost" onclick="openWASettings()">⚙️ Setting API & Template</button>
+        </div>
+      </div>
+      
+      <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-bottom:24px;">
+        <div class="stat-card green"><div class="sc-icon">✅</div><div class="sc-num">${terkirim}</div><div class="sc-label">Berhasil Terkirim</div></div>
+        <div class="stat-card red"><div class="sc-icon">❌</div><div class="sc-num">${gagal}</div><div class="sc-label">Gagal</div></div>
+        <div class="stat-card blue"><div class="sc-icon">📊</div><div class="sc-num">${total}</div><div class="sc-label">Total Log</div></div>
+        <div class="stat-card gold"><div class="sc-icon">🔗</div><div class="sc-num">${getWAConfig().token?'AKTIF':'OFF'}</div><div class="sc-label">Status API</div></div>
+      </div>
+      
+      <div class="card">
+        <div class="card-hdr"><h3>Riwayat Pengiriman WA (100 terakhir)</h3></div>
+        <div style="overflow:auto;max-height:500px;">
+          <table class="table">
+            <thead><tr><th>Tanggal</th><th>Ref</th><th>Penerima</th><th>Pesan</th><th>Status</th></tr></thead>
+            <tbody>${rows||'<tr><td colspan=5 style="text-align:center;color:var(--tl);padding:20px;">Belum ada log WA</td></tr>'}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `);
 }
 
 // ===== BROADCAST WHATSAPP - Tambahan untuk maksimalkan notifikasi =====
@@ -6145,16 +6347,16 @@ function broadcastWA(unitFilter='',statusFilter=''){
   const cfg=getWAConfig();
   const apiStatus=cfg.token?`✅ API Aktif (${cfg.provider})`:`⚠️ Belum setting API - akan fallback buka tab`;
   
+  const tpls=getWATemplates();
+  const opts=tpls.map(t=>`<option value="${t.text.replace(/"/g,'&quot;')}">${t.name}</option>`).join('');
   const body=`
     <div style="margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <p style="margin-bottom:0;font-weight:600;">Pilih template pesan:</p>
-        <button class="btn btn-ghost btn-sm" onclick="openWASettings()">⚙️ Setting API</button>
+        <button class="btn btn-ghost btn-sm" onclick="openWASettings()">⚙️ Setting API & Template</button>
       </div>
       <select id="waTemplate" class="filter-input" style="width:100%;margin-bottom:8px;" onchange="document.getElementById('waMsg').value=this.value">
-        <option value="Assalamu'alaikum, permohonan Anda {ref} ({jenis}) status: {status}. Cek info lengkap di PTSP KUA Pulau Gorom.">Info Status Permohonan</option>
-        <option value="Assalamu'alaikum {nama}, dokumen hasil untuk {ref} telah selesai. Silakan cek di menu Lacak Status atau ambil di kantor.">Dokumen Selesai</option>
-        <option value="Yth {nama}, mohon segera lengkapi berkas untuk permohonan {ref}. Hubungi WA: 0821-9807-5722">Minta Lengkapi Berkas</option>
+        ${opts}
         <option value="Assalamu'alaikum {nama}, terima kasih telah mengajukan {jenis} ({ref}). Permohonan sedang diproses tim kami.">Konfirmasi Diterima</option>
       </select>
       <textarea id="waMsg" class="filter-input" style="width:100%;height:90px;">Assalamu'alaikum, permohonan Anda {ref} ({jenis}) status: {status}. Cek info lengkap di PTSP KUA Pulau Gorom.</textarea>
