@@ -1045,7 +1045,7 @@ function logActivity(aksi, detail){
       id: DB.nextId.notifikasi++,
       ref: 'BACKUP',
       untuk: currentUser ? currentUser.nama : 'Sistem',
-      pesan: `[${aksi}] ${detail} oleh ${currentUser.role}`,
+      pesan: `[${aksi}] ${detail} oleh ${currentUser.role==='SuperAdmin'?'Super Admin':currentUser.role}`,
       tgl: new Date().toLocaleDateString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}),
       dibaca: false,
       tipe: 'backup'
@@ -1058,12 +1058,12 @@ function logActivity(aksi, detail){
 }
 
 function openBackupModal(){
-  if(!currentUser || !['Super Admin','Admin'].includes(currentUser.role)){
+  if(!currentUser || !['SuperAdmin','Admin'].includes(currentUser.role)){
     toast('⛔ Akses ditolak'); return;
   }
   const backups = listBackups();
   const last = localStorage.getItem(STORE_KEY + '_lastBackup') || '-';
-  const isSuper = currentUser.role === 'Super Admin';
+  const isSuper = currentUser.role === 'SuperAdmin';
   
   const adminButtons = `
     <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:12px;">
@@ -1090,7 +1090,7 @@ function openBackupModal(){
   setModal('💾 Backup & Restore', html);
 }
 function exportBackup(ts){
-  if(!currentUser || currentUser.role !== 'Super Admin'){ toast('⛔ Hanya Super Admin'); return; }
+  if(!currentUser || currentUser.role !== 'SuperAdmin'){ toast('⛔ Hanya Super Admin'); return; }
   try{
     const key = STORE_KEY + '_backup_' + ts;
     const data = localStorage.getItem(key);
@@ -1105,7 +1105,7 @@ function exportBackup(ts){
   }catch(e){ toast('❌ Gagal export'); }
 }
 function exportCurrentDB(){
-  if(!currentUser || currentUser.role !== 'Super Admin'){ toast('⛔ Hanya Super Admin'); return; }
+  if(!currentUser || currentUser.role !== 'SuperAdmin'){ toast('⛔ Hanya Super Admin'); return; }
   try{
     const data = JSON.stringify(DB, null, 2);
     const ts = new Date().toISOString().slice(0,19).replace(/:/g,'-').replace('T','_');
@@ -1119,7 +1119,7 @@ function exportCurrentDB(){
   }catch(e){ toast('❌ Gagal export'); }
 }
 function importBackupFile(file){
-  if(!currentUser || currentUser.role !== 'Super Admin'){ toast('⛔ Hanya Super Admin'); return; }
+  if(!currentUser || currentUser.role !== 'SuperAdmin'){ toast('⛔ Hanya Super Admin'); return; }
   if(!file) return;
   const reader = new FileReader();
   reader.onload = e => {
@@ -1833,7 +1833,7 @@ function initDashboard(){
   // Tampilkan menu Backup hanya untuk Super Admin dan Admin
   const backupBtn = document.getElementById('backupMenuBtn');
   if(backupBtn){
-    backupBtn.style.display = (role==='Super Admin' || role==='Admin') ? 'flex' : 'none';
+    backupBtn.style.display = (role==='SuperAdmin' || role==='Admin') ? 'flex' : 'none';
   }
 
   // First page
