@@ -1201,13 +1201,13 @@ const DEFAULT_DB = {
 
   pengumuman:[
 
-    {id:1,judul:'Jadwal Pelayanan Hari Raya Idul Adha 2026',kategori:'Pengumuman',tgl:'15 Mei 2026',penulis:'Admin',status:'Diterbitkan',isi:'Sehubungan dengan Hari Raya Idul Adha 2026, layanan KUA akan beroperasi sesuai jadwal khusus. Silakan hubungi kami untuk informasi lebih lanjut.'},
+    {id:1,judul:'Jadwal Pelayanan Hari Raya Idul Adha 2026',kategori:'Pengumuman',tgl:'15 Mei 2026',penulis:'Admin',status:'Diterbitkan',isi:'Sehubungan dengan Hari Raya Idul Adha 2026, layanan KUA akan beroperasi sesuai jadwal khusus. Silakan hubungi kami untuk informasi lebih lanjut.',gambar:'',galeri:[]},
 
-    {id:2,judul:'Bimbingan Pranikah Gratis Angkatan Juni 2026',kategori:'Program',tgl:'10 Mei 2026',penulis:'Fatimah',status:'Diterbitkan',isi:'KUA Pulau Gorom membuka pendaftaran bimbingan pranikah gratis untuk pasangan yang akan menikah pada bulan Juni 2026.'},
+    {id:2,judul:'Bimbingan Pranikah Gratis Angkatan Juni 2026',kategori:'Program',tgl:'10 Mei 2026',penulis:'Fatimah',status:'Diterbitkan',isi:'KUA Pulau Gorom membuka pendaftaran bimbingan pranikah gratis untuk pasangan yang akan menikah pada bulan Juni 2026.',gambar:'',galeri:[]},
 
-    {id:3,judul:'Pembaruan Persyaratan Dokumen Nikah 2026',kategori:'Regulasi',tgl:'5 Mei 2026',penulis:'Admin',status:'Diterbitkan',isi:'Terdapat pembaruan persyaratan dokumen nikah berdasarkan peraturan terbaru Kemenag RI tahun 2026.'},
+    {id:3,judul:'Pembaruan Persyaratan Dokumen Nikah 2026',kategori:'Regulasi',tgl:'5 Mei 2026',penulis:'Admin',status:'Diterbitkan',isi:'Terdapat pembaruan persyaratan dokumen nikah berdasarkan peraturan terbaru Kemenag RI tahun 2026.',gambar:'',galeri:[]},
 
-    {id:4,judul:'Layanan Konsultasi Wakaf Online Dibuka',kategori:'Program',tgl:'1 Mei 2026',penulis:'Ahmad',status:'Draf',isi:''},
+    {id:4,judul:'Layanan Konsultasi Wakaf Online Dibuka',kategori:'Program',tgl:'1 Mei 2026',penulis:'Ahmad',status:'Draf',isi:'',gambar:'',galeri:[]},
 
   ],
 
@@ -2164,10 +2164,7 @@ function renderDashboard(){
         <div><h2>Dashboard ${role==='Pimpinan'?'Eksekutif':role}</h2><p>Selamat datang, ${currentUser.nama} — ${new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</p></div>
 
         
-      <div style="display:flex;gap:6px;margin-bottom:16px;border-bottom:2px solid var(--border);">
-        <button class="tab-nav-item" onclick="renderPermohonan('${unitFilter}','${statusFilter}','','list')" style="padding:10px 16px;background:none;border:none;border-bottom:3px solid ${mode==='list'?'var(--gl)':'transparent'};cursor:pointer;font-weight:600;color:${mode==='list'?'var(--gd)':'var(--tl)'};">📋 Daftar Permohonan</button>
-        <button class="tab-nav-item" onclick="renderPermohonan('${unitFilter}','${statusFilter}','','broadcast')" style="padding:10px 16px;background:none;border:none;border-bottom:3px solid ${mode==='broadcast'?'var(--gl)':'transparent'};cursor:pointer;font-weight:600;color:${mode==='broadcast'?'var(--gd)':'var(--tl)'};">📢 Broadcast WA</button>
-      </div>
+
 <div style="display:flex;gap:8px;">
 
           ${role==='SuperAdmin'?`<button class="btn btn-gold btn-sm" onclick="nav('pengguna',null)">👥 Kelola User</button><button class="btn btn-green btn-sm" onclick="nav('permohonan',null)">📋 Permohonan</button><button class="btn btn-blue btn-sm" onclick="nav('output_upload',null)">📤 Upload Output</button><button class="btn btn-purple btn-sm" onclick="nav('disposisi',null)">🔔 Disposisi</button><button class="btn btn-ghost btn-sm" onclick="forceSyncCloud()">☁️ Sync</button>`:''}
@@ -3793,26 +3790,16 @@ function renderPengumuman(){
 
         </div>
 
-        <table><thead><tr><th>#</th><th>Judul</th><th>Kategori</th><th>Tanggal</th><th>Penulis</th><th>Status</th>${canEdit?'<th>Aksi</th>':''}</tr></thead>
-
+        <table><thead><tr><th>#</th><th>Gambar</th><th>Judul</th><th>Kategori</th><th>Tanggal</th><th>Penulis</th><th>Status</th>${canEdit?'<th>Aksi</th>':''}</tr></thead>
         <tbody id="pengBody">${DB.pengumuman.map((p,i)=>`
-
-          <tr><td>${i+1}</td><td><b>${p.judul}</b></td>
-
+          <tr><td>${i+1}</td><td>${p.gambar?`<img src="${p.gambar}" style="width:70px;height:45px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">`:`<span style="color:var(--tl);font-size:.75rem;">-</span>`}${p.galeri&&p.galeri.length?`<div style="font-size:.65rem;color:var(--gl);margin-top:2px;">+${p.galeri.length} foto</div>`:''}</td><td><b>${p.judul}</b></td>
           <td><span class="pill pill-blue">${p.kategori}</span></td>
-
           <td>${p.tgl}</td><td>${p.penulis}</td>
-
           <td><span class="pill ${p.status==='Diterbitkan'?'pill-green':'pill-yellow'}">${p.status}</span></td>
-
           ${canEdit?`<td><div class="td-actions">
-
             <button class="btn btn-blue btn-sm btn-icon" onclick="openPengumumanModal(${p.id})">✏️</button>
-
             <button class="btn btn-red btn-sm btn-icon" onclick="deleteItem('pengumuman',${p.id},'pengumuman')">🗑</button>
-
           </div></td>`:''}</tr>`).join('')}
-
         </tbody></table>
 
       </div>
@@ -3822,41 +3809,72 @@ function renderPengumuman(){
 }
 
 function openPengumumanModal(id=null){
-
   editTarget=id;
-
   const tglPeng=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
-
-  const p=id?DB.pengumuman.find(x=>x.id===id):{judul:'',kategori:'Pengumuman',tgl:tglPeng,penulis:currentUser.nama,status:'Draf',isi:''};
-
+  const p=id?DB.pengumuman.find(x=>x.id===id):{judul:'',kategori:'Pengumuman',tgl:tglPeng,penulis:currentUser.nama,status:'Draf',isi:'',gambar:'',galeri:[]};
+  window.tempGambar = p.gambar||'';
+  window.tempGaleri = p.galeri||[];
+  
   setModal(`${id?'Edit':'Buat'} Artikel`,`
-
     <div class="fg"><label>Judul</label><input id="fNama" value="${p.judul}"></div>
-
     <div class="form-row">
-
-      <div class="fg"><label>Kategori</label><select id="fKat"><option ${p.kategori==='Pengumuman'?'selected':''}>Pengumuman</option><option ${p.kategori==='Program'?'selected':''}>Program</option><option ${p.kategori==='Regulasi'?'selected':''}>Regulasi</option><option ${p.kategori==='Berita'?'selected':''}>Berita</option></select></div>
-
+      <div class="fg"><label>Kategori</label><select id="fKat" onchange="document.getElementById('galeriWrap').style.display=this.value==='Berita'?'block':'none'"><option ${p.kategori==='Pengumuman'?'selected':''}>Pengumuman</option><option ${p.kategori==='Program'?'selected':''}>Program</option><option ${p.kategori==='Regulasi'?'selected':''}>Regulasi</option><option ${p.kategori==='Berita'?'selected':''}>Berita</option></select></div>
       <div class="fg"><label>Status</label><select id="fStatus"><option ${p.status==='Draf'?'selected':''}>Draf</option><option ${p.status==='Diterbitkan'?'selected':''}>Diterbitkan</option></select></div>
-
     </div>
-
     <div class="fg"><label>Tanggal</label><input id="fTgl" value="${p.tgl}"></div>
-
-    <div class="fg"><label>Isi Artikel</label><textarea id="fDesk" rows="5">${p.isi||''}</textarea></div>`,()=>{
-
-    const d={judul:v('fNama'),kategori:v('fKat'),status:v('fStatus'),tgl:v('fTgl'),penulis:currentUser.nama,isi:v('fDesk')};
-
+    <div class="fg"><label>Isi Artikel</label><textarea id="fDesk" rows="5">${p.isi||''}</textarea></div>
+    <div class="fg"><label>Gambar Cover (otomatis crop 800×450)</label><input type="file" id="fImg" accept="image/*"><div style="margin-top:8px;"><img id="imgPrev" src="${p.gambar||''}" style="max-width:100%;max-height:180px;border-radius:8px;border:1px solid var(--border);display:${p.gambar?'block':'none'};object-fit:cover;"></div><small style="color:var(--tl);">Gambar akan otomatis di-crop ke rasio 16:9 agar seragam di dashboard.</small></div>
+    <div class="fg" id="galeriWrap" style="display:${p.kategori==='Berita'?'block':'none'};"><label>Galeri Berita (pilih banyak foto)</label><input type="file" id="fGaleri" accept="image/*" multiple><div id="galeriPrev" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">${(p.galeri||[]).map(g=>`<div style="position:relative;"><img src="${g}" style="width:90px;height:68px;object-fit:cover;border-radius:6px;border:1px solid var(--border);"><span onclick="hapusGaleri('${g}')" style="position:absolute;top:-6px;right:-6px;background:var(--redf);color:#fff;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;cursor:pointer;">×</span></div>`).join('')}</div></div>
+  `,()=>{
+    const d={judul:v('fNama'),kategori:v('fKat'),status:v('fStatus'),tgl:v('fTgl'),penulis:currentUser.nama,isi:v('fDesk'),gambar:window.tempGambar||'',galeri:window.tempGaleri||[]};
     if(!d.judul){toast('⚠️ Judul wajib!');return;}
-
     if(editTarget){Object.assign(DB.pengumuman.find(x=>x.id===editTarget),{...d,id:editTarget});}
-
     else{DB.pengumuman.push({...d,id:DB.nextId.pengumuman++});}
-
-    saveDB();closeModal('crudModal');renderPengumuman();toast('✅ Artikel disimpan!');
-
+    saveDB();closeModal('crudModal');renderPengumuman();toast('✅ Artikel disimpan dengan gambar!');
   });
+  
+  // auto resize cover
+  document.getElementById('fImg').addEventListener('change',async e=>{
+    const file=e.target.files[0]; if(!file) return;
+    const img=await resizeCropImage(file,800,450);
+    window.tempGambar=img;
+    const prev=document.getElementById('imgPrev'); prev.src=img; prev.style.display='block';
+    toast('✅ Gambar di-crop otomatis 800×450');
+  });
+  // galeri
+  document.getElementById('fGaleri').addEventListener('change',async e=>{
+    const files=[...e.target.files]; if(!files.length) return;
+    for(const f of files){
+      const img=await resizeCropImage(f,800,600);
+      window.tempGaleri.push(img);
+    }
+    renderGaleriPrev();
+    toast(`✅ ${files.length} foto ditambahkan ke galeri`);
+  });
+}
 
+function renderGaleriPrev(){
+  const wrap=document.getElementById('galeriPrev');
+  if(!wrap) return;
+  wrap.innerHTML=(window.tempGaleri||[]).map((g,i)=>`<div style="position:relative;"><img src="${g}" style="width:90px;height:68px;object-fit:cover;border-radius:6px;border:1px solid var(--border);"><span onclick="hapusGaleri(${i})" style="position:absolute;top:-6px;right:-6px;background:var(--redf);color:#fff;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;cursor:pointer;">×</span></div>`).join('');
+}
+function hapusGaleri(i){ window.tempGaleri.splice(i,1); renderGaleriPrev(); }
+
+async function resizeCropImage(file,w,h){
+  return new Promise(res=>{
+    const img=new Image(); const url=URL.createObjectURL(file);
+    img.onload=()=>{
+      const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
+      const ctx=canvas.getContext('2d');
+      const ratio=Math.max(w/img.width, h/img.height);
+      const nw=img.width*ratio, nh=img.height*ratio;
+      const ox=(w-nw)/2, oy=(h-nh)/2;
+      ctx.drawImage(img,ox,oy,nw,nh);
+      URL.revokeObjectURL(url);
+      res(canvas.toDataURL('image/jpeg',0.85));
+    };
+    img.src=url;
+  });
 }
 
  
@@ -5467,29 +5485,20 @@ function renderPengumumanPub(){
       <div class="page-hdr"><h2>Pengumuman & Berita</h2><p>${data.length} pengumuman diterbitkan</p></div>
 
       ${data.map(p=>`
-
-        <div class="pengumuman-card" style="margin-bottom:12px;">
-
-          <div class="pengumuman-icon">${p.kategori==='Program'?'🌟':p.kategori==='Regulasi'?'📑':'📢'}</div>
-
-          <div class="pengumuman-body">
-
-            <h4>${p.judul}</h4>
-
-            <p>${p.isi||'Klik untuk membaca selengkapnya.'}</p>
-
-            <div class="meta">
-
-              <span class="pill pill-blue" style="font-size:.65rem;">${p.kategori}</span>
-
-              <span>📅 ${p.tgl}</span>
-
-              <span>✍️ ${p.penulis}</span>
-
+        <div class="pengumuman-card" style="margin-bottom:16px;flex-direction:column;align-items:stretch;">
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+            ${p.gambar?`<img src="${p.gambar}" style="width:140px;height:90px;object-fit:cover;border-radius:8px;border:1px solid var(--border);flex-shrink:0;">`:`<div class="pengumuman-icon" style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:var(--bg);border-radius:8px;">${p.kategori==='Program'?'🌟':p.kategori==='Regulasi'?'📑':p.kategori==='Berita'?'📰':'📢'}</div>`}
+            <div class="pengumuman-body" style="flex:1;">
+              <h4>${p.judul}</h4>
+              <p>${p.isi||'Klik untuk membaca selengkapnya.'}</p>
+              <div class="meta">
+                <span class="pill pill-blue" style="font-size:.65rem;">${p.kategori}</span>
+                <span>📅 ${p.tgl}</span>
+                <span>✍️ ${p.penulis}</span>
+              </div>
             </div>
-
           </div>
-
+          ${p.galeri&&p.galeri.length?`<div style="display:flex;gap:6px;margin-top:12px;overflow-x:auto;padding-top:8px;border-top:1px solid var(--border);">${p.galeri.map(g=>`<img src="${g}" style="width:100px;height:75px;object-fit:cover;border-radius:6px;cursor:pointer;" onclick="window.open('${g}','_blank')">`).join('')}</div>`:''}
         </div>`).join('')}
 
       ${data.length===0?'<p style="color:var(--tl);">Belum ada pengumuman yang diterbitkan.</p>':''}
