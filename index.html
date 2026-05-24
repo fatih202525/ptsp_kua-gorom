@@ -675,6 +675,12 @@ tr:hover td{background:rgba(250,246,238,.7);}
    <div class="sb-divider">
    </div>
    <div class="sb-bottom">
+    <div class="sb-item" onclick="openBackupModal()" style="color:rgba(100,200,255,.85);">
+     <span class="ic">
+      💾
+     </span>
+     Backup & Restore
+    </div>
     <div class="sb-item" onclick="doLogout()" style="color:rgba(255,100,100,.7);">
      <span class="ic">
       🚪
@@ -913,10 +919,14 @@ async function initFirebase() {
 
           const data = snapshot.val();
 
-          if (data && data.permohonan) {
+          if (data && typeof data === 'object') {
 
-            DB = {...JSON.parse(JSON.stringify(DEFAULT_DB)), ...data};
-            ['permohonan','disposisi','arsip','notifikasi','syarat','jenis','unit','pengguna'].forEach(k=>{if(!Array.isArray(DB[k])) DB[k]=DEFAULT_DB[k];});
+            // JANGAN merge dengan DEFAULT_DB — ini yang bikin data kembali ke default
+            DB = data;
+            // Pastikan struktur array tetap ada untuk kompatibilitas
+            const keys = ['permohonan','disposisi','arsip','notifikasi','syarat','jenis','unit','pengguna','output','akses','menu','pengumuman','layananWeb','dokumenPublik'];
+            keys.forEach(k=>{if(!Array.isArray(DB[k])) DB[k]=[];});
+            if(!DB.nextId) DB.nextId = {};
 
             try { localStorage.setItem(STORE_KEY, JSON.stringify(DB)); } catch(e) {}
 
@@ -989,6 +999,7 @@ async function initFirebase() {
 /* ---------- Simpan ke Firebase + localStorage ---------- */
 
 function saveDB() {
+  // Simpan apa adanya — jangan tambah data default
 
   try { localStorage.setItem(STORE_KEY, JSON.stringify(DB)); } catch(e) {}
 
@@ -1010,21 +1021,147 @@ function saveDB() {
 
 }
 
+function restoreBackup(ts=null){
+  try {
+    const key = ts ? STORE_KEY + '_backup_' + ts : STORE_KEY + '_lastBackup';
+    const actualTs = ts || localStorage.getItem(STORE_KEY + '_lastBackup');
+    if(!actualTs){ toast('⚠️ Tidak ada backup'); return; }
+    const backupKey = STORE_KEY + '_backup_' + actualTs;
+    const data = localStorage.getItem(backupKey);
+    if(!data){ toast('❌ Backup tidak ditemukan'); return; }
+    DB = JSON.parse(data);
+    saveDB();
+    toast('✅ Backup '+actualTs+' dipulihkan');
+    logActivity('RESTORE', 'Backup '+actualTs);
+    setTimeout(()=>location.reload(), 800);
+  } catch(e){ toast('❌ Gagal restore'); }
+}
+function logActivity(aksi, detail){
+  try{
+    if(!DB.notifikasi) DB.notifikasi = [];
+    if(!DB.nextId) DB.nextId = {};
+    if(!DB.nextId.notifikasi) DB.nextId.notifikasi = 1;
+    DB.notifikasi.unshift({
+      id: DB.nextId.notifikasi++,
+      ref: 'BACKUP',
+      untuk: currentUser ? currentUser.nama : 'Sistem',
+      pesan: `[${aksi}] ${detail} oleh ${currentUser.role}`,
+      tgl: new Date().toLocaleDateString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}),
+      dibaca: false,
+      tipe: 'backup'
+    });
+    // batasi 100 notifikasi terbaru
+    if(DB.notifikasi.length > 100) DB.notifikasi = DB.notifikasi.slice(0,100);
+    saveDB();
+    updateNotifBadge();
+  }catch(e){ console.warn('log gagal',e); }
+}
+
+function openBackupModal(){
+  if(!currentUser || !['Super Admin','Admin'].includes(currentUser.role)){
+    toast('⛔ Akses ditolak'); return;
+  }
+  const backups = listBackups();
+  const last = localStorage.getItem(STORE_KEY + '_lastBackup') || '-';
+  const isSuper = currentUser.role === 'Super Admin';
+  
+  const adminButtons = `
+    <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:12px;">
+      <button class="btn" onclick="restoreBackup(document.getElementById('backupSelect').value)" style="background:var(--gl);color:#fff;">🔄 Restore Backup Terpilih</button>
+    </div>`;
+  
+  const superButtons = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+      <button class="btn" onclick="restoreBackup(document.getElementById('backupSelect').value)" style="background:var(--gl);color:#fff;">🔄 Restore</button>
+      <button class="btn" onclick="exportBackup(document.getElementById('backupSelect').value)" style="background:var(--blue);color:#fff;">💾 Export .json</button>
+      <button class="btn" onclick="exportCurrentDB()" style="background:var(--gold);color:#fff;">📤 Export Data Saat Ini</button>
+      <label class="btn" style="background:var(--purple);color:#fff;cursor:pointer;text-align:center;">📥 Import .json<input type="file" accept=".json" onchange="importBackupFile(this.files[0])" style="display:none;"></label>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="btn" onclick="if(confirm('Hapus semua backup lokal?')){listBackups().forEach(b=>localStorage.removeItem(STORE_KEY+'_backup_'+b));toast('🗑️ Backup dihapus');closeModal('crudModal');}" style="background:var(--red);color:#fff;flex:1;">Hapus Semua Backup Lokal</button>
+    </div>`;
+  
+  const html = `
+    <div class="fg"><label>Backup Otomatis Terakhir</label><div style="padding:8px;background:var(--bg);border-radius:6px;font-family:monospace;">${last}</div></div>
+    <div class="fg"><label>Pilih Backup untuk Restore</label><select id="backupSelect" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);">${backups.map(b=>`<option value="${b}">${b.replace('_',' ')} (${new Date(b.replace(/_/g,':').replace('-','T')).toLocaleString('id-ID')})</option>`).join('') || '<option>Tidak ada backup</option>'}</select></div>
+    ${isSuper ? superButtons : adminButtons}
+    <small style="color:var(--tl);display:block;margin-top:10px;">${isSuper ? 'Super Admin: full akses export/import.' : 'Admin: hanya bisa restore backup lokal.'} Backup otomatis dibuat sebelum sync (max 10).</small>
+  `;
+  setModal('💾 Backup & Restore', html);
+}
+function exportBackup(ts){
+  if(!currentUser || currentUser.role !== 'Super Admin'){ toast('⛔ Hanya Super Admin'); return; }
+  try{
+    const key = STORE_KEY + '_backup_' + ts;
+    const data = localStorage.getItem(key);
+    if(!data){ toast('❌ Backup tidak ditemukan'); return; }
+    const blob = new Blob([data], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `backup-ptsp-${ts}.json`;
+    a.click();
+    toast('✅ Backup diexport');
+    logActivity('EXPORT', 'Backup '+ts);
+  }catch(e){ toast('❌ Gagal export'); }
+}
+function exportCurrentDB(){
+  if(!currentUser || currentUser.role !== 'Super Admin'){ toast('⛔ Hanya Super Admin'); return; }
+  try{
+    const data = JSON.stringify(DB, null, 2);
+    const ts = new Date().toISOString().slice(0,19).replace(/:/g,'-').replace('T','_');
+    const blob = new Blob([data], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `ptsp-data-${ts}.json`;
+    a.click();
+    toast('✅ Data saat ini diexport');
+    logActivity('EXPORT', 'Data lengkap');
+  }catch(e){ toast('❌ Gagal export'); }
+}
+function importBackupFile(file){
+  if(!currentUser || currentUser.role !== 'Super Admin'){ toast('⛔ Hanya Super Admin'); return; }
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const imported = JSON.parse(e.target.result);
+      if(!imported.permohonan){ if(!confirm('File tidak terlihat seperti data PTSP. Lanjutkan?')) return; }
+      if(confirm('Import akan MENGGANTI semua data saat ini. Yakin?')){
+        DB = imported;
+        saveDB();
+        logActivity('IMPORT', 'File '+(file.name||'json'));
+        toast('✅ Data berhasil diimport, reload...');
+        setTimeout(()=>location.reload(), 1000);
+      }
+    }catch(err){ toast('❌ File JSON tidak valid'); }
+  };
+  reader.readAsText(file);
+}
+
+function listBackups(){
+  const keys = Object.keys(localStorage).filter(k=>k.startsWith(STORE_KEY+'_backup_')).sort().reverse();
+  return keys.map(k=>k.replace(STORE_KEY+'_backup_',''));
+}
+
  
 
 /* ---------- Load awal dari localStorage ---------- */
 
 function loadDB() {
-
-  try { const s = localStorage.getItem(STORE_KEY); if (s) {
-    const parsed = JSON.parse(s);
-    const merged = {...JSON.parse(JSON.stringify(DEFAULT_DB)), ...parsed};
-    ['permohonan','disposisi','arsip','notifikasi','syarat','jenis','unit','pengguna','output','akses','menu'].forEach(k=>{if(!Array.isArray(merged[k])) merged[k]=DEFAULT_DB[k];});
-    return merged;
-  }} catch(e) {}
-
+  try { 
+    const s = localStorage.getItem(STORE_KEY); 
+    if (s) {
+      const parsed = JSON.parse(s);
+      // Jangan merge dengan DEFAULT_DB lagi — pakai data asli user
+      // Pastikan semua key array ada (jaga kompatibilitas)
+      const keys = ['permohonan','disposisi','arsip','notifikasi','syarat','jenis','unit','pengguna','output','akses','menu','pengumuman','layananWeb','dokumenPublik'];
+      keys.forEach(k=>{if(!Array.isArray(parsed[k])) parsed[k]=[];});
+      if(!parsed.nextId) parsed.nextId = JSON.parse(JSON.stringify(DEFAULT_DB.nextId));
+      return parsed;
+    }
+  } catch(e) { console.error('loadDB error', e); }
+  // Pertama kali saja pakai DEFAULT_DB
   return JSON.parse(JSON.stringify(DEFAULT_DB));
-
 }
 
  
@@ -1692,6 +1829,12 @@ function initDashboard(){
   buildSidebar(role);
 
   buildTabNav(role);
+
+  // Tampilkan menu Backup hanya untuk Super Admin dan Admin
+  const backupBtn = document.getElementById('backupMenuBtn');
+  if(backupBtn){
+    backupBtn.style.display = (role==='Super Admin' || role==='Admin') ? 'flex' : 'none';
+  }
 
   // First page
 
