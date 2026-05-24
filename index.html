@@ -3814,6 +3814,7 @@ function openPengumumanModal(id=null){
   const p=id?DB.pengumuman.find(x=>x.id===id):{judul:'',kategori:'Pengumuman',tgl:tglPeng,penulis:currentUser.nama,status:'Draf',isi:'',gambar:'',galeri:[],isBanner:false};
   window.tempGambar = p.gambar||'';
   window.tempGaleri = p.galeri||[];
+  setTimeout(()=>{const cb=document.getElementById('fBanner'); if(cb && cb.checked){document.getElementById('fDesk').parentElement.style.display='none';}},50);
   
   setModal(`${id?'Edit':'Buat'} Artikel`,`
     <div class="fg"><label>Judul</label><input id="fNama" value="${p.judul}"></div>
@@ -3844,7 +3845,7 @@ function openPengumumanModal(id=null){
     let img;
     if(isGif || isBanner){
       img = await fileToDataURL(file);
-      toast('✅ Gambar dimuat tanpa crop (pertahankan kualitas/GIF)');
+      toast('✅ Gambar dimuat utuh tanpa crop (JPG/PNG/GIF dipertahankan)');
     } else {
       img=await resizeCropImage(file,800,450);
       toast('✅ Gambar berhasil di-crop 800×450');
@@ -4893,7 +4894,11 @@ function renderBeranda(){
 
           <div class="page-hdr" style="margin-bottom:16px;"><h2 style="font-size:1rem;">📢 Pengumuman Terbaru</h2></div>
 
-          ${latestPengumuman.map(p=>`
+          ${latestPengumuman.map(p=> p.isBanner ? `
+
+            <div style="margin-bottom:12px;">
+              ${p.gambar?`<img src="${p.gambar}" style="width:100%;height:auto;border-radius:8px;display:block;">`:''}
+            </div>` : `
 
             <div class="pengumuman-card">
 
@@ -5494,7 +5499,7 @@ function renderRiwayat(){
 
 function renderPengumumanPub(){
 
-  const data=DB.pengumuman.filter(p=>p.status==='Diterbitkan');
+  const data=DB.pengumuman.filter(p=>p.status==='Diterbitkan').sort((a,b)=>(b.isBanner?1:0)-(a.isBanner?1:0));
 
   setContent(`
 
@@ -5503,12 +5508,8 @@ function renderPengumumanPub(){
       <div class="page-hdr"><h2>Pengumuman & Berita</h2><p>${data.length} pengumuman diterbitkan</p></div>
 
       ${data.map(p=> p.isBanner ? `
-        <div class="pengumuman-card" style="margin-bottom:20px;padding:0;overflow:hidden;border:2px solid var(--gold);">
-          <img src="${p.gambar}" style="width:100%;max-height:520px;object-fit:contain;display:block;background:#000;">
-          <div style="padding:14px 18px;background:linear-gradient(135deg,var(--bg),#fff);display:flex;justify-content:space-between;align-items:center;gap:12px;">
-            <div><h4 style="margin:0;font-size:1rem;">${p.judul||'Banner Informasi'}</h4><div style="font-size:.75rem;color:var(--tl);margin-top:3px;">📅 ${p.tgl} · ✍️ ${p.penulis}</div></div>
-            <span class="pill pill-gold" style="background:var(--gold);color:#fff;">BANNER</span>
-          </div>
+        <div style="margin-bottom:24px;">
+          <img src="${p.gambar}" style="width:100%;height:auto;display:block;border-radius:12px;box-shadow:var(--shadow);"> 
         </div>` : `
         <div class="pengumuman-card" style="margin-bottom:16px;flex-direction:column;align-items:stretch;">
           <div style="display:flex;gap:16px;align-items:flex-start;">
