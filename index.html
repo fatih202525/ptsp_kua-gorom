@@ -3792,7 +3792,7 @@ function renderPengumuman(){
 
         <table><thead><tr><th>#</th><th>Gambar</th><th>Judul</th><th>Kategori</th><th>Tanggal</th><th>Penulis</th><th>Status</th>${canEdit?'<th>Aksi</th>':''}</tr></thead>
         <tbody id="pengBody">${DB.pengumuman.map((p,i)=>`
-          <tr><td>${i+1}</td><td>${p.gambar?`<img src="${p.gambar}" style="width:70px;height:45px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">`:`<span style="color:var(--tl);font-size:.75rem;">-</span>`}${p.galeri&&p.galeri.length?`<div style="font-size:.65rem;color:var(--gl);margin-top:2px;">+${p.galeri.length} foto</div>`:''}</td><td><b>${p.judul}</b></td>
+          <tr><td>${i+1}</td><td>${p.gambar?`<img src="${p.gambar}" style="width:70px;height:45px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">`:`<span style="color:var(--tl);font-size:.75rem;">-</span>`}${p.isBanner?`<div style="font-size:.6rem;color:#fff;background:var(--gold);padding:1px 5px;border-radius:4px;margin-top:2px;display:inline-block;">BANNER</div>`:''}${p.galeri&&p.galeri.length?`<div style="font-size:.65rem;color:var(--gl);margin-top:2px;">+${p.galeri.length} foto</div>`:''}</td><td><b>${p.judul}</b></td>
           <td><span class="pill pill-blue">${p.kategori}</span></td>
           <td>${p.tgl}</td><td>${p.penulis}</td>
           <td><span class="pill ${p.status==='Diterbitkan'?'pill-green':'pill-yellow'}">${p.status}</span></td>
@@ -3811,7 +3811,7 @@ function renderPengumuman(){
 function openPengumumanModal(id=null){
   editTarget=id;
   const tglPeng=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
-  const p=id?DB.pengumuman.find(x=>x.id===id):{judul:'',kategori:'Pengumuman',tgl:tglPeng,penulis:currentUser.nama,status:'Draf',isi:'',gambar:'',galeri:[]};
+  const p=id?DB.pengumuman.find(x=>x.id===id):{judul:'',kategori:'Pengumuman',tgl:tglPeng,penulis:currentUser.nama,status:'Draf',isi:'',gambar:'',galeri:[],isBanner:false};
   window.tempGambar = p.gambar||'';
   window.tempGaleri = p.galeri||[];
   
@@ -3823,11 +3823,14 @@ function openPengumumanModal(id=null){
     </div>
     <div class="fg"><label>Tanggal</label><input id="fTgl" value="${p.tgl}"></div>
     <div class="fg"><label>Isi Artikel</label><textarea id="fDesk" rows="5">${p.isi||''}</textarea></div>
-    <div class="fg"><label>Gambar Cover (otomatis crop 800×450)</label><input type="file" id="fImg" accept="image/*"><div style="margin-top:8px;"><img id="imgPrev" src="${p.gambar||''}" style="max-width:100%;max-height:180px;border-radius:8px;border:1px solid var(--border);display:${p.gambar?'block':'none'};object-fit:cover;"></div><small style="color:var(--tl);">Gambar akan otomatis di-crop ke rasio 16:9 agar seragam di dashboard.</small></div>
+    <div class="fg" style="background:var(--bg);padding:10px;border-radius:8px;border:1.5px dashed var(--gl);"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="fBanner" ${p.isBanner?'checked':''} onchange="document.getElementById('fDesk').parentElement.style.display=this.checked?'none':'block';document.getElementById('fNama').placeholder=this.checked?'Opsional - akan otomatis diisi':'';"> <span><b>Mode Banner/Flyer</b> — upload 1 gambar saja (tanpa teks berita), langsung tayang sebagai informasi utama. Support GIF animasi.</span></label></div>
+    <div class="fg"><label>Gambar Cover / Banner (JPG, PNG, GIF)</label><input type="file" id="fImg" accept="image/*,.gif"><div style="margin-top:8px;"><img id="imgPrev" src="${p.gambar||''}" style="max-width:100%;max-height:220px;border-radius:8px;border:1px solid var(--border);display:${p.gambar?'block':'none'};object-fit:contain;background:#fff;"></div><small style="color:var(--tl);">• Mode biasa: otomatis crop 800×450 (JPG/PNG). • Mode Banner/GIF: gambar asli dipertahankan (tidak di-crop) agar kualitas & animasi tetap.</small></div>
     <div class="fg" id="galeriWrap" style="display:${p.kategori==='Berita'?'block':'none'};"><label>Galeri Berita (pilih banyak foto)</label><input type="file" id="fGaleri" accept="image/*" multiple><div id="galeriPrev" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">${(p.galeri||[]).map(g=>`<div style="position:relative;"><img src="${g}" style="width:90px;height:68px;object-fit:cover;border-radius:6px;border:1px solid var(--border);"><span onclick="hapusGaleri('${g}')" style="position:absolute;top:-6px;right:-6px;background:var(--redf);color:#fff;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;cursor:pointer;">×</span></div>`).join('')}</div></div>
   `,()=>{
-    const d={judul:v('fNama'),kategori:v('fKat'),status:v('fStatus'),tgl:v('fTgl'),penulis:currentUser.nama,isi:v('fDesk'),gambar:window.tempGambar||'',galeri:window.tempGaleri||[]};
-    if(!d.judul){toast('⚠️ Judul wajib!');return;}
+    const isBanner=document.getElementById('fBanner').checked;
+    const d={judul:v('fNama')|| (isBanner?'Banner Pengumuman':''),kategori:v('fKat'),status:v('fStatus'),tgl:v('fTgl'),penulis:currentUser.nama,isi:isBanner?'':v('fDesk'),gambar:window.tempGambar||'',galeri:window.tempGaleri||[],isBanner};
+    if(!isBanner && !d.judul){toast('⚠️ Judul wajib!');return;}
+    if(!d.gambar){toast('⚠️ Gambar wajib diunggah!');return;}
     if(editTarget){Object.assign(DB.pengumuman.find(x=>x.id===editTarget),{...d,id:editTarget});}
     else{DB.pengumuman.push({...d,id:DB.nextId.pengumuman++});}
     saveDB();closeModal('crudModal');renderPengumuman();toast('✅ Artikel disimpan dengan gambar!');
@@ -3836,10 +3839,18 @@ function openPengumumanModal(id=null){
   // auto resize cover
   document.getElementById('fImg').addEventListener('change',async e=>{
     const file=e.target.files[0]; if(!file) return;
-    const img=await resizeCropImage(file,800,450);
+    const isBanner=document.getElementById('fBanner')?.checked;
+    const isGif=file.type==='image/gif';
+    let img;
+    if(isGif || isBanner){
+      img = await fileToDataURL(file);
+      toast('✅ Gambar dimuat tanpa crop (pertahankan kualitas/GIF)');
+    } else {
+      img=await resizeCropImage(file,800,450);
+      toast('✅ Gambar berhasil di-crop 800×450');
+    }
     window.tempGambar=img;
     const prev=document.getElementById('imgPrev'); prev.src=img; prev.style.display='block';
-    toast('✅ Gambar di-crop otomatis 800×450');
   });
   // galeri
   document.getElementById('fGaleri').addEventListener('change',async e=>{
@@ -3874,6 +3885,13 @@ async function resizeCropImage(file,w,h){
       res(canvas.toDataURL('image/jpeg',0.85));
     };
     img.src=url;
+  });
+}
+function fileToDataURL(file){
+  return new Promise(res=>{
+    const r=new FileReader();
+    r.onload=()=>res(r.result);
+    r.readAsDataURL(file);
   });
 }
 
@@ -5484,7 +5502,14 @@ function renderPengumumanPub(){
 
       <div class="page-hdr"><h2>Pengumuman & Berita</h2><p>${data.length} pengumuman diterbitkan</p></div>
 
-      ${data.map(p=>`
+      ${data.map(p=> p.isBanner ? `
+        <div class="pengumuman-card" style="margin-bottom:20px;padding:0;overflow:hidden;border:2px solid var(--gold);">
+          <img src="${p.gambar}" style="width:100%;max-height:520px;object-fit:contain;display:block;background:#000;">
+          <div style="padding:14px 18px;background:linear-gradient(135deg,var(--bg),#fff);display:flex;justify-content:space-between;align-items:center;gap:12px;">
+            <div><h4 style="margin:0;font-size:1rem;">${p.judul||'Banner Informasi'}</h4><div style="font-size:.75rem;color:var(--tl);margin-top:3px;">📅 ${p.tgl} · ✍️ ${p.penulis}</div></div>
+            <span class="pill pill-gold" style="background:var(--gold);color:#fff;">BANNER</span>
+          </div>
+        </div>` : `
         <div class="pengumuman-card" style="margin-bottom:16px;flex-direction:column;align-items:stretch;">
           <div style="display:flex;gap:16px;align-items:flex-start;">
             ${p.gambar?`<img src="${p.gambar}" style="width:140px;height:90px;object-fit:cover;border-radius:8px;border:1px solid var(--border);flex-shrink:0;">`:`<div class="pengumuman-icon" style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:var(--bg);border-radius:8px;">${p.kategori==='Program'?'🌟':p.kategori==='Regulasi'?'📑':p.kategori==='Berita'?'📰':'📢'}</div>`}
