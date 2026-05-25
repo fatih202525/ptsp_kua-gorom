@@ -1056,6 +1056,25 @@ function logActivity(aksi, detail){
     updateNotifBadge();
   }catch(e){ console.warn('log gagal',e); }
 }
+function showBackupLogs(){
+  const logs = (DB.notifikasi || []).filter(n => n.tipe==='backup' || (n.pesan && n.pesan.includes('[') && (n.pesan.includes('RESTORE')||n.pesan.includes('EXPORT')||n.pesan.includes('IMPORT'))));
+  const html = `
+    <div style="max-height:400px;overflow:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
+        <thead><tr style="background:var(--bg);"><th style="padding:6px;text-align:left;">Waktu</th><th style="padding:6px;text-align:left;">Aksi</th><th style="padding:6px;text-align:left;">Pelaku</th></tr></thead>
+        <tbody>
+          ${logs.length ? logs.map(l=>`<tr style="border-bottom:1px solid var(--border);"><td style="padding:6px;">${l.tgl}</td><td style="padding:6px;">${l.pesan.replace(' oleh Super Admin','').replace(' oleh Admin','')}</td><td style="padding:6px;">${l.untuk}</td></tr>`).join('') : '<tr><td colspan=3 style="padding:20px;text-align:center;color:var(--tl);">Belum ada log</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;">
+      <button class="btn" onclick="openBackupModal()" style="background:var(--gl);color:#fff;flex:1;">← Kembali</button>
+      <button class="btn" onclick="if(confirm('Hapus semua log backup?')){DB.notifikasi = DB.notifikasi.filter(n=>n.tipe!=='backup'); saveDB(); showBackupLogs();}" style="background:var(--red);color:#fff;">Hapus Log</button>
+    </div>
+  `;
+  setModal('📋 Log Aktivitas Backup', html);
+}
+
 
 function openBackupModal(){
   if(!currentUser || !['SuperAdmin','Admin'].includes(currentUser.role)){
@@ -1077,8 +1096,9 @@ function openBackupModal(){
       <button class="btn" onclick="exportCurrentDB()" style="background:var(--gold);color:#fff;">📤 Export Data Saat Ini</button>
       <label class="btn" style="background:var(--purple);color:#fff;cursor:pointer;text-align:center;">📥 Import .json<input type="file" accept=".json" onchange="importBackupFile(this.files[0])" style="display:none;"></label>
     </div>
-    <div style="display:flex;gap:8px;margin-top:8px;">
-      <button class="btn" onclick="if(confirm('Hapus semua backup lokal?')){listBackups().forEach(b=>localStorage.removeItem(STORE_KEY+'_backup_'+b));toast('🗑️ Backup dihapus');closeModal('crudModal');}" style="background:var(--red);color:#fff;flex:1;">Hapus Semua Backup Lokal</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+      <button class="btn" onclick="showBackupLogs()" style="background:var(--tl);color:#fff;">📋 Lihat Log Backup</button>
+      <button class="btn" onclick="if(confirm('Hapus semua backup lokal?')){listBackups().forEach(b=>localStorage.removeItem(STORE_KEY+'_backup_'+b));toast('🗑️ Backup dihapus');closeModal('crudModal');}" style="background:var(--red);color:#fff;">Hapus Semua Backup</button>
     </div>`;
   
   const html = `
@@ -2855,6 +2875,8 @@ function openStatusModal(id){
 
         <option ${p.status==='Diproses'?'selected':''}>Diproses</option>
 
+        <option ${p.status==='Dikembalikan/Revisi'?'selected':''}>Dikembalikan/Revisi</option>
+
         <option ${p.status==='Selesai'?'selected':''}>Selesai</option>
 
         <option ${p.status==='Ditolak'?'selected':''}>Ditolak</option>
@@ -2874,9 +2896,23 @@ function openStatusModal(id){
 
   `,async ()=>{
 
-    p.status=v('fStatus');p.catatan=v('fCatatan');
+    const oldStatus = p.status;
+p.status=v('fStatus');p.catatan=v('fCatatan');
 
-    saveDB();closeModal('crudModal');renderPage(currentPage);updateNotifCount();
+    saveDB();
+    // Notifikasi internal jika Dikembalikan/Revisi
+    if(p.status === 'Dikembalikan/Revisi' && oldStatus !== 'Dikembalikan/Revisi'){
+      DB.notifikasi.unshift({
+        id: DB.nextId.notifikasi++,
+        ref: p.ref,
+        untuk: p.nama,
+        pesan: `Berkas perlu diperbaiki: ${p.catatan || 'Hubungi PTSP'}`,
+        tgl: new Date().toLocaleDateString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}),
+        dibaca: false,
+        tipe: 'revisi'
+      });
+      saveDB();
+    }closeModal('crudModal');renderPage(currentPage);updateNotifCount();
 
     toast(`✅ Status ${p.ref} → "${p.status}"`);
 
@@ -2885,9 +2921,15 @@ function openStatusModal(id){
     const cfg=getWAConfig();
     if(p.telp && cfg.token){
       const tpls=getWATemplates();
-      const tpl=tpls.find(t=>t.name.includes('Status'))||tpls[0];
-      let pesan=tpl.text.replace(/{nama}/g,p.nama).replace(/{ref}/g,p.ref).replace(/{jenis}/g,p.jenis).replace(/{status}/g,p.status);
-      if(p.catatan) pesan+=`\nCatatan: ${p.catatan}`;
+      let pesan = '';
+      // Template khusus untuk Dikembalikan/Revisi
+      if(p.status === 'Dikembalikan/Revisi'){
+        pesan = `Yth. ${p.nama},\n\nPermohonan Anda Ref: ${p.ref} (${p.jenis}) perlu *DIKEMBALIKAN/REVISI*.\n\nMohon perbaiki berkas sesuai catatan berikut:\n${p.catatan || 'Silakan hubungi PTSP untuk detail'}\n\nSilakan unggah ulang berkas melalui loket PTSP.\n\nTerima kasih.\nPTSP Kemenag Ambon`;
+      } else {
+        const tpl=tpls.find(t=>t.name.includes('Status'))||tpls[0];
+        pesan=tpl.text.replace(/{nama}/g,p.nama).replace(/{ref}/g,p.ref).replace(/{jenis}/g,p.jenis).replace(/{status}/g,p.status);
+        if(p.catatan) pesan+=`\nCatatan: ${p.catatan}`;
+      }
       const res=await kirimWA_API(p.telp, pesan);
       if(!DB.notifikasi) DB.notifikasi=[];
       DB.notifikasi.push({id:DB.nextId.notifikasi++,ref:p.ref,untuk:p.nama,pesan:`WA Otomatis: Status ${p.status} → ${res.status==='sent'?'terkirim':'gagal'}`,tgl:new Date().toLocaleDateString('id-ID',{day:'numeric',month:'short'}),dibaca:false});
@@ -6395,9 +6437,20 @@ function openWASettings(){
   const cfg=getWAConfig();
   const tpls=getWATemplates();
   const tplRows=tpls.map((t,i)=>`
-    <div style="display:grid;grid-template-columns:1fr 2fr auto;gap:8px;margin-bottom:8px;align-items:start;">
+    <div style="display:grid;grid-template-columns:1fr 2fr auto;gap:8px;margin-bottom:12px;align-items:start;padding:8px;background:var(--bg);border-radius:6px;">
       <input id="tplName${i}" class="filter-input" value="${t.name}" placeholder="Nama template">
-      <textarea id="tplText${i}" class="filter-input" rows="2" placeholder="Isi pesan, gunakan {nama},{ref},{jenis},{status}">${t.text}</textarea>
+      <div>
+        <textarea id="tplText${i}" class="filter-input" rows="3" placeholder="Isi pesan...">${t.text}</textarea>
+        <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;">
+          <button type="button" class="btn btn-ghost" style="padding:2px 6px;font-size:.7rem;" onclick="insertVar('tplText${i}','{nama}')">+nama</button>
+          <button type="button" class="btn btn-ghost" style="padding:2px 6px;font-size:.7rem;" onclick="insertVar('tplText${i}','{ref}')">+ref</button>
+          <button type="button" class="btn btn-ghost" style="padding:2px 6px;font-size:.7rem;" onclick="insertVar('tplText${i}','{jenis}')">+jenis</button>
+          <button type="button" class="btn btn-ghost" style="padding:2px 6px;font-size:.7rem;" onclick="insertVar('tplText${i}','{status}')">+status</button>
+          <button type="button" class="btn btn-ghost" style="padding:2px 6px;font-size:.7rem;" onclick="insertVar('tplText${i}','{catatan}')">+catatan</button>
+          <button type="button" class="btn btn-ghost" style="padding:2px 6px;font-size:.7rem;" onclick="insertVar('tplText${i}','{telp}')">+telp</button>
+          <button type="button" class="btn btn-ghost" style="padding:2px 6px;font-size:.7rem;color:var(--blue);" onclick="previewTemplate(${i})">👁️ Preview</button>
+        </div>
+      </div>
       <button class="btn btn-ghost btn-sm" onclick="this.parentElement.remove()" style="color:var(--red);">🗑</button>
     </div>
   `).join('');
@@ -6465,6 +6518,21 @@ function getWATemplates(){
   ];
   return JSON.parse(localStorage.getItem('waTemplates')||JSON.stringify(def));
 }
+function insertVar(id, txt){
+  const el = document.getElementById(id);
+  const start = el.selectionStart;
+  const end = el.selectionEnd;
+  el.value = el.value.substring(0,start) + txt + el.value.substring(end);
+  el.focus();
+  el.selectionStart = el.selectionEnd = start + txt.length;
+}
+function previewTemplate(i){
+  const name = document.getElementById('tplName'+i).value;
+  const text = document.getElementById('tplText'+i).value;
+  const sample = text.replace(/{nama}/g,'Ahmad Rizal').replace(/{ref}/g,'PTSP-2026-001').replace(/{jenis}/g,'Izin Operasional').replace(/{status}/g,'Dikembalikan/Revisi').replace(/{catatan}/g,'KTP buram, upload ulang').replace(/{telp}/g,'08123456789');
+  setModal('👁️ Preview: '+name, `<div style="background:var(--bg);padding:16px;border-radius:8px;white-space:pre-wrap;font-family:monospace;font-size:.85rem;">${sample}</div><div style="margin-top:12px;"><button class="btn" onclick="closeModal('crudModal')" style="background:var(--gl);color:#fff;width:100%;">Tutup</button></div>`);
+}
+
 function saveWATemplates(tpls){
   localStorage.setItem('waTemplates', JSON.stringify(tpls));
   toast('✅ Template WA disimpan');
