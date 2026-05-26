@@ -925,7 +925,13 @@ async function initFirebase() {
             DB = data;
             // Pastikan struktur array tetap ada untuk kompatibilitas
             const keys = ['permohonan','disposisi','arsip','notifikasi','syarat','jenis','unit','pengguna','output','akses','menu','pengumuman','layananWeb','dokumenPublik'];
-            keys.forEach(k=>{if(!Array.isArray(DB[k])) DB[k]=[];});
+            keys.forEach(k=>{
+              if(DB[k] && typeof DB[k]==='object' && !Array.isArray(DB[k])){
+                // Firebase menyimpan array sebagai object, ubah ke array
+                DB[k] = Object.values(DB[k]);
+              }
+              if(!Array.isArray(DB[k])) DB[k]=[];
+            });
             if(!DB.nextId) DB.nextId = {};
 
             try { localStorage.setItem(STORE_KEY, JSON.stringify(DB)); } catch(e) {}
