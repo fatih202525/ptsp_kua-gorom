@@ -1315,7 +1315,11 @@ const DEFAULT_DB = {
   ],
 
   pengguna:[
-   
+    {id:1,nama:'Super Admin',username:'superadmin',pass:'admin123',email:'admin@kemenag.go.id',level:'Super Admin',unit:'Semua Unit',status:'Aktif',login:'-'},
+    {id:2,nama:'Admin PTSP',username:'admin',pass:'admin123',email:'ptsp@kemenag.go.id',level:'Admin',unit:'PTSP',status:'Aktif',login:'-'},
+    {id:3,nama:'Operator',username:'operator',pass:'operator123',email:'',level:'Operator',unit:'PTSP',status:'Aktif',login:'-'},
+    {id:4,nama:'Pimpinan',username:'pimpinan',pass:'pimpinan123',email:'',level:'Pimpinan',unit:'Semua Unit',status:'Aktif',login:'-'},
+    {id:5,nama:'Staff',username:'staff',pass:'staff123',email:'',level:'Staff',unit:'PTSP',status:'Aktif',login:'-'}
   ],
   permohonan:[
       ],
@@ -1360,7 +1364,14 @@ const DEFAULT_DB = {
 
   pengumuman:[
 
-    
+    {id:1,judul:'Jadwal Pelayanan Hari Raya Idul Adha 2026',kategori:'Pengumuman',tgl:'15 Mei 2026',penulis:'Admin',status:'Diterbitkan',isi:'Sehubungan dengan Hari Raya Idul Adha 2026, layanan KUA akan beroperasi sesuai jadwal khusus. Silakan hubungi kami untuk informasi lebih lanjut.',gambar:'',galeri:[]},
+
+    {id:2,judul:'Bimbingan Pranikah Gratis Angkatan Juni 2026',kategori:'Program',tgl:'10 Mei 2026',penulis:'Fatimah',status:'Diterbitkan',isi:'KUA Pulau Gorom membuka pendaftaran bimbingan pranikah gratis untuk pasangan yang akan menikah pada bulan Juni 2026.',gambar:'',galeri:[]},
+
+    {id:3,judul:'Pembaruan Persyaratan Dokumen Nikah 2026',kategori:'Regulasi',tgl:'5 Mei 2026',penulis:'Admin',status:'Diterbitkan',isi:'Terdapat pembaruan persyaratan dokumen nikah berdasarkan peraturan terbaru Kemenag RI tahun 2026.',gambar:'',galeri:[]},
+
+    {id:4,judul:'Layanan Konsultasi Wakaf Online Dibuka',kategori:'Program',tgl:'1 Mei 2026',penulis:'Ahmad',status:'Draf',isi:'',gambar:'',galeri:[]},
+
   ],
 
   dokumenPublik:[
@@ -1410,7 +1421,11 @@ let currentPage = 'dashboard';
 // ============================================================
 
 const CREDS={
-  '}
+  'superadmin':{pass:'admin123',role:'SuperAdmin'},
+  'admin':{pass:'admin123',role:'Admin'},
+  'operator':{pass:'operator123',role:'Operator'},
+  'pimpinan':{pass:'pimpinan123',role:'Pimpinan'},
+  'staff':{pass:'staff123',role:'Staff'}
 };
 
 function getCredsForUser(username,pass){
