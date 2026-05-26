@@ -885,7 +885,7 @@ async function initFirebase() {
 
         _fbRef = db.ref(FB_PATH);
 
-        _fbReady = true; document.getElementById('syncStatus').textContent='🟢 Online'; document.getElementById('syncStatus').style.background='var(--green)'; document.getElementById('syncStatus').style.color='#fff';
+        _fbReady = true;
 
  
 
@@ -1098,6 +1098,7 @@ function openBackupModal(){
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
       <button class="btn" onclick="showBackupLogs()" style="background:var(--tl);color:#fff;">📋 Lihat Log Backup</button>
+      <button class="btn" onclick="resetSemuaDataPemohon()" style="background:#dc2626;color:#fff;grid-column:1/-1;">🧹 Bersihkan Data Lama (Mulai Baru)</button>
       <button class="btn" onclick="if(confirm('Hapus semua backup lokal?')){listBackups().forEach(b=>localStorage.removeItem(STORE_KEY+'_backup_'+b));toast('🗑️ Backup dihapus');closeModal('crudModal');}" style="background:var(--red);color:#fff;">Hapus Semua Backup</button>
     </div>`;
   
@@ -6882,6 +6883,28 @@ function showNotifPanel(){
 }
 
 function toggleSidebar(){document.getElementById("sidebar").classList.toggle("open");}
-  </script>
+  
+function resetSemuaDataPemohon(){
+  if(currentUser.role!=='SuperAdmin'){toast('❌ Hanya SuperAdmin');return;}
+  showConfirm('⚠️ HAPUS SEMUA DATA?', 'Ini akan menghapus SEMUA permohonan, disposisi, dan notifikasi lama secara permanen. Data tidak bisa dikembalikan kecuali ada backup. Lanjutkan?', async ()=>{
+    DB.permohonan = [];
+    DB.disposisi = [];
+    DB.notifikasi = DB.notifikasi.filter(n=>n.tipe==='backup'); // simpan log backup
+    DB.nextId.permohonan = 1;
+    DB.nextId.disposisi = 1;
+    await saveDB();
+    // Hapus juga di Firebase
+    if(window.firebaseDB){
+      await firebase.database().ref(DB_PATH+'/permohonan').remove();
+      await firebase.database().ref(DB_PATH+'/disposisi').remove();
+      await firebase.database().ref(DB_PATH+'/notifikasi').set(DB.notifikasi);
+    }
+    toast('✅ Data pemohon dibersihkan. Siap integrasi baru.');
+    renderPage(currentPage);
+    updateNotifCount();
+  }, '🗑️ Ya, Hapus Semua');
+}
+
+</script>
  </body>
 </html>
